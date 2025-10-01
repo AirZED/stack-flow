@@ -19,7 +19,7 @@ export const userSession = new UserSession({ appConfig });
 // App details for wallet connection
 export const appDetails = {
   name: import.meta.env.VITE_APP_NAME || 'StackFlow',
-  icon: import.meta.env.VITE_APP_ICON || '/src/assets/stackflow-icon.svg',
+  icon: import.meta.env.VITE_APP_ICON || `${window.location.origin}/stackflow-icon.svg`,
 };
 
 // Helper function to get user data

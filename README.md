@@ -1,50 +1,121 @@
-# React + TypeScript + Vite
+# StackFlow
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Ride the flow of capital and sentiment on Stacks**
 
-Currently, two official plugins are available:
+StackFlow is a Bitcoin-secured DeFi and sentiment trading platform built on Stacks blockchain. Track whales, copy trades, and engage in meme-driven investing with professional trading strategies made simple.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- 🐋 **Copy Trading** - Automatically mirror successful whale and efficient trader wallets
+- 🎯 **Capital Sentiment Strategies** - 12 proven strategies for bullish, bearish, volatile, and stable markets
+- 🎪 **Meme-Driven Investing** - Community pools driven by viral content and social sentiment
+- 🔐 **Self-Custody** - Your assets never leave your wallet
+- ⚡ **Bitcoin Security** - Built on Stacks, secured by Bitcoin
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Documentation
 
-- Configure the top-level `parserOptions` property like this:
+- **[Whitepaper](./WHITEPAPER.md)** - Complete platform documentation
+- **[Migration Plan](./STACKFLOW_MIGRATION_PLAN.md)** - Technical implementation details
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- pnpm (we use pnpm, not npm)
+- A Stacks wallet (Leather or Xverse)
+
+### Installation
+
+```bash
+# Install dependencies
+pnpm install
+
+# Copy environment variables
+cp env.example .env
+
+# Start development server
+pnpm dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### Build for Production
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+```bash
+# Type check and build
+pnpm build
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+# Preview production build
+pnpm preview
 ```
+
+## Tech Stack
+
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: TailwindCSS
+- **Blockchain**: Stacks (@stacks/connect, @stacks/transactions)
+- **State Management**: React Context + TanStack Query
+- **Routing**: React Router v7
+- **Charts**: Lightweight Charts
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── app/          # Trading app components
+│   ├── atoms/        # Basic UI components
+│   ├── molecules/    # Composite components
+│   ├── layout/       # Layout wrappers
+│   └── pages/        # Page components
+├── hooks/            # Custom React hooks
+├── context/          # React context providers
+├── utils/            # Utility functions
+├── blockchain/       # Blockchain integration
+└── lib/              # Shared libraries
+```
+
+## Environment Variables
+
+Create a `.env` file based on `env.example`:
+
+```env
+VITE_STACKS_NETWORK=testnet
+VITE_STACKS_API_URL=https://api.testnet.hiro.so
+VITE_APP_NAME=StackFlow
+VITE_APP_ICON=/src/assets/stackflow-icon.svg
+```
+
+## Contributing
+
+We welcome contributions! Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## Security
+
+- All smart contracts are audited before deployment
+- Non-custodial architecture - you control your funds
+- Open-source for community review
+- Report security issues to: security@stackflow.io
+
+## Community
+
+- **Telegram**: [t.me/stackflow_io](https://t.me/stackflow_io)
+- **Twitter**: [@StackFlow_io](https://x.com/StackFlow_io)
+- **Website**: [stackflow.io](https://stackflow.io)
+
+## License
+
+MIT License - see LICENSE file for details
+
+## Hackathon
+
+Built for Stacks Hackathon - demonstrating Bitcoin-secured DeFi with sentiment trading.
+
+---
+
+*Built with Bitcoin. Powered by Stacks. Driven by Community.*

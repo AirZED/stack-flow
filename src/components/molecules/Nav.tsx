@@ -67,7 +67,7 @@ const Nav = (): ReactElement => {
                   <img src={twitterIcon} className="w-6 h-6" />
                 </a>
                 <a
-                  href="https://optrix-finance.gitbook.io/optrix.finance/"
+                  href="/WHITEPAPER.md"
                   target="_blank"
                 >
                   <Button>Whitepaper</Button>
@@ -137,7 +137,7 @@ const Nav = (): ReactElement => {
           <div className="flex flex-col w-full gap-2">
             <a
               className="w-full [&>*]:w-full"
-              href="https://optrix-finance.gitbook.io/optrix.finance/"
+              href="/WHITEPAPER.md"
               target="_blank"
             >
               <Button>Whitepaper</Button>
