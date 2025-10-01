@@ -2,7 +2,7 @@ import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import CustomConnectButton from "../atoms/ConnectButton";
 import { IoCloseOutline } from "react-icons/io5";
-import { useStacksWallet } from "../../hooks/useStacksWallet";
+import { useWallet } from "../../context/WalletContext";
 import { axiosInstance } from "../../utils/axios";
 import { toast } from "react-toastify";
 
@@ -10,24 +10,25 @@ const ReferralModal = () => {
   const [searchParams] = useSearchParams();
   const referralCode = searchParams.get("ref");
   const [showReferralModal, setShowReferralModal] = useState(true);
-  const { userData } = useStacksWallet();
+  const { address } = useWallet();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleRegisterReferral = async () => {
-    if (userData?.address && referralCode && !isProcessing) {
+    if (address && referralCode && !isProcessing) {
       setIsProcessing(true);
       try {
         await axiosInstance.post("referrals/register", {
-          refereeWalletAddress: userData.address,
+          refereeWalletAddress: address,
           referralCode,
         });
 
         toast.success("Referral registered successfully!");
         setShowReferralModal(false);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Error registering referral:", error);
+        const err = error as { response?: { data?: { message?: string } } };
         const errorMessage =
-          error.response?.data?.message ||
+          err.response?.data?.message ||
           "Failed to register referral. Please try again.";
         toast.error(errorMessage);
       } finally {
@@ -37,11 +38,12 @@ const ReferralModal = () => {
   };
 
   useEffect(() => {
-    if (userData?.address) {
+    if (address) {
       handleRegisterReferral();
       setShowReferralModal(false);
     }
-  }, [userData?.address]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address]);
 
   return (
     <>

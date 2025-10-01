@@ -6,7 +6,7 @@ import ConfirmModal from "../molecules/ConfirmModal";
 import SuccessModal from "../molecules/SuccessModal";
 import { toast } from "react-toastify";
 import { axiosInstance } from "../../utils/axios";
-import { useStacksWallet } from "../../hooks/useStacksWallet";
+import { useWallet } from "../../context/WalletContext";
 
 export function TradeSummary() {
   const [userBalance, setUserBalance] = useState<number | null>(null);
@@ -18,7 +18,7 @@ export function TradeSummary() {
   const { asset, strategy, isFetching, selectedPremium, period, amount } =
     state;
 
-  const { userData } = useStacksWallet();
+  const { address } = useWallet();
 
   const handleBalanceChange = (balance: number) => {
     setUserBalance(balance);
@@ -40,7 +40,7 @@ export function TradeSummary() {
         // call the referral reward function
         try {
           await axiosInstance.post("/referrals/reward", {
-            refereeAddress: userData?.address,
+            refereeAddress: address,
             rewardAmount: parseFloat(amount) * 0.002,
             transactionHash: tx,
           });

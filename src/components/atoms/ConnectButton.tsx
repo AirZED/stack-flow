@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import Button from "./Button";
-import { useStacksWallet } from "../../hooks/useStacksWallet";
+import { useWallet } from "../../context/WalletContext";
 import { useAppContext } from "../../context/AppContext";
 
 const CustomConnectButton = ({
@@ -10,8 +10,7 @@ const CustomConnectButton = ({
   onclick?: () => void;
   onBalanceChange?: (balance: number) => void;
 }) => {
-  const { userData, isConnecting, isLoading, connectWallet, disconnectWallet, isSignedIn } = useStacksWallet();
-
+  const { address, isConnecting, isLoading, connectWallet, disconnect } = useWallet();
   const { state } = useAppContext();
   const { selectedPremium } = state;
 
@@ -35,7 +34,7 @@ const CustomConnectButton = ({
   return (
     <div className="w-full">
       {(() => {
-        if (!isSignedIn) {
+        if (!address) {
           return (
             <Button
               variant="gradient"
@@ -53,13 +52,13 @@ const CustomConnectButton = ({
             {!onclick && (
               <Button
                 variant="gradient"
-                onclick={disconnectWallet}
+                onclick={disconnect}
                 className="w-full"
               >
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  {userData?.address ? 
-                    `${userData.address.slice(0, 6)}...${userData.address.slice(-4)}` : 
+                  {address ? 
+                    `${address.slice(0, 6)}...${address.slice(-4)}` : 
                     "Connected"
                   }
                   {stxBalance ? ` (${stxBalance} STX)` : ""}

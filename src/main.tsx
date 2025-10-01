@@ -5,6 +5,7 @@ import { ToastContainer } from "react-toastify";
 
 import "./index.css";
 import App from "./App.tsx";
+import { WalletProvider } from "./context/WalletContext.tsx";
 
 const queryClient = new QueryClient();
 
@@ -12,8 +13,10 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Suspense fallback={<div>Loading...</div>}>
       <QueryClientProvider client={queryClient}>
-        <ToastContainer />
-        <App />
+        <WalletProvider>
+          <ToastContainer />
+          <App />
+        </WalletProvider>
       </QueryClientProvider>
     </Suspense>
   </StrictMode>

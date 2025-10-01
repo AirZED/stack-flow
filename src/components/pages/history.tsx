@@ -2,28 +2,28 @@ import { useEffect, useState } from "react";
 // TODO: Implement Stacks positions fetching
 // import { getUserStacksPositions, StacksPositionType } from "../../blockchain/stacks/positions";
 import CustomConnectButton from "../atoms/ConnectButton";
-import { useStacksWallet } from "../../hooks/useStacksWallet";
+import { useWallet } from "../../context/WalletContext";
 import closePositionLogo from "./../../assets/icons/closeHegic.svg";
 
 export default function HistoryPage() {
-  const { userData } = useStacksWallet();
+  const { address } = useWallet();
   const [isFetching, setIsFetching] = useState(false);
   const [isError, setIsError] = useState<Error | null>(null);
   const [positions, setPositions] = useState<any[]>([]);
 
   useEffect(() => {
-    console.log("address", userData?.address);
-    if (!userData?.address) return;
+    console.log("address", address);
+    if (!address) return;
     setIsFetching(true);
     // TODO: Implement getUserStacksPositions
-    console.log("Fetching Stacks positions for:", userData.address);
+    console.log("Fetching Stacks positions for:", address);
     setPositions([]); // Placeholder
     setIsFetching(false);
-  }, [userData?.address]);
+  }, [address]);
   
   return (
     <div className="bg-[#1D2215] h-fit rounded-lg py-7 px-6">
-      {!userData?.address && <CustomConnectButton />}
+      {!address && <CustomConnectButton />}
       {isError && (
         <div className="font-semibold text-white">
           Error: {isError?.message}
