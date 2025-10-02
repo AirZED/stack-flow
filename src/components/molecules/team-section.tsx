@@ -14,13 +14,6 @@ export function TeamSection() {
       image: "assets/team/goodness.jpg",
     },
     {
-      name: "Wiseman Umanah",
-      role: "Full Stack Software Engineer",
-      twitter: "@0xwisemanumanah",
-      twitterUrl: "https://x.com/0xwisemanumanah",
-      image: "assets/team/wiseman.png",
-    },
-    {
       name: "Mfoniso Ukpabio",
       role: "Full Stack Software Engineer",
       twitter: "@Mfonisoh1",

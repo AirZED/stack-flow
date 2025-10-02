@@ -100,9 +100,6 @@ const Nav = (): ReactElement => {
                   <Button>Whitepaper</Button>
                 </a>
 
-                <Button onClick={showToast} variant="gradient">
-                  Chart
-                </Button>
                 <CustomConnectButton />
 
                 <div className="absolute hidden p-2 text-white bg-gray-800 rounded group-hover:block">
@@ -168,10 +165,6 @@ const Nav = (): ReactElement => {
             >
               <Button>Whitepaper</Button>
             </a>
-
-            <Button onClick={showToast} variant="gradient">
-              Chart
-            </Button>
 
             <div className="w-full">
               <CustomConnectButton />
