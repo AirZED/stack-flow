@@ -13,22 +13,16 @@ const Hero = (): ReactElement => {
               <div className="relative flex flex-col items-center md:flex-row">
                 {/* <!-- Left Column (Text) --> */}
                 <div className="max-w-[503px] space-y-5  max-md:mt-20">
-                  <a
-                    href="https://assuredefi.com/projects/options-ai"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <img
-                        src="assets/verified.png"
-                        alt="verified"
-                        className="w-10 mt-4"
-                      />
-                      <h6 className="text-sm font-normal text-white">
-                        Assure Defi Kyc'ed
-                      </h6>
-                    </div>
-                  </a>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#bbf838]/20 to-[#bbf838]/5 border border-[#bbf838]/30">
+                    <div className="w-2 h-2 rounded-full bg-[#bbf838] animate-pulse"></div>
+                    <span className="text-sm font-medium text-[#bbf838]">
+                      Built on Stacks
+                    </span>
+                    <span className="text-xs text-gray-400">•</span>
+                    <span className="text-sm font-medium text-gray-300">
+                      Secured by Bitcoin
+                    </span>
+                  </div>
 
                   <div className="space-y-5 text-4xl font-black md:text-6xl ">
                     <h1 className="gradient-text">
@@ -79,42 +73,42 @@ const Hero = (): ReactElement => {
                 </div>
               </div>
             </div>
-            {/* marquee */}
+            {/* Feature Ticker */}
 
             <div className="max-w-[1110px] mx-auto py-10 relative slider-mask ">
-              <Marquee autoFill>
-                <div className="flex items-center justify-between gap-20 pl-20 *:flex *:items-center *:gap-3 *:uppercase *:text-sm *:font-medium *:w-full *:whitespace-nowrap">
-                  <div>
-                    <img src="/assets/check.png" />
-                    <h5>privacy</h5>
+              <Marquee autoFill speed={40}>
+                <div className="flex items-center gap-8 pl-8">
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-800">
+                    <span className="text-2xl">🐋</span>
+                    <span className="text-sm font-semibold text-white">Whale Tracking</span>
                   </div>
-                  <div>
-                    <img src="/assets/check.png" />
-                    <h5>full custody</h5>
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-800">
+                    <span className="text-2xl">📊</span>
+                    <span className="text-sm font-semibold text-white">Copy Trading</span>
                   </div>
-                  <div>
-                    <img src="/assets/check.png" />
-                    <h5>decentralized</h5>
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-800">
+                    <span className="text-2xl">₿</span>
+                    <span className="text-sm font-semibold text-white">Bitcoin Secured</span>
                   </div>
-                  <div>
-                    <img src="/assets/check.png" />
-                    <h5>whale tracking</h5>
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-800">
+                    <span className="text-2xl">🔒</span>
+                    <span className="text-sm font-semibold text-white">Self-Custody</span>
                   </div>
-                  <div>
-                    <img src="/assets/check.png" />
-                    <h5>copy trading</h5>
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-800">
+                    <span className="text-2xl">🎯</span>
+                    <span className="text-sm font-semibold text-white">Sentiment Strategies</span>
                   </div>
-                  <div>
-                    <img src="/assets/check.png" />
-                    <h5>privacy</h5>
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-800">
+                    <span className="text-2xl">🚀</span>
+                    <span className="text-sm font-semibold text-white">Meme Pools</span>
                   </div>
-                  <div>
-                    <img src="/assets/check.png" />
-                    <h5>Full custody</h5>
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-800">
+                    <span className="text-2xl">⚡</span>
+                    <span className="text-sm font-semibold text-white">Real-Time Signals</span>
                   </div>
-                  <div>
-                    <img src="/assets/check.png" />
-                    <h5>decentralized</h5>
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-800">
+                    <span className="text-2xl">🌐</span>
+                    <span className="text-sm font-semibold text-white">Decentralized</span>
                   </div>
                 </div>
               </Marquee>

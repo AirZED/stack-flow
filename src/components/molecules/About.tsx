@@ -1,28 +1,28 @@
 import { ReactElement } from "react";
 import { GoArrowUpRight } from "react-icons/go";
-import leverage_img from "../../assets/icons/Leverage 1.png";
-import risk_management_img from "../../assets/icons/Risk Management.png";
-import flexibility_img from "../../assets/icons/Flexibility.png";
-import rev_img from "../../assets/Graphics/Revolutionizing Crypto Options 1.png";
+import whale_tracking_img from "../../assets/new graphics/1.png";
+import bitcoin_security_img from "../../assets/new graphics/2.png";
+import social_trading_img from "../../assets/new graphics/rocket.png";
+import stackflow_hero_img from "../../assets/new graphics/3.png";
 
 const serviceBoxes = [
   {
-    icon: leverage_img,
-    title: "Leverage",
-    description: "Control more crypto with minimal investment.",
-    iconSize: "h-12 w-12",
+    icon: whale_tracking_img,
+    title: "Whale Tracking",
+    description: "Follow successful traders and copy their strategies in real-time.",
+    iconSize: "h-16 w-16",
   },
   {
-    icon: risk_management_img,
-    title: "Risk Management",
-    description: "Hedge against potential cryptocurrency losses.",
-    iconSize: "h-12 w-12",
+    icon: bitcoin_security_img,
+    title: "Bitcoin Security",
+    description: "Built on Stacks blockchain, secured by Bitcoin's proof-of-work.",
+    iconSize: "h-16 w-16",
   },
   {
-    icon: flexibility_img,
-    title: "Flexibility",
-    description: "Profit in any market condition.",
-    iconSize: "h-16 w-12",
+    icon: social_trading_img,
+    title: "Social Sentiment",
+    description: "Join meme-driven pools and community sentiment strategies.",
+    iconSize: "h-16 w-16",
   },
 ];
 
@@ -38,7 +38,7 @@ const About = (): ReactElement => {
             <div className="p-8 text-white">
               <h4 className="text-xl mb-2 text-[#bbf838]">About us</h4>
               <h1 className="text-4xl font-bold">
-                Revolutionizing Crypto Options
+                Bitcoin-Secured Sentiment Trading
               </h1>
             </div>
           </div>
@@ -48,9 +48,9 @@ const About = (): ReactElement => {
           <div className="w-full lg:w-1/2">
             <div className="serivce-thumb">
               <img
-                src={rev_img}
+                src={stackflow_hero_img}
                 className="w-[clamp(24rem,50vw,35rem)] filter drop-shadow-[30px_20px_10px_#000000] pr-16"
-                alt="Revolutionizing Crypto Options"
+                alt="StackFlow - Bitcoin-Secured Sentiment Trading"
               />
             </div>
           </div>
@@ -60,9 +60,9 @@ const About = (): ReactElement => {
               {serviceBoxes.map((service, index) => (
                 <a
                   key={index}
-                  href="https://optrix-finance.gitbook.io/optrix.finance/introduction/about-us/mastering-on-chain-options-trading"
+                  href="#"
                   className="block "
-                  target="_blank"
+                  onClick={(e) => e.preventDefault()}
                 >
                   <div className="flex items-center justify-between flex-1 p-6 transition-all bg-white rounded-lg single-service-box2 bg-opacity-10 hover:bg-opacity-20">
                     <div>

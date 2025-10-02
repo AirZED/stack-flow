@@ -11,24 +11,24 @@ const AboutSection1 = () => {
           <div className="space-y-8">
             <div>
               <div className="text-4xl font-bold">
-                <h1>Revolutionize Your</h1>
-                <h1>Trading Journey</h1>
-                <h1>With AI-Powered</h1>
-                <h1>Predefined Strategies</h1>
+                <h1>Ride the Flow of</h1>
+                <h1>Capital and Sentiment</h1>
+                <h1>On Bitcoin-Secured</h1>
+                <h1>Infrastructure</h1>
               </div>
 
               <p className="text-[#7b7b7b] w-full md:w-3/4">
-                Pioneering on-chain crypto options trading. Transparent, secure,
-                and user-centric platform for confident trading.
+                Built on Stacks blockchain. Track whales, copy trades, and join meme-driven 
+                investment pools with professional sentiment strategies.
               </p>
             </div>
 
             {/* Features List */}
             <ul className="space-y-3 border-b border-b-white/10 pb-10 text-[#7b7b7b]">
               {[
-                "Transparent Trading",
-                "Predefined Strategies",
-                "User-Centric Approach",
+                "Whale Tracking & Copy Trading",
+                "Bitcoin-Secured Smart Contracts",
+                "Social Sentiment Strategies",
               ].map((item) => (
                 <li key={item} className="flex items-center space-x-2">
                   <IoCheckmarkDoneOutline className="text-[#bbf737] " />
@@ -39,20 +39,19 @@ const AboutSection1 = () => {
 
             {/* CTA Button */}
             <a
-              href="https://optrix-finance.gitbook.io/optrix.finance/introduction/about-us/role-of-ai-in-optrix.finance"
+              href="/whitepaper#core-features"
               className="flex items-center justify-end w-full gap-2 text-black"
-              target="_blank"
             >
               <FaRegEnvelope className="text-[#bbf737] text-[1.3rem]" />
-              <Button variant="gradient">Know more</Button>
+              <Button variant="gradient">Read Whitepaper</Button>
             </a>
           </div>
 
           {/* Right Column */}
           <div className="relative mt-18">
             <img
-              src="/src/assets/Graphics/Transforming Crypto Options 1.png"
-              alt="Transforming Crypto Options"
+              src="/src/assets/new graphics/4.png"
+              alt="StackFlow Platform"
               className="w-[clamp(20rem,40vw,590px)] filter drop-shadow-[30px_20px_10px_#000000]"
             />
             <div className="absolute inset-0 flex items-end w-full about-shape">

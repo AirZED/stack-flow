@@ -73,7 +73,7 @@ export function PriceSelector() {
         <div className="space-y-2">
           <div className="bg-gradient-to-r w-full h-[50px] from-[#BDF738] rounded-lg to-[#FDEE61] overflow-hidden p-px">
             <Select
-              value={selectedProfitZone.toString()}
+              value={selectedProfitZone !== undefined ? selectedProfitZone.toString() : "0"}
               onValueChange={handlePremiumSelect}
             >
               <SelectTrigger className="w-full bg-[#171717] h-full border-none outline-none rounded-lg">
@@ -84,7 +84,7 @@ export function PriceSelector() {
                     premiumAndProfitZone.length > 0 &&
                     formatNumber(
                       (Number(selectedProfitZone) as unknown as number) ||
-                        premiumAndProfitZone[0].profitZone
+                        premiumAndProfitZone[0]?.profitZone || 0
                     )
                   )}
                 </SelectValue>
