@@ -31,7 +31,7 @@ export function PriceSelector() {
       <div className="bg-[#1D2215] p-6 rounded-lg space-y-2">
         <p className="text-sm text-[#ECECEC]">Amount</p>
         <div className="space-y-2">
-          <div className="bg-gradient-to-r w-full h-[50px] from-[#BDF738] rounded-lg to-[#FDEE61] overflow-hidden p-px">
+          <div className="bg-gradient-to-r w-full h-[50px] from-[#37f741] rounded-lg to-[#FDEE61] overflow-hidden p-px">
             <div className="rounded-lg px-5  bg-[#171717] h-full flex justify-between items-center">
               <input
                 type="number"
@@ -71,7 +71,7 @@ export function PriceSelector() {
       <div className="bg-[#1D2215] p-6 rounded-lg space-y-2">
         <p className="text-sm text-[#ECECEC]">Profit Zone</p>
         <div className="space-y-2">
-          <div className="bg-gradient-to-r w-full h-[50px] from-[#BDF738] rounded-lg to-[#FDEE61] overflow-hidden p-px">
+          <div className="bg-gradient-to-r w-full h-[50px] from-[#37f741] rounded-lg to-[#FDEE61] overflow-hidden p-px">
             <Select
               value={
                 selectedProfitZone !== undefined

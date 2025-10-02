@@ -2,13 +2,13 @@
   <!-- Background gradient for the logo -->
   <defs>
     <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#BDF738;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#37f741;stop-opacity:1" />
       <stop offset="100%" style="stop-color:#FDEE61;stop-opacity:1" />
     </linearGradient>
     <linearGradient id="flowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#BDF738;stop-opacity:0.8" />
+      <stop offset="0%" style="stop-color:#37f741;stop-opacity:0.8" />
       <stop offset="50%" style="stop-color:#FDEE61;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#BDF738;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#37f741;stop-opacity:0.8" />
     </linearGradient>
     <linearGradient id="bitcoinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#F7931A;stop-opacity:1" />
@@ -42,7 +42,7 @@
   </text>
   
   <!-- Tagline -->
-  <text x="75" y="55" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="8" font-weight="300" fill="#BDF738" opacity="0.7">
+  <text x="75" y="55" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="8" font-weight="300" fill="#37f741" opacity="0.7">
     Ride the flow of capital and sentiment on Stacks
   </text>
 </svg>

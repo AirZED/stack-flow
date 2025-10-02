@@ -41,7 +41,7 @@ const Hero = (): ReactElement => {
             
                     <Button variant="gradient" className="text-black">
                       <Link
-                        to={"/app/trade/new"}
+                        to={"/trade"}
                         target="_blank"
                         rel="noopener noreferrer"
                       >

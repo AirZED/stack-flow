@@ -218,7 +218,7 @@ export const Icons = {
           y2="11.264"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stopColor="#BDF738" />
+          <stop stopColor="#37f741" />
           <stop offset="1" stopColor="#FDEE61" />
         </linearGradient>
       </defs>

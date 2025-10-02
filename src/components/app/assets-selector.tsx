@@ -20,7 +20,7 @@ export function AssetSelector({ selectedAsset }: AssetSelectorProps) {
           className={`font-bold font-lato text-[1rem] ${
             selectedAsset === "STX"
               ? "text-[#090909]"
-              : "text-[#ECECEC] border border-[#BDF738]"
+              : "text-[#ECECEC] border border-[#37f741]"
           }`}
           onClick={() => handleAssetChange("STX")}
         >
@@ -32,7 +32,7 @@ export function AssetSelector({ selectedAsset }: AssetSelectorProps) {
           className={`font-bold font-lato text-[1rem] ${
             selectedAsset === "BTC"
               ? "text-[#090909]"
-              : "text-[#ECECEC] border border-[#BDF738]"
+              : "text-[#ECECEC] border border-[#37f741]"
           }`}
           onClick={() => handleAssetChange("BTC")}
         >
