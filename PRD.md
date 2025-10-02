@@ -6,7 +6,7 @@
 ## Tagline
 *"Ride the flow of capital and sentiment on Stacks."*
 
-**REFERENCE:** https://www.hegic.co/app#/arbitrum/trade/new?sentiment=bull&strategyName=bull-call&strikeName=call-100
+**Built on:** Stacks Blockchain with Bitcoin security
 
 ---
 

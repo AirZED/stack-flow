@@ -8,17 +8,11 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { TSentiment } from "../lib/types";
-import { getProfitZones } from "../blockchain/hegic/profitZoneCalculator";
-// TODO: Implement Stacks premium calculator
-// import calculatePremium, { TokenType } from "../blockchain/stacks/premiumCalculator";
+import { getProfitZones } from "../blockchain/stacks/profitZoneCalculator";
+import { calculatePremiumsCached, type StrikeData } from "../blockchain/stacks/premiumCalculator";
+import { getAssetPrice } from "../blockchain/stacks/assetPrices";
 
-// Placeholder types and functions for now
 type TokenType = 'STX' | 'BTC';
-const calculatePremium = async (amount: number, period: string, asset: string): Promise<number[]> => {
-  // Placeholder implementation
-  return [100, 200, 300, 400, 500]; // Mock premiums
-};
-import { getAssetPrice } from "../blockchain/hegic/assetPrices";
 
 type AppContextState = {
   period: string;
@@ -144,43 +138,58 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
     fetchAssetPrice();
   }, [state.asset]);
 
-  // calculate Strike (Cost) and premium
+  // calculate Strike (Cost) and premium using real Black-Scholes
   useEffect(() => {
     const fetchPremium = async () => {
+      // Don't calculate if we don't have required data
+      if (!state.amount || !state.period || !state.assetPrice || state.assetPrice === 0) {
+        console.log('[AppContext] Skipping premium calculation - missing data');
+        return;
+      }
+
       setState((prev) => ({ ...prev, isFetchingPremiums: true }));
 
-      calculatePremium(
-        Number(state.amount),
-        state.period,
-        state.asset
-      )
-        .then((premiums) => {
-          const profitZones = getProfitZones(
-            premiums.map(p => p.toString()),
-            state.strategy,
-            state.assetPrice,
-            state.amount
-          );
+      try {
+        // Map strategy names to calculator format
+        const strategyMap: Record<string, 'CALL' | 'STRAP' | 'BCSP' | 'BPSP'> = {
+          'CALL': 'CALL',
+          'Call': 'CALL',
+          'STRAP': 'STRAP',
+          'Strap': 'STRAP',
+          'Bull Call Spread': 'BCSP',
+          'Bull Put Spread': 'BPSP',
+        };
 
-          const combinedData = premiums.map((premium, index) => ({
-            premium: premium.toString(),
-            profitZone: profitZones[index],
-          }));
+        const mappedStrategy = strategyMap[state.strategy] || 'CALL';
 
-          setState((prev) => ({
-            ...prev,
-            premiumAndProfitZone: combinedData,
-            selectedPremium: combinedData[0].premium,
-            selectedProfitZone: combinedData[0].profitZone,
-          }));
-        })
-
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => {
-          setState((prev) => ({ ...prev, isFetchingPremiums: false }));
+        const strikeDataArray: StrikeData[] = await calculatePremiumsCached({
+          amount: Number(state.amount),
+          period: Number(state.period),
+          currentPrice: state.assetPrice,
+          strategy: mappedStrategy,
+          asset: state.asset,
         });
+
+        // Convert StrikeData to our format
+        const combinedData = strikeDataArray.map((data) => ({
+          premium: data.premium.toString(),
+          profitZone: data.profitZone,
+        }));
+
+        setState((prev) => ({
+          ...prev,
+          premiumAndProfitZone: combinedData,
+          selectedPremium: combinedData[0]?.premium || '0',
+          selectedProfitZone: combinedData[0]?.profitZone || 0,
+        }));
+
+        console.log('[AppContext] ✓ Premium calculation complete:', combinedData.length, 'strikes');
+      } catch (err) {
+        console.error('[AppContext] Premium calculation failed:', err);
+        // Keep existing values on error
+      } finally {
+        setState((prev) => ({ ...prev, isFetchingPremiums: false }));
+      }
     };
 
     fetchPremium();

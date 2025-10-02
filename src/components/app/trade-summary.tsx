@@ -4,6 +4,7 @@ import { Icons } from "../ui/icons";
 import { useAppContext } from "../../context/AppContext";
 import ConfirmModal from "../molecules/ConfirmModal";
 import SuccessModal from "../molecules/SuccessModal";
+import { TransactionStatus } from "../molecules/TransactionStatus";
 import { toast } from "react-toastify";
 import { axiosInstance } from "../../utils/axios";
 import { useWallet } from "../../context/WalletContext";
@@ -12,7 +13,10 @@ export function TradeSummary() {
   const [userBalance, setUserBalance] = useState<number | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showTransactionStatus, setShowTransactionStatus] = useState(false);
   const [txHash, setTxHash] = useState<string>("");
+  const [txStatus, setTxStatus] = useState<"pending" | "success" | "failed">("pending");
+  const [explorerUrl, setExplorerUrl] = useState<string>("");
 
   const { state } = useAppContext();
   const { asset, strategy, isFetching, selectedPremium, period, amount } =
@@ -25,34 +29,91 @@ export function TradeSummary() {
   };
 
   const callStrategy = async () => {
+    if (!address) {
+      toast.error("Please connect your wallet first");
+      return;
+    }
+
     try {
       setShowConfirmModal(true);
-      // TODO: Implement Stacks contract call
-      console.log("Calling Stacks strategy contract...");
-      const tx = { hash: "mock-tx-hash" }; // Placeholder for now
-
-      if (typeof tx === "object" && "status" in tx) {
-        console.log("Transaction completed");
-        setTxHash(tx.hash);
-        setShowConfirmModal(false);
-        setShowSuccessModal(true);
-
-        // call the referral reward function
-        try {
-          await axiosInstance.post("/referrals/reward", {
-            refereeAddress: address,
-            rewardAmount: parseFloat(amount) * 0.002,
-            transactionHash: tx,
-          });
-        } catch (rewardError) {
-          console.error("Referral reward failed:", rewardError);
-          toast.warning(
-            "Referral reward processing failed, but trade was successful"
+      
+      // Import transaction manager
+      const { createOption, monitorTransaction, getExplorerUrl } = await import(
+        "../../blockchain/stacks/transactionManager"
+      );
+      
+      // Map strategy name to type
+      const strategyMap: Record<string, 'CALL' | 'STRAP' | 'BCSP' | 'BPSP'> = {
+        'CALL': 'CALL',
+        'Call': 'CALL',
+        'STRAP': 'STRAP',
+        'Strap': 'STRAP',
+        'Bull Call Spread': 'BCSP',
+        'Bull Put Spread': 'BPSP',
+      };
+      
+      const mappedStrategy = strategyMap[strategy] || 'CALL';
+      
+      // Create option on blockchain
+      const result = await createOption({
+        strategy: mappedStrategy,
+        amount: parseFloat(amount),
+        strikePrice: state.assetPrice,
+        premium: parseFloat(selectedPremium),
+        period: parseFloat(period),
+        userAddress: address,
+        onFinish: async (data) => {
+          console.log("✓ Transaction broadcast:", data.txId);
+          setTxHash(data.txId);
+          setShowConfirmModal(false);
+          setShowTransactionStatus(true);
+          setTxStatus("pending");
+          setExplorerUrl(getExplorerUrl(data.txId));
+          
+          // Monitor transaction
+          const confirmed = await monitorTransaction(
+            data.txId,
+            (status) => {
+              console.log("Transaction status:", status);
+              if (status === "confirmed") setTxStatus("success");
+              else if (status === "failed") setTxStatus("failed");
+            }
           );
-        }
+          
+          if (confirmed) {
+            setTxStatus("success");
+            
+            // Call referral reward
+            try {
+              await axiosInstance.post("/referrals/reward", {
+                refereeAddress: address,
+                rewardAmount: parseFloat(amount) * 0.002,
+                transactionHash: data.txId,
+              });
+            } catch (rewardError) {
+              console.error("Referral reward failed:", rewardError);
+              toast.warning(
+                "Referral reward processing failed, but trade was successful"
+              );
+            }
+          } else {
+            setTxStatus("failed");
+          }
+        },
+        onCancel: () => {
+          setShowConfirmModal(false);
+          toast.info("Transaction cancelled");
+        },
+      });
+      
+      if (!result.success) {
+        setShowConfirmModal(false);
+        toast.error(result.error || "Failed to create option");
       }
     } catch (error) {
       console.error("Transaction failed:", error);
+      setShowConfirmModal(false);
+      toast.error("Failed to create option. Please try again.");
     }
   };
 
@@ -65,6 +126,20 @@ export function TradeSummary() {
         onClose={() => setShowSuccessModal(false)}
         txHash={txHash}
       />
+
+      {showTransactionStatus && (
+        <TransactionStatus
+          txId={txHash}
+          status={txStatus}
+          explorerUrl={explorerUrl}
+          onClose={() => {
+            setShowTransactionStatus(false);
+            if (txStatus === "success") {
+              setShowSuccessModal(true);
+            }
+          }}
+        />
+      )}
       <div className="col-span-2 bg-gradient-to-b from-[#1D2215] to-[#121412] py-3.5 px-6 rounded-t-lg">
         <div className="flex items-start gap-10 md:gap-24">
           <div className="w-full max-w-[300px] space-y-2">
