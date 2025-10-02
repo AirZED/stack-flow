@@ -48,17 +48,12 @@ const Services = () => {
             <h1 className="mb-2 text-4xl font-bold ">
               Ride the Flow of Capital
             </h1>
-            <h1 className="mb-6 text-4xl font-bold">
-              and Sentiment on Stacks
-            </h1>
+            <h1 className="mb-6 text-4xl font-bold">and Sentiment on Stacks</h1>
             <p className="text-lg text-white max-w-[43%] mx-auto">
-              Bitcoin-secured DeFi with whale tracking, copy trading, and meme-driven investing.
-              Built on Stacks for the next generation of social traders.
+              Bitcoin-secured DeFi with whale tracking, copy trading, and
+              meme-driven investing. Built on Stacks for the next generation of
+              social traders.
             </p>
-          </div>
-
-          <div className="absolute top-0 right-0 dream-shape2">
-            <img src={shape2_img} alt="shape" className="w-full" />
           </div>
         </div>
 
@@ -66,7 +61,7 @@ const Services = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="bg-gradient-to-r from-[rgba(187,247,55,0.07)] to-transparent p-8 rounded-lg hover:from-transparent hover:to-[rgba(187,247,55,0.1)] transition-all duration-500 cursor-pointer flex flex-col items-center justify-center"
+              className="p-8 rounded-lg hover:from-transparent hover:to-[rgba(187,247,55,0.1)] transition-all duration-500 cursor-pointer flex flex-col items-center justify-center border border-1 border-[#37f741]/20 hover:border-[#37f741]/40 h-full"
             >
               <div className="mb-6">
                 <img src={feature.icon} alt={feature.title} className="h-20" />

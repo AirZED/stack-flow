@@ -1,6 +1,6 @@
 import Button from "../atoms/Button";
-import { FaRegEnvelope } from "react-icons/fa6";
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
+import { Link } from "react-router";
 
 const AboutSection1 = () => {
   return (
@@ -18,8 +18,9 @@ const AboutSection1 = () => {
               </div>
 
               <p className="text-[#7b7b7b] w-full md:w-3/4">
-                Built on Stacks blockchain. Track whales, copy trades, and join meme-driven 
-                investment pools with professional sentiment strategies.
+                Built on Stacks blockchain. Track whales, copy trades, and join
+                meme-driven investment pools with professional sentiment
+                strategies.
               </p>
             </div>
 
@@ -38,13 +39,12 @@ const AboutSection1 = () => {
             </ul>
 
             {/* CTA Button */}
-            <a
-              href="/whitepaper#core-features"
-              className="flex items-center justify-end w-full gap-2 text-black"
+            <Link
+              to="/about"
+              className="flex items-center justify-start w-full gap-2 text-black"
             >
-              <FaRegEnvelope className="text-[#bbf737] text-[1.3rem]" />
-              <Button variant="gradient">Read Whitepaper</Button>
-            </a>
+              <Button variant="gradient">See About</Button>
+            </Link>
           </div>
 
           {/* Right Column */}
@@ -54,13 +54,6 @@ const AboutSection1 = () => {
               alt="StackFlow Platform"
               className="w-[clamp(20rem,40vw,590px)] filter drop-shadow-[30px_20px_10px_#000000]"
             />
-            <div className="absolute inset-0 flex items-end w-full about-shape">
-              <img
-                src="/src/assets/images/resource/shap-1.png"
-                alt="Shape"
-                className="absolute"
-              />
-            </div>
           </div>
         </div>
       </div>

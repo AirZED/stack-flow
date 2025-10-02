@@ -27,7 +27,7 @@ const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        path: "/whitepaper",
+        path: "/about",
         element: <WhitepaperPage />,
       },
       // @DEV: Default /app route to /app/trade/new

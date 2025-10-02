@@ -13,7 +13,7 @@ const Hero = (): ReactElement => {
               <div className="relative flex flex-col items-center md:flex-row">
                 {/* <!-- Left Column (Text) --> */}
                 <div className="max-w-[503px] space-y-5  max-md:mt-20">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#bbf838]/20 to-[#bbf838]/5 border border-[#bbf838]/30">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#37f741]/20 to-[#ffffff]/5 border border-[#bbf838]/30">
                     <div className="w-2 h-2 rounded-full bg-[#bbf838] animate-pulse"></div>
                     <span className="text-sm font-medium text-[#bbf838]">
                       Built on Stacks
@@ -33,20 +33,13 @@ const Hero = (): ReactElement => {
                     <h1>Sentiment Trading</h1>
                   </div>
                   <p className="text-lg md:text-2xl text-[#f6f6f6] ">
-                    Ride the flow of capital and sentiment on Stacks. Track whales, copy trades, and engage in meme-driven investing.
+                    Ride the flow of capital and sentiment on Stacks. Track
+                    whales, copy trades, and engage in meme-driven investing.
                   </p>
 
                   <div className="flex items-center gap-5">
+            
                     <Button variant="gradient" className="text-black">
-                      <Link
-                        to="https://t.me/stackflow_io"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Join Community
-                      </Link>
-                    </Button>
-                    <Button>
                       <Link
                         to={"/app/trade/new"}
                         target="_blank"
@@ -80,35 +73,51 @@ const Hero = (): ReactElement => {
                 <div className="flex items-center gap-8 pl-8">
                   <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-800">
                     <span className="text-2xl">🐋</span>
-                    <span className="text-sm font-semibold text-white">Whale Tracking</span>
+                    <span className="text-sm font-semibold text-white">
+                      Whale Tracking
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-800">
                     <span className="text-2xl">📊</span>
-                    <span className="text-sm font-semibold text-white">Copy Trading</span>
+                    <span className="text-sm font-semibold text-white">
+                      Copy Trading
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-800">
                     <span className="text-2xl">₿</span>
-                    <span className="text-sm font-semibold text-white">Bitcoin Secured</span>
+                    <span className="text-sm font-semibold text-white">
+                      Bitcoin Secured
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-800">
                     <span className="text-2xl">🔒</span>
-                    <span className="text-sm font-semibold text-white">Self-Custody</span>
+                    <span className="text-sm font-semibold text-white">
+                      Self-Custody
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-800">
                     <span className="text-2xl">🎯</span>
-                    <span className="text-sm font-semibold text-white">Sentiment Strategies</span>
+                    <span className="text-sm font-semibold text-white">
+                      Sentiment Strategies
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-800">
                     <span className="text-2xl">🚀</span>
-                    <span className="text-sm font-semibold text-white">Meme Pools</span>
+                    <span className="text-sm font-semibold text-white">
+                      Meme Pools
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-800">
                     <span className="text-2xl">⚡</span>
-                    <span className="text-sm font-semibold text-white">Real-Time Signals</span>
+                    <span className="text-sm font-semibold text-white">
+                      Real-Time Signals
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-gray-800">
                     <span className="text-2xl">🌐</span>
-                    <span className="text-sm font-semibold text-white">Decentralized</span>
+                    <span className="text-sm font-semibold text-white">
+                      Decentralized
+                    </span>
                   </div>
                 </div>
               </Marquee>

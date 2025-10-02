@@ -28,11 +28,7 @@ const Metric = () => {
           ))}
 
           {/* Shape/Icon */}
-          <div className="absolute about-shape">
-            <div className="dream-shape5">
-              <img src={shape_icon} alt="Icon" />
-            </div>
-          </div>
+         
         </div>
       </div>
     </div>

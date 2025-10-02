@@ -37,7 +37,7 @@ export function PriceSelector() {
                 type="number"
                 className="h-full w-[70%] bg-transparent border-none outline-none text-sm text-[#D6D6D6]"
                 // placeholder="1"
-                value={state.amount}
+                value={state.amount && state.amount}
                 onChange={(value) => handleAmountChange(value.target.value)}
               />
               <p className="text-sm text-[#7A7A7A]">{asset}</p>
@@ -73,7 +73,11 @@ export function PriceSelector() {
         <div className="space-y-2">
           <div className="bg-gradient-to-r w-full h-[50px] from-[#BDF738] rounded-lg to-[#FDEE61] overflow-hidden p-px">
             <Select
-              value={selectedProfitZone !== undefined ? selectedProfitZone.toString() : "0"}
+              value={
+                selectedProfitZone !== undefined
+                  ? selectedProfitZone.toString()
+                  : "0"
+              }
               onValueChange={handlePremiumSelect}
             >
               <SelectTrigger className="w-full bg-[#171717] h-full border-none outline-none rounded-lg">
@@ -84,7 +88,8 @@ export function PriceSelector() {
                     premiumAndProfitZone.length > 0 &&
                     formatNumber(
                       (Number(selectedProfitZone) as unknown as number) ||
-                        premiumAndProfitZone[0]?.profitZone || 0
+                        premiumAndProfitZone[0]?.profitZone ||
+                        0
                     )
                   )}
                 </SelectValue>
@@ -95,7 +100,7 @@ export function PriceSelector() {
                   premiumAndProfitZone.map((el) => (
                     <SelectItem
                       key={el.profitZone}
-                      value={el.profitZone.toString()}
+                      value={el.profitZone ? el.profitZone.toString() : "0"}
                     >
                       {formatNumber(el.profitZone)}
                     </SelectItem>

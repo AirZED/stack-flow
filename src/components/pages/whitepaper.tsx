@@ -1,10 +1,17 @@
-import { useEffect, useState, useRef } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeSlug from 'rehype-slug';
-import rehypeAutolinkHeadings from 'rehype-autolink-headings';
-import rehypeRaw from 'rehype-raw';
-import { FiCopy, FiMenu, FiX, FiSearch, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { useEffect, useState, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeSlug from "rehype-slug";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypeRaw from "rehype-raw";
+import {
+  FiCopy,
+  FiMenu,
+  FiX,
+  FiSearch,
+  FiChevronDown,
+  FiChevronUp,
+} from "react-icons/fi";
 
 interface ToCItem {
   id: string;
@@ -19,22 +26,22 @@ interface SearchMatch {
 }
 
 const WhitepaperPage = () => {
-  const [markdown, setMarkdown] = useState('');
+  const [markdown, setMarkdown] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tableOfContents, setTableOfContents] = useState<ToCItem[]>([]);
   const [filteredToC, setFilteredToC] = useState<ToCItem[]>([]);
-  const [activeSection, setActiveSection] = useState('');
+  const [activeSection, setActiveSection] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchMatches, setSearchMatches] = useState<SearchMatch[]>([]);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
-  const [highlightedMarkdown, setHighlightedMarkdown] = useState('');
+  const [highlightedMarkdown, setHighlightedMarkdown] = useState("");
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetch('/WHITEPAPER.md')
+    fetch("/WHITEPAPER.md")
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -45,16 +52,16 @@ const WhitepaperPage = () => {
         setMarkdown(text);
         // Extract headings for table of contents
         const headings: ToCItem[] = [];
-        const lines = text.split('\n');
+        const lines = text.split("\n");
         lines.forEach((line) => {
           const match = line.match(/^(#{1,3})\s+(.+)/);
           if (match) {
             const level = match[1].length;
-            const title = match[2].replace(/[*_`]/g, '');
+            const title = match[2].replace(/[*_`]/g, "");
             const id = title
               .toLowerCase()
-              .replace(/[^\w\s-]/g, '')
-              .replace(/\s+/g, '-');
+              .replace(/[^\w\s-]/g, "")
+              .replace(/\s+/g, "-");
             headings.push({ id, title, level });
           }
         });
@@ -64,7 +71,7 @@ const WhitepaperPage = () => {
         setLoading(false);
       })
       .catch((error) => {
-        console.error('Error loading whitepaper:', error);
+        console.error("Error loading whitepaper:", error);
         setError(error.message);
         setLoading(false);
       });
@@ -72,7 +79,7 @@ const WhitepaperPage = () => {
 
   // Full-text search through entire whitepaper
   useEffect(() => {
-    if (searchQuery.trim() === '') {
+    if (searchQuery.trim() === "") {
       setFilteredToC(tableOfContents);
       setSearchMatches([]);
       setCurrentMatchIndex(0);
@@ -102,7 +109,10 @@ const WhitepaperPage = () => {
         matches.push({
           index,
           text: markdown.substring(index, index + query.length),
-          context: (start > 0 ? '...' : '') + context + (end < markdown.length ? '...' : ''),
+          context:
+            (start > 0 ? "..." : "") +
+            context +
+            (end < markdown.length ? "..." : ""),
         });
 
         searchIndex = index + query.length;
@@ -118,10 +128,14 @@ const WhitepaperPage = () => {
         for (let i = matches.length - 1; i >= 0; i--) {
           const match = matches[i];
           const before = highlightedText.substring(0, match.index);
-          const matchText = highlightedText.substring(match.index, match.index + query.length);
+          const matchText = highlightedText.substring(
+            match.index,
+            match.index + query.length
+          );
           const after = highlightedText.substring(match.index + query.length);
-          
-          const highlightClass = i === 0 ? 'search-highlight-current' : 'search-highlight';
+
+          const highlightClass =
+            i === 0 ? "search-highlight-current" : "search-highlight";
           highlightedText = `${before}<mark class="${highlightClass}">${matchText}</mark>${after}`;
         }
         setHighlightedMarkdown(highlightedText);
@@ -133,23 +147,25 @@ const WhitepaperPage = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const sections = document.querySelectorAll('.whitepaper-content h1, .whitepaper-content h2, .whitepaper-content h3');
-      let current = '';
-      
+      const sections = document.querySelectorAll(
+        ".whitepaper-content h1, .whitepaper-content h2, .whitepaper-content h3"
+      );
+      let current = "";
+
       sections.forEach((section) => {
         const sectionTop = (section as HTMLElement).offsetTop;
         const scrollPosition = window.scrollY + 100;
-        
+
         if (scrollPosition >= sectionTop) {
           current = section.id;
         }
       });
-      
+
       setActiveSection(current);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [markdown]);
 
   const copyToClipboard = () => {
@@ -162,27 +178,30 @@ const WhitepaperPage = () => {
     const element = document.getElementById(id);
     if (element) {
       const yOffset = -80; // Offset for fixed header
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
+      const y =
+        element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: "smooth" });
       setSidebarOpen(false);
     }
   };
 
   const scrollToMatch = (index: number) => {
-    const marks = document.querySelectorAll('.search-highlight, .search-highlight-current');
+    const marks = document.querySelectorAll(
+      ".search-highlight, .search-highlight-current"
+    );
     if (marks[index]) {
       // Remove current highlight from all
       marks.forEach((mark) => {
-        mark.classList.remove('search-highlight-current');
-        mark.classList.add('search-highlight');
+        mark.classList.remove("search-highlight-current");
+        mark.classList.add("search-highlight");
       });
-      
+
       // Add current highlight to selected
-      marks[index].classList.remove('search-highlight');
-      marks[index].classList.add('search-highlight-current');
-      
+      marks[index].classList.remove("search-highlight");
+      marks[index].classList.add("search-highlight-current");
+
       // Scroll to match
-      marks[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      marks[index].scrollIntoView({ behavior: "smooth", block: "center" });
     }
   };
 
@@ -195,7 +214,10 @@ const WhitepaperPage = () => {
 
   const goToPreviousMatch = () => {
     if (searchMatches.length === 0) return;
-    const prevIndex = currentMatchIndex === 0 ? searchMatches.length - 1 : currentMatchIndex - 1;
+    const prevIndex =
+      currentMatchIndex === 0
+        ? searchMatches.length - 1
+        : currentMatchIndex - 1;
     setCurrentMatchIndex(prevIndex);
     scrollToMatch(prevIndex);
   };
@@ -218,7 +240,9 @@ const WhitepaperPage = () => {
     return (
       <div className="min-h-screen bg-[#0d120c] flex items-center justify-center">
         <div className="text-center">
-          <div className="text-red-500 text-xl mb-4">Error loading whitepaper</div>
+          <div className="text-red-500 text-xl mb-4">
+            Error loading whitepaper
+          </div>
           <div className="text-gray-400">{error}</div>
         </div>
       </div>
@@ -247,11 +271,13 @@ const WhitepaperPage = () => {
         {/* Left Sidebar - Table of Contents */}
         <aside
           className={`fixed top-0 left-0 h-screen w-72 bg-[#0a0a0a] border-r border-gray-800 transition-transform duration-300 z-40 pt-20 lg:pt-24 flex flex-col ${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+            sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
           }`}
         >
           <div className="p-6 border-b border-gray-800 flex-shrink-0">
-            <h2 className="text-xl font-bold text-[#bbf838]">Table of Contents</h2>
+            <h2 className="text-xl font-bold text-[#bbf838]">
+              Table of Contents
+            </h2>
           </div>
 
           {/* Scrollable Navigation */}
@@ -262,11 +288,15 @@ const WhitepaperPage = () => {
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
                   className={`block w-full text-left py-2 px-3 rounded-lg transition-colors ${
-                    item.level === 1 ? 'font-semibold' : item.level === 2 ? 'pl-6 text-sm' : 'pl-9 text-xs'
+                    item.level === 1
+                      ? "font-semibold"
+                      : item.level === 2
+                      ? "pl-6 text-sm"
+                      : "pl-9 text-xs"
                   } ${
                     activeSection === item.id
-                      ? 'bg-[#bbf838]/10 text-[#bbf838]'
-                      : 'text-gray-400 hover:text-white hover:bg-[#1a1a1a]'
+                      ? "bg-[#bbf838]/10 text-[#bbf838]"
+                      : "text-gray-400 hover:text-white hover:bg-[#1a1a1a]"
                   }`}
                 >
                   {item.title}
@@ -294,7 +324,7 @@ const WhitepaperPage = () => {
         <aside className="fixed top-0 right-0 h-screen w-80 bg-[#0a0a0a] border-l border-gray-800 z-40 pt-20 lg:pt-24 flex flex-col hidden lg:flex">
           <div className="p-6 border-b border-gray-800 flex-shrink-0">
             <h2 className="text-xl font-bold text-[#bbf838] mb-4">Search</h2>
-            
+
             {/* Search Input */}
             <div className="relative mb-4">
               <input
@@ -333,7 +363,7 @@ const WhitepaperPage = () => {
                 </div>
               </div>
             )}
-            
+
             {searchQuery && searchMatches.length === 0 && (
               <div className="text-xs text-gray-400 mb-2">
                 No matches found for "{searchQuery}"
@@ -345,7 +375,9 @@ const WhitepaperPage = () => {
           <div className="flex-1 overflow-y-auto p-6">
             {searchQuery && searchMatches.length > 0 ? (
               <div className="space-y-3">
-                <p className="text-sm text-gray-400 mb-4">Click on a result to jump to it:</p>
+                <p className="text-sm text-gray-400 mb-4">
+                  Click on a result to jump to it:
+                </p>
                 {searchMatches.map((match, index) => (
                   <button
                     key={index}
@@ -355,14 +387,18 @@ const WhitepaperPage = () => {
                     }}
                     className={`block w-full text-left p-3 rounded-lg transition-colors text-sm ${
                       index === currentMatchIndex
-                        ? 'bg-[#bbf838]/10 border border-[#bbf838]/30'
-                        : 'bg-[#1a1a1a] hover:bg-[#252525] border border-transparent'
+                        ? "bg-[#bbf838]/10 border border-[#bbf838]/30"
+                        : "bg-[#1a1a1a] hover:bg-[#252525] border border-transparent"
                     }`}
                   >
                     <div className="flex items-start gap-2">
-                      <span className={`flex-shrink-0 text-xs font-mono ${
-                        index === currentMatchIndex ? 'text-[#bbf838]' : 'text-gray-500'
-                      }`}>
+                      <span
+                        className={`flex-shrink-0 text-xs font-mono ${
+                          index === currentMatchIndex
+                            ? "text-[#bbf838]"
+                            : "text-gray-500"
+                        }`}
+                      >
                         {index + 1}
                       </span>
                       <span className="text-gray-300 leading-relaxed">
@@ -402,20 +438,22 @@ const WhitepaperPage = () => {
           <div className="mb-8 pb-6 border-b border-gray-800">
             <div className="flex items-center justify-between mb-4">
               <nav className="text-sm text-gray-400">
-                <a href="/" className="hover:text-white transition-colors">Home</a>
+                <a href="/" className="hover:text-white transition-colors">
+                  Home
+                </a>
                 <span className="mx-2">/</span>
-                <span className="text-white">Whitepaper</span>
+                <span className="text-white">About</span>
               </nav>
               <button
                 onClick={copyToClipboard}
                 className="flex items-center gap-2 px-4 py-2 bg-[#1a1a1a] hover:bg-[#252525] rounded-lg transition-colors"
               >
                 <FiCopy size={16} />
-                {copied ? 'Copied!' : 'Copy Link'}
+                {copied ? "Copied!" : "Copy Link"}
               </button>
             </div>
             <h1 className="text-5xl font-bold bg-gradient-to-r from-[#bbf838] to-[#8bc34a] bg-clip-text text-transparent">
-              StackFlow Whitepaper
+              About StackFlow
             </h1>
             <p className="text-gray-400 mt-4">
               Bitcoin-Secured DeFi and Sentiment Trading Platform
@@ -423,13 +461,16 @@ const WhitepaperPage = () => {
           </div>
 
           {/* Whitepaper Content */}
-          <div ref={contentRef} className="whitepaper-content prose prose-invert prose-lg max-w-none">
+          <div
+            ref={contentRef}
+            className="whitepaper-content prose prose-invert prose-lg max-w-none"
+          >
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[
                 rehypeRaw,
                 rehypeSlug,
-                [rehypeAutolinkHeadings, { behavior: 'wrap' }],
+                [rehypeAutolinkHeadings, { behavior: "wrap" }],
               ]}
               components={{
                 h1: ({ node, ...props }) => (
@@ -451,13 +492,22 @@ const WhitepaperPage = () => {
                   />
                 ),
                 p: ({ node, ...props }) => (
-                  <p className="text-gray-300 leading-relaxed mb-4" {...props} />
+                  <p
+                    className="text-gray-300 leading-relaxed mb-4"
+                    {...props}
+                  />
                 ),
                 ul: ({ node, ...props }) => (
-                  <ul className="list-disc list-inside mb-4 space-y-2 text-gray-300" {...props} />
+                  <ul
+                    className="list-disc list-inside mb-4 space-y-2 text-gray-300"
+                    {...props}
+                  />
                 ),
                 ol: ({ node, ...props }) => (
-                  <ol className="list-decimal list-inside mb-4 space-y-2 text-gray-300" {...props} />
+                  <ol
+                    className="list-decimal list-inside mb-4 space-y-2 text-gray-300"
+                    {...props}
+                  />
                 ),
                 li: ({ node, ...props }) => (
                   <li className="text-gray-300 ml-4" {...props} />
@@ -488,17 +538,26 @@ const WhitepaperPage = () => {
                 ),
                 table: ({ node, ...props }) => (
                   <div className="overflow-x-auto my-6">
-                    <table className="min-w-full border border-gray-800 rounded-lg" {...props} />
+                    <table
+                      className="min-w-full border border-gray-800 rounded-lg"
+                      {...props}
+                    />
                   </div>
                 ),
                 thead: ({ node, ...props }) => (
                   <thead className="bg-[#1a1a1a]" {...props} />
                 ),
                 th: ({ node, ...props }) => (
-                  <th className="border border-gray-800 px-4 py-2 text-left font-semibold text-white" {...props} />
+                  <th
+                    className="border border-gray-800 px-4 py-2 text-left font-semibold text-white"
+                    {...props}
+                  />
                 ),
                 td: ({ node, ...props }) => (
-                  <td className="border border-gray-800 px-4 py-2 text-gray-300" {...props} />
+                  <td
+                    className="border border-gray-800 px-4 py-2 text-gray-300"
+                    {...props}
+                  />
                 ),
                 hr: ({ node, ...props }) => (
                   <hr className="my-8 border-gray-800" {...props} />

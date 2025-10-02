@@ -54,10 +54,10 @@ const Footer = () => {
 
   const handleNavClick = (section: string) => {
     // If we're on the home page, just scroll to the section
-    if (location.pathname === '/') {
+    if (location.pathname === "/") {
       const element = document.getElementById(section);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+        element.scrollIntoView({ behavior: "smooth" });
       }
     } else {
       // Navigate to home page with the hash
@@ -66,7 +66,7 @@ const Footer = () => {
       setTimeout(() => {
         const element = document.getElementById(section);
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
+          element.scrollIntoView({ behavior: "smooth" });
         }
       }, 100);
     }
@@ -83,7 +83,8 @@ const Footer = () => {
               </div>
 
               <p className="mt-4 text-gray-300">
-                Ride the flow of capital and sentiment on Stacks. Bitcoin-secured DeFi and sentiment trading platform.
+                Ride the flow of capital and sentiment on Stacks.
+                Bitcoin-secured DeFi and sentiment trading platform.
               </p>
 
               <div className="flex gap-4 mt-6">
@@ -124,6 +125,7 @@ const Footer = () => {
             </ul>
           </nav>
         </div>
+
         <div
           className={`fixed bottom-5 right-12 h-[46px] w-[46px] cursor-pointer rounded-full 
         shadow-[inset_0_0_0_2px_rgba(187,247,55,0.2)] z-[10000] transition-all duration-200
@@ -137,7 +139,7 @@ const Footer = () => {
           <svg className="w-full h-full -rotate-90" viewBox="-1 -1 102 102">
             <path
               d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98"
-              className="stroke-[#bbf737] fill-none"
+              className="stroke-[#37f741] fill-none"
               strokeWidth="4"
               style={{
                 transition: "stroke-dashoffset 200ms linear",
@@ -147,7 +149,7 @@ const Footer = () => {
             />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <FaArrowUp className="text-[#ffde5d] hover:text-[#2871ff] transition-colors duration-200 text-lg" />
+            <FaArrowUp className="text-white hover:text-[#2871ff] transition-colors duration-200 text-lg" />
           </div>
         </div>
       </div>

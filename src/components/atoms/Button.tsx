@@ -19,7 +19,7 @@ const Button = ({
   const baseStyles =
     "bg-[#101210] border border-white/30 text-white px-6 py-2.5 text-[15px] rounded-md";
   const gradientStyles =
-    "bg-gradient-to-r from-[#bbf737] to-[#ffee62] border-none px-6 py-2.5 text-[15px] rounded-md";
+    "bg-[#37f741] font-[700] from-[#bbf737] to-[#ffee62] border-none px-6 py-2.5 text-[15px] rounded-md";
 
   return (
     <button
