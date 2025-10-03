@@ -59,7 +59,7 @@ export function TradingChart({ asset }: Props) {
         </p>
       </div>
 
-      <div className="w-full h-[404px] relative overflow-hidden bg-gradient-to-r from-[#BDF738] to-[#FDEE61] p-0.5 rounded-lg">
+      <div className="w-full h-[404px] relative overflow-hidden bg-gradient-to-r from-[#37f741] to-[#FDEE61] p-0.5 rounded-lg">
         {/* <LightweightChart asset={asset} /> */}
         <TradingViewWidget asset={asset} />
       </div>

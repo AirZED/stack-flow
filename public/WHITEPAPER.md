@@ -1,8 +1,3 @@
-# StackFlow Whitepaper
-
-**Version 1.0 | September 2025**
-
-*Ride the flow of capital and sentiment on Stacks*
 
 ---
 

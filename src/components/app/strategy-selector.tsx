@@ -114,18 +114,24 @@ export function StrategySelector({
   asset,
 }: Props) {
   const { handleStrategyChange } = useAppContext();
-  const currentStrategies = asset === "STX" ? sentiments.find(
-    (sentiment) =>
-      sentiment.tag.toLowerCase() === selectedSentiment.toLowerCase()
-  )?.items || sentiments[0].items : socialStrategies;
+  const currentStrategies =
+    asset === "STX"
+      ? sentiments.find(
+          (sentiment) =>
+            sentiment.tag.toLowerCase() === selectedSentiment.toLowerCase()
+        )?.items || sentiments[0].items
+      : socialStrategies;
 
   useEffect(() => {
-    const defaultStrategy = asset === "STX" ? sentiments?.find(
-      (sentiment) =>
-        sentiment.tag?.toLowerCase() === selectedSentiment?.toLowerCase()
-    )?.items?.[0]?.name ??
-    sentiments?.[0]?.items?.[0]?.name ??
-    "" : "Copy Trading";
+    const defaultStrategy =
+      asset === "STX"
+        ? sentiments?.find(
+            (sentiment) =>
+              sentiment.tag?.toLowerCase() === selectedSentiment?.toLowerCase()
+          )?.items?.[0]?.name ??
+          sentiments?.[0]?.items?.[0]?.name ??
+          ""
+        : "Copy Trading";
 
     if (!defaultStrategy) return;
 
@@ -138,7 +144,7 @@ export function StrategySelector({
         <div
           className={`p-px rounded-lg ${
             selectedStrategy?.toLowerCase() === strategy.name.toLowerCase()
-              ? " bg-gradient-to-r from-[#BDF738] to-[#FDEE61]"
+              ? " bg-gradient-to-r from-[#37f741] to-[#FDEE61]"
               : " bg-transparent"
           }`}
           key={i}
@@ -150,7 +156,7 @@ export function StrategySelector({
               handleStrategyChange(strategy.name);
             }}
           >
-            <p className="text-transparent bg-gradient-to-r from-[#BDF738] to-[#FDEE61] bg-clip-text">
+            <p className="text-transparent bg-gradient-to-r from-[#37f741] to-[#FDEE61] bg-clip-text">
               {strategy.name}
             </p>
 

@@ -1,13 +1,13 @@
 <svg width="1500" height="500" viewBox="0 0 1500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="bannerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#BDF738;stop-opacity:1" />
+      <stop offset="0%" style="stop-color:#37f741;stop-opacity:1" />
       <stop offset="100%" style="stop-color:#FDEE61;stop-opacity:1" />
     </linearGradient>
     <linearGradient id="bannerFlowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#BDF738;stop-opacity:0.8" />
+      <stop offset="0%" style="stop-color:#37f741;stop-opacity:0.8" />
       <stop offset="50%" style="stop-color:#FDEE61;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#BDF738;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#37f741;stop-opacity:0.8" />
     </linearGradient>
     <linearGradient id="bannerBitcoinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#F7931A;stop-opacity:1" />
@@ -19,8 +19,8 @@
       <stop offset="100%" style="stop-color:#0a0a0a;stop-opacity:1" />
     </linearGradient>
     <radialGradient id="bannerGlow1" cx="20%" cy="50%" r="40%">
-      <stop offset="0%" style="stop-color:#BDF738;stop-opacity:0.15" />
-      <stop offset="100%" style="stop-color:#BDF738;stop-opacity:0" />
+      <stop offset="0%" style="stop-color:#37f741;stop-opacity:0.15" />
+      <stop offset="100%" style="stop-color:#37f741;stop-opacity:0" />
     </radialGradient>
     <radialGradient id="bannerGlow2" cx="80%" cy="50%" r="40%">
       <stop offset="0%" style="stop-color:#FDEE61;stop-opacity:0.15" />

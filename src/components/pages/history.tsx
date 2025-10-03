@@ -15,7 +15,7 @@ export default function HistoryPage() {
     console.log("address", address);
     if (!address) return;
     setIsFetching(true);
-    // TODO: Implement getUserStacksPositions
+    // TODO: Implement getUserStacksPositionsnpm 
     console.log("Fetching Stacks positions for:", address);
     setPositions([]); // Placeholder
     setIsFetching(false);

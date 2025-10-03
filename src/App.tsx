@@ -5,7 +5,6 @@ import { DashboardLayout } from "./components/layout/dashboard-layout";
 const HomePage = lazy(() => import("./components/pages/home"));
 const NewTradePage = lazy(() => import("./components/pages/new"));
 const TradingHistoryPage = lazy(() => import("./components/pages/history"));
-const ReferralPage = lazy(() => import("./components/pages/referral"));
 const WhitepaperPage = lazy(() => import("./components/pages/whitepaper"));
 import { AppContextProvider } from "./context/AppContext";
 
@@ -27,26 +26,26 @@ const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        path: "/whitepaper",
+        path: "/about",
         element: <WhitepaperPage />,
       },
       // @DEV: Default /app route to /app/trade/new
       {
-        path: "/app",
+        path: "/trade",
         element: <DashboardLayout />,
         children: [
           {
-            path: "/app/trade/new",
+            path: "/trade",
             element: <NewTradePage />,
           },
           {
-            path: "/app/trade/history",
+            path: "/trade/history",
             element: <TradingHistoryPage />,
           },
-          {
-            path: "/app/trade/referrals",
-            element: <ReferralPage />,
-          },
+          // {
+          //   path: "/app/trade/referrals",
+          //   element: <ReferralPage />,
+          // },
         ],
       },
     ],

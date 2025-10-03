@@ -1,8 +1,7 @@
-import { FaRegEnvelope } from "react-icons/fa6";
 import Button from "../atoms/Button";
 import { IoCheckmarkDoneOutline } from "react-icons/io5";
-import burn_img from "../../assets/Graphics/burn.png";
-import shape_1 from "../../assets/images/resource/shap-1.png";
+import community_img from "../../assets/new graphics/5.png";
+import { Link } from "react-router-dom";
 
 const AboutSection2 = () => {
   return (
@@ -13,35 +12,35 @@ const AboutSection2 = () => {
           <div className="flex justify-start">
             <div className="relative ">
               <img
-                src={burn_img}
-                alt="Buyback and Burn"
+                src={community_img}
+                alt="Community-Driven Trading"
                 className="w-[clamp(20rem,50vw,500px)] filter drop-shadow-[30px_20px_10px_#000000]"
               />
-              <div className="absolute inset-0">
-                <img src={shape_1} alt="Shape" />
-              </div>
             </div>
           </div>
 
           {/* Right Column - Content */}
           <div className="space-y-8">
             <div>
-              <h1 className="mb-6 text-4xl font-bold">🔥Buyback & Burn</h1>
+              <h1 className="mb-6 text-4xl font-bold">
+                {" "}
+                Community-Driven Trading
+              </h1>
               <p className="text-gray-300">
-                To demonstrate our commitment to increasing the value of $OPX
-                for our users, we will allocate 50% of all revenue to the
-                Buyback & Burn program. This initiative aims to lower the total
-                supply of $OPX, enhancing its scarcity and value over time.
+                StackFlow empowers the community with transparent,
+                Bitcoin-secured trading. Follow successful whales, join viral
+                meme pools, and access professional sentiment strategies—all
+                while maintaining complete self-custody of your assets.
               </p>
             </div>
 
             {/* Features List */}
             <ul className="space-y-3 border-b border-b-white/10 pb-10 text-[#7b7b7b]">
               {[
-                "50% Revenue Allocation",
-                "Token Burn",
-                "Frequency",
-                "User-Centric Value Enhancement",
+                "Non-Custodial Trading",
+                "Real-Time Whale Signals",
+                "Meme-Driven Pools",
+                "12+ Sentiment Strategies",
               ].map((item) => (
                 <li key={item} className="flex items-center space-x-2">
                   <IoCheckmarkDoneOutline className="text-[#bbf737] " />
@@ -51,14 +50,12 @@ const AboutSection2 = () => {
             </ul>
 
             {/* CTA Button */}
-            <a
-              className="flex items-center justify-end w-full gap-2 text-black"
-              href="https://optrix-finance.gitbook.io/optrix.finance/revenue-structure/buyback-and-burn"
-              target="_blank"
+            <Link
+              className="flex items-center justify-start w-full gap-2 text-black"
+              to="/about"
             >
-              <FaRegEnvelope className="text-[#bbf737] text-[1.3rem]" />
-              <Button variant="gradient">Know more</Button>
-            </a>
+              <Button variant="gradient">Learn More</Button>
+            </Link>
           </div>
         </div>
       </div>

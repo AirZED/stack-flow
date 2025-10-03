@@ -2,9 +2,9 @@ import shape_icon from "../../assets/images/resource/icon.png";
 
 const Metric = () => {
   const metrics = [
-    { value: "10", suffix: "M", label: "Total Supply" },
-    { value: "5", suffix: "%", label: "Buy Tax" },
-    { value: "5", suffix: "%", label: "Sell Tax" },
+    { value: "12", suffix: "+", label: "Trading Strategies" },
+    { value: "0", suffix: "%", label: "Platform Fee" },
+    { value: "100", suffix: "%", label: "Self-Custody" },
   ];
 
   return (
@@ -28,11 +28,7 @@ const Metric = () => {
           ))}
 
           {/* Shape/Icon */}
-          <div className="absolute about-shape">
-            <div className="dream-shape5">
-              <img src={shape_icon} alt="Icon" />
-            </div>
-          </div>
+         
         </div>
       </div>
     </div>
