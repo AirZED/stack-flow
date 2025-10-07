@@ -32,60 +32,66 @@ export function PriceSelector() {
     : [];
 
   return (
-    <>
-      <div className="bg-[#1D2215] p-6 rounded-lg space-y-2">
-        <p className="text-sm text-[#ECECEC]">Amount</p>
-        <div className="space-y-2">
-          <div className="bg-gradient-to-r w-full h-[50px] from-[#BDF738] rounded-lg to-[#FDEE61] overflow-hidden p-px">
-            <div className="rounded-lg px-5  bg-[#171717] h-full flex justify-between items-center">
-              <input
-                type="number"
-                className="h-full w-[70%] bg-transparent border-none outline-none text-sm text-[#D6D6D6]"
-                // placeholder="1"
-                value={state.amount}
-                onChange={(value) => handleAmountChange(value.target.value)}
-              />
-              <p className="text-sm text-[#7A7A7A]">{asset}</p>
+    <div className="flex flex-col w-full gap-4 ">
+      <div className="flex w-full flex-col gap-4 md:flex-row w-full flex-1">
+ 
+        <div className="bg-[#1D2215] p-6 rounded-lg space-y-2 flex-1">
+          <p className="text-sm text-[#ECECEC]">Amount</p>
+          <div className="space-y-2">
+            <div className="bg-gradient-to-r w-full h-[50px] from-[#BDF738] rounded-lg to-[#FDEE61] overflow-hidden p-px">
+              <div className="rounded-lg px-5  bg-[#171717] h-full flex justify-between items-center">
+                <input
+                  type="number"
+                  className="h-full w-[70%] bg-transparent border-none outline-none text-sm text-[#D6D6D6]"
+                  // placeholder="1"
+                  value={state.amount}
+                  onChange={(value) => handleAmountChange(value.target.value)}
+                />
+                <p className="text-sm text-[#7A7A7A]">{asset}</p>
+              </div>
             </div>
+            <p className="text-xs text-[#666666]">
+              Limit: 30.5261 (check limits)
+            </p>
           </div>
+        </div>
+        {/* period */}
+        <div className="bg-[#1D2215] p-6 rounded-lg flex flex-col justify-between flex-1">
+          <p className="text-sm text-[#ECECEC]">
+            Period: <span className="text-white">{state.period} days</span>
+          </p>
+
+          <Slider
+            defaultValue={[+state.period]}
+            onValueChange={(value) => {
+              const newValue = value?.[0];
+              if (newValue !== undefined) {
+                handlePeriodChange(newValue.toString());
+              }
+            }}
+            max={90}
+            min={7}
+            step={1}
+            className="cursor-grab"
+          />
+
           <p className="text-xs text-[#666666]">
-            Limit: 30.5261 (check limits)
+            Expiration Date: 28 Nov, 12:31
           </p>
         </div>
       </div>
 
-      {/* period */}
-      <div className="bg-[#1D2215] p-6 rounded-lg flex flex-col justify-between">
-        <p className="text-sm text-[#ECECEC]">
-          Period: <span className="text-white">{state.period} days</span>
-        </p>
-
-        <Slider
-          defaultValue={[+state.period]}
-          onValueChange={(value) => {
-            const newValue = value?.[0];
-            if (newValue !== undefined) {
-              handlePeriodChange(newValue.toString());
-            }
-          }}
-          max={90}
-          min={7}
-          step={1}
-          className="cursor-grab"
-        />
-
-        <p className="text-xs text-[#666666]">Expiration Date: 28 Nov, 12:31</p>
-      </div>
-
       {/* profit zone */}
-      <div className="bg-[#1D2215] p-6 rounded-lg space-y-2">
+      <div className="bg-[#1D2215] p-6 rounded-lg space-y-2 flex-1">
         <p className="text-sm text-[#ECECEC]">Profit Zone</p>
         <div className="space-y-2">
           <div className="bg-gradient-to-r w-full h-[50px] from-[#BDF738] rounded-lg to-[#FDEE61] overflow-hidden p-px">
             <Select
               value={safeSelectedProfitZone.toString()}
               onValueChange={handlePremiumSelect}
-              disabled={isFetchingPremiums || safePremiumAndProfitZone.length === 0}
+              disabled={
+                isFetchingPremiums || safePremiumAndProfitZone.length === 0
+              }
             >
               <SelectTrigger className="w-full bg-[#171717] h-full border-none outline-none rounded-lg">
                 <SelectValue className="text-[#D6D6D6] text-sm">
@@ -94,7 +100,8 @@ export function PriceSelector() {
                   ) : safePremiumAndProfitZone.length > 0 ? (
                     formatNumber(
                       safeSelectedProfitZone ||
-                        safePremiumAndProfitZone[0]?.profitZone || 0
+                        safePremiumAndProfitZone[0]?.profitZone ||
+                        0
                     )
                   ) : (
                     "No data available"
@@ -106,7 +113,7 @@ export function PriceSelector() {
                   safePremiumAndProfitZone.length > 0 &&
                   safePremiumAndProfitZone.map((el, index) => {
                     // Additional safety check for each element
-                    if (!el || typeof el.profitZone !== 'number') return null;
+                    if (!el || typeof el.profitZone !== "number") return null;
 
                     return (
                       <SelectItem
@@ -123,6 +130,6 @@ export function PriceSelector() {
           {/* <p></p> */}
         </div>
       </div>
-    </>
+    </div>
   );
 }
