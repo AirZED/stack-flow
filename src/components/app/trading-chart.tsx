@@ -5,14 +5,14 @@ import {
   ISeriesApi,
 } from "lightweight-charts";
 
-import { memo, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useAppContext } from "../../context/AppContext";
 import { Icons } from "../ui/icons";
 import TradingViewWidget from "./trading-widget";
 
 type Props = {
   asset: string;
-  visible: boolean; // Add visible prop
+  visible: boolean;
 };
 
 export function TradingChart({ asset, visible }: Props) {
