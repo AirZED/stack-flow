@@ -15,7 +15,8 @@ export default function DappPage() {
 
   // Show social sentiment features when BTC asset is selected
   const showCopyTrading = asset === "BTC" && strategy === "Copy Trading";
-  const showMemeInvesting = asset === "BTC" && strategy === "Meme-Driven Investing";
+  const showMemeInvesting =
+    asset === "BTC" && strategy === "Meme-Driven Investing";
   const showSocialFeatures = showCopyTrading || showMemeInvesting;
 
   return (
@@ -26,13 +27,14 @@ export default function DappPage() {
         <div className="flex flex-col items-start w-full gap-4 md:flex-row">
           <div className="w-full md:max-w-[388px] space-y-4 mx-auto">
             <AssetSelector selectedAsset={asset} />
-            {asset === "STX" && <SentimentSelector selectedSentiment={sentiment} />}
+            {asset === "STX" && (
+              <SentimentSelector selectedSentiment={sentiment} />
+            )}
             <StrategySelector
               selectedStrategy={strategy}
               selectedSentiment={sentiment}
               asset={asset}
             />
-            {!showSocialFeatures && <PriceSelector />}
           </div>
           <div className="w-full lg:max-w-[667px] bg-[#1D2215] p-7 rounded-lg">
             {showCopyTrading && <CopyTrading />}
@@ -42,8 +44,11 @@ export default function DappPage() {
         </div>
 
         {!showSocialFeatures && (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-            <TradeSummary />
+          <div className="flex flex-col items-start w-full gap-4 md:flex-row">
+            <PriceSelector />
+            <div className="">
+              <TradeSummary />
+            </div>
           </div>
         )}
       </div>
