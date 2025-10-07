@@ -100,7 +100,7 @@ const MemeInvesting = () => {
             All Stacks meme tokens and viral investment opportunities
           </p>
         </div>
-        <Button onClick={refreshData} variant="outline" className="text-sm">
+        <Button onClick={refreshData} variant="default" className="text-sm">
           <Icons.refresh className="w-4 h-4 mr-2" />
           Refresh
         </Button>
