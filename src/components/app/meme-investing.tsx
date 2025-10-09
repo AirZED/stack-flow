@@ -2,24 +2,7 @@ import { useState } from 'react';
 import { Icons } from '../ui/icons';
 import Button from '../atoms/Button';
 import { useRealTimeData } from '../../hooks/useRealTimeData';
-
-interface MemePool {
-  id: string;
-  meme: string;
-  description: string;
-  image?: string;
-  totalPool: number;
-  participants: number;
-  timeLeft: string;
-  sentiment: 'bullish' | 'bearish' | 'volatile' | string;
-  viralScore: number;
-  creator: string;
-  minimumEntry: number;
-  expectedReturn: string;
-  riskLevel: 'Low' | 'Medium' | 'High' | string;
-  tokens?: string[];
-  contractId?: string;
-}
+import { MemePool } from '../../lib/types';
 
 const MemeInvesting = () => {
   const { memePools, loading, error, refreshData } = useRealTimeData();
@@ -32,7 +15,8 @@ const MemeInvesting = () => {
       <div className="w-full h-full p-8 bg-[#1D2215] rounded-lg flex items-center justify-center">
         <div className="flex flex-col items-center justify-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#bbf838]"></div>
-          <p className="text-white">Loading All Stacks Meme Tokens...</p>
+          <p className="text-white">Loading Real Stacks Pool Data...</p>
+          <p className="text-gray-400 text-sm">Fetching live liquidity data from APIs...</p>
         </div>
       </div>
     );
@@ -42,25 +26,44 @@ const MemeInvesting = () => {
   if (error) {
     return (
       <div className="w-full h-full p-8 bg-[#1D2215] rounded-lg flex items-center justify-center">
-        <div className="flex flex-col items-center justify-center space-y-4">
-          <p className="text-red-400">Error loading meme pools: {error}</p>
-          <Button onClick={refreshData} variant="gradient">
-            Retry
+        <div className="flex flex-col items-center justify-center space-y-4 max-w-md text-center">
+          <div className="text-red-400 text-4xl">⚠️</div>
+          <h3 className="text-white text-lg font-semibold">Real Data Unavailable</h3>
+          <p className="text-red-400 text-sm">{error}</p>
+          <p className="text-gray-400 text-xs">
+            StackFlow only displays real blockchain data. Please check your internet connection or try again later.
+          </p>
+          <Button
+            variant="default"
+            onClick={refreshData}
+            className="text-[#bbf838] border-[#bbf838] hover:bg-[#bbf838] hover:text-black"
+          >
+            Retry Real Data Fetch
           </Button>
         </div>
       </div>
     );
   }
 
-  // Handle no data state
-  if (!memePools || memePools.length === 0) {
+  // Handle empty state (no pools available)
+  if (memePools.length === 0) {
     return (
       <div className="w-full h-full p-8 bg-[#1D2215] rounded-lg flex items-center justify-center">
-        <div className="flex flex-col items-center justify-center space-y-4">
-          <p className="text-white">No active meme pools found</p>
-          <Button onClick={refreshData} variant="gradient">
-            <Icons.refresh className="w-4 h-4 mr-2" />
-            Refresh Pools
+        <div className="flex flex-col items-center justify-center space-y-4 max-w-md text-center">
+          <div className="text-yellow-400 text-4xl">📊</div>
+          <h3 className="text-white text-lg font-semibold">No Active Pools</h3>
+          <p className="text-gray-400 text-sm">
+            No real liquidity pools are currently available from the Stacks blockchain.
+          </p>
+          <p className="text-gray-500 text-xs">
+            This may be due to low DEX activity or API rate limits.
+          </p>
+          <Button
+            variant="default"
+            onClick={refreshData}
+            className="text-[#bbf838] border-[#bbf838] hover:bg-[#bbf838] hover:text-black"
+          >
+            Refresh Pool Data
           </Button>
         </div>
       </div>
@@ -95,9 +98,9 @@ const MemeInvesting = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white mb-2">Meme Token Pools</h2>
+          <h2 className="text-xl font-bold text-white mb-2">Real Liquidity Pools</h2>
           <p className="text-gray-400 text-sm">
-            All Stacks meme tokens and viral investment opportunities
+            Live DEX pools with real trading data from Stacks blockchain
           </p>
         </div>
         <Button onClick={refreshData} variant="default" className="text-sm">
@@ -109,11 +112,12 @@ const MemeInvesting = () => {
       {/* Real-time data indicator */}
       <div className="flex items-center space-x-2 text-sm">
         <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-        <span className="text-green-400">Live Token Data</span>
-        <span className="text-gray-500">• {memePools.length} Pools Available</span>
+        <span className="text-green-400">Live Pool Data</span>
+        <span className="text-gray-500">• {memePools.length} Active Pools</span>
+        <span className="text-gray-500">• Real Blockchain Data</span>
       </div>
 
-      {/* Meme Pools Grid */}
+      {/* Pools Grid */}
       <div className="grid gap-4 max-h-96 overflow-y-auto">
         {memePools.map((pool) => (
           <div
@@ -138,6 +142,14 @@ const MemeInvesting = () => {
                   <span className="text-yellow-400 font-bold">
                     🔥 {pool.viralScore}
                   </span>
+                  {pool.verified && (
+                    <Icons.verified className="w-4 h-4 text-blue-400" />
+                  )}
+                  {pool.isHot && (
+                    <span className="px-2 py-1 bg-red-500/20 text-red-400 rounded text-xs font-bold">
+                      HOT
+                    </span>
+                  )}
                 </div>
                 
                 {/* Show supported tokens */}
@@ -156,17 +168,30 @@ const MemeInvesting = () => {
                 
                 <p className="text-gray-300 text-sm mb-2">{pool.description}</p>
                 
-                {/* Show contract ID for real tokens */}
+                {/* Show real trading stats */}
+                {pool.volume24h && pool.trades24h && (
+                  <div className="flex space-x-4 text-xs text-gray-400 mb-2">
+                    <span>Vol: ${pool.volume24h.toLocaleString()}</span>
+                    <span>•</span>
+                    <span>Trades: {pool.trades24h}</span>
+                    <span>•</span>
+                    <span className={pool.priceChange24h && pool.priceChange24h > 0 ? 'text-green-400' : 'text-red-400'}>
+                      {pool.priceChange24h ? `${pool.priceChange24h > 0 ? '+' : ''}${pool.priceChange24h.toFixed(2)}%` : '0%'}
+                    </span>
+                  </div>
+                )}
+                
+                {/* Show contract ID */}
                 {pool.contractId && (
                   <p className="text-xs text-gray-500 font-mono mb-2">
-                    Contract: {pool.contractId.slice(0, 20)}...
+                    Contract: {pool.contractId.slice(0, 25)}...
                   </p>
                 )}
                 
                 <div className="flex items-center space-x-4 text-sm">
                   <span className="text-gray-400">by <span className="text-white">{pool.creator}</span></span>
                   <span className="text-gray-400">•</span>
-                  <span className="text-gray-400">{pool.timeLeft} left</span>
+                  <span className="text-gray-400">{pool.timeLeft}</span>
                 </div>
               </div>
             </div>
@@ -177,7 +202,7 @@ const MemeInvesting = () => {
                 <p className="text-lg font-bold text-white">
                   ${pool.totalPool.toLocaleString()}
                 </p>
-                <p className="text-xs text-gray-400">Pool Size</p>
+                <p className="text-xs text-gray-400">Total Liquidity</p>
               </div>
               <div>
                 <p className="text-lg font-bold text-white">{pool.participants}</p>
@@ -200,8 +225,28 @@ const MemeInvesting = () => {
       {selectedPool && (
         <div className="p-4 bg-[#2A2A2A] rounded-lg space-y-4">
           <h3 className="text-lg font-semibold text-white">
-            Invest in "{selectedPool.meme}"
+            Enter Pool: "{selectedPool.meme}"
           </h3>
+          
+          {/* Show real pool stats */}
+          {selectedPool.volume24h && (
+            <div className="p-3 bg-gray-700 rounded space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-300">24h Volume:</span>
+                <span className="text-white">${selectedPool.volume24h.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-300">24h Trades:</span>
+                <span className="text-white">{selectedPool.trades24h}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-300">Price Change:</span>
+                <span className={selectedPool.priceChange24h && selectedPool.priceChange24h > 0 ? 'text-green-400' : 'text-red-400'}>
+                  {selectedPool.priceChange24h ? `${selectedPool.priceChange24h > 0 ? '+' : ''}${selectedPool.priceChange24h.toFixed(2)}%` : '0%'}
+                </span>
+              </div>
+            </div>
+          )}
           
           <div className="space-y-3">
             <div>
@@ -224,7 +269,7 @@ const MemeInvesting = () => {
               className="w-full"
               disabled={investmentAmount < selectedPool.minimumEntry}
             >
-              Invest {investmentAmount} STX
+              Enter Pool - {investmentAmount} STX
             </Button>
           </div>
         </div>
