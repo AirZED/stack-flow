@@ -24,7 +24,7 @@ export function TradingChart({ asset, visible }: Props) {
   const safePriceChange24h = priceChange24h ?? 0;
 
   return (
-    <div className="w-full h-full space-y-5">
+    <div className="w-full h-full space-y-10">
       <div className="flex items-center justify-between">
         <div className="text-[#ECECEC] text-sm font-semibold flex items-center gap-2">
           {asset === "STX" ? <Icons.bitcoin /> : <Icons.bitcoin />}
@@ -47,7 +47,7 @@ export function TradingChart({ asset, visible }: Props) {
       </div>
 
       {/* Pass the visible prop to the widget */}
-      <TradingViewWidget asset={asset} visible={visible} />
+      <TradingViewWidget  asset={asset} visible={visible} />
 
       <div className="flex items-center justify-between *:w-full">
         <div className="space-y-2">

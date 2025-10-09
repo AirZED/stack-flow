@@ -63,7 +63,7 @@ export function TradeSummary() {
   };
 
   return (
-    <>
+    <div className="flex-1 gap-[1rem] flex flex-col w-full ">
       <ConfirmModal isOpen={showConfirmModal} />
 
       <SuccessModal
@@ -71,9 +71,9 @@ export function TradeSummary() {
         onClose={() => setShowSuccessModal(false)}
         txHash={txHash}
       />
-      <div className="col-span-2 bg-gradient-to-b from-[#1D2215] to-[#121412] py-3.5 px-6 rounded-t-lg">
+      <div className="col-span-2 bg-gradient-to-b from-[#1D2215] to-[#121412] py-3.5 px-6 rounded-t-lg " >
         <div className="flex items-start gap-10 md:gap-24">
-          <div className="w-full max-w-[300px] space-y-2">
+          <div className="w-full max-w-[300px] flex gap-[.5rem] flex-col">
             <div className="flex items-center justify-between *:text-xs *:capitalize">
               <p className="text-[#7A7A7A]">Strategy</p>
               <p className="text-[#D6D6D6] font-bold">
@@ -114,7 +114,7 @@ export function TradeSummary() {
       </div>
 
       <div className="bg-[#1D2215] h-full rounded-lg py-3.5 px-6 gap-4 flex flex-col ">
-        <div>
+        <div className="flex gap-[.5rem] flex-col">
           <div className="flex items-center justify-between *:text-xs *:text-[#D6D6D6]">
             <p>Total Cost</p>
             <p className="flex items-center gap-2 font-bold">
@@ -144,6 +144,6 @@ export function TradeSummary() {
           />
         </div>
       </div>
-    </>
+    </div>
   );
 }

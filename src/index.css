@@ -14,6 +14,12 @@
   }
 }
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 .gradient-text {
   background: linear-gradient(90deg, #bbf737 0%, #ffee62 100%);
   background-clip: text;

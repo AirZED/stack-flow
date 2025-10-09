@@ -7,7 +7,6 @@ import { TradeSummary } from "../app/trade-summary";
 import { TradingChart } from "../app/trading-chart";
 import CopyTrading from "../app/copy-trading";
 import MemeInvesting from "../app/meme-investing";
-import ReferralModal from "../molecules/ReferralModal";
 
 export default function DappPage() {
   const { state } = useAppContext();
@@ -20,12 +19,11 @@ export default function DappPage() {
   const showSocialFeatures = showCopyTrading || showMemeInvesting;
 
   return (
-    <div className="p-0 m-0">
-      <ReferralModal />
-
+    <div className="p-0 m-0 ">
       <div className="space-y-4">
-        <div className="flex flex-col items-start w-full gap-4 md:flex-row">
-          <div className="w-full md:max-w-[388px] space-y-4 mx-auto">
+        <div className="flex flex-col items-start w-full gap-4 md:flex-row h-full p-2">
+          {" "}
+          <div className="w-full md:max-w-[388px] space-y-4 mx-auto h-full">
             <AssetSelector selectedAsset={asset} />
             {asset === "STX" && (
               <SentimentSelector selectedSentiment={sentiment} />
@@ -36,7 +34,8 @@ export default function DappPage() {
               asset={asset}
             />
           </div>
-          <div className="w-full lg:max-w-[667px] bg-[#1D2215] p-7 rounded-lg min-h-[400px]">
+          <div className="w-full lg:max-w-[667px] bg-[#1D2215] p-7 rounded-lg ">
+            {/* Already has h-full, but keeping it ensures it uses max height */}
             {showCopyTrading && <CopyTrading />}
             {showMemeInvesting && <MemeInvesting />}
             <TradingChart asset={asset} visible={!showSocialFeatures} />
@@ -46,9 +45,7 @@ export default function DappPage() {
         {!showSocialFeatures && (
           <div className="flex flex-col items-start w-full gap-4 md:flex-row">
             <PriceSelector />
-            <div className="">
-              <TradeSummary />
-            </div>
+            <TradeSummary />
           </div>
         )}
       </div>

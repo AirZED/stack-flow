@@ -28,13 +28,14 @@ export function PriceSelector() {
   // Add comprehensive safety checks for undefined values
   const safeSelectedProfitZone = selectedProfitZone ?? 0;
   const safePremiumAndProfitZone = Array.isArray(premiumAndProfitZone)
-    ? premiumAndProfitZone.filter(item => item && typeof item.profitZone === 'number')
+    ? premiumAndProfitZone.filter(
+        (item) => item && typeof item.profitZone === "number"
+      )
     : [];
 
   return (
-    <div className="flex flex-col w-full gap-4 ">
+    <div className="flex flex-col w-full gap-4 flex-1 ">
       <div className="flex w-full flex-col gap-4 md:flex-row w-full flex-1">
- 
         <div className="bg-[#1D2215] p-6 rounded-lg space-y-2 flex-1">
           <p className="text-sm text-[#ECECEC]">Amount</p>
           <div className="space-y-2">

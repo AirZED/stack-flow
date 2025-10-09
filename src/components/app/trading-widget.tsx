@@ -55,7 +55,7 @@ function TradingViewWidget({
 
   return (
     <div
-      className="tradingview-widget-container h-[300px] w-full"
+      className="tradingview-widget-container w-full h-full"
       ref={container}
       style={{ display: visible ? "block" : "none" }} // Hide container when not visible
     ></div>
