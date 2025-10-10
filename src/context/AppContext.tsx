@@ -10,18 +10,8 @@ import {
 import { TSentiment, TokenType } from "../lib/types";
 import { usePriceData } from "../hooks/useRealTimeData";
 
-// TODO: Implement Stacks premium calculator
-// import calculatePremium from "../blockchain/stacks/premiumCalculator";
-
-// Placeholder function for now
-// const calculatePremium = async (
-//   _amount: number,
-//   _period: string,
-//   _asset: string
-// ): Promise<number[]> => {
-//   // Placeholder implementation
-//   return [100, 200, 300, 400, 500]; // Mock premiums
-// };
+// Uncomment and use the real premium calculator
+import { calculatePremiums } from "../blockchain/stacks/premiumCalculator";
 
 type AppContextState = {
   period: string;
@@ -160,28 +150,27 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
       setState((prev) => ({ ...prev, isFetchingPremiums: true }));
 
       try {
-        // Simulate premium calculation with real price data
-        const mockPremiums = Array.from({ length: 5 }, (_, i) => ({
-          premium: ((realTimePrice || 100) * (0.05 + i * 0.02)).toFixed(2),
+        // Use real premium calculation
+        const realPremiums = await calculatePremiums(
+          parseFloat(state.amount), 
+          state.period, 
+          state.asset
+        );
+        
+        const premiumData = realPremiums.map((premium, i) => ({
+          premium: premium.toFixed(2),
           profitZone: Math.floor((realTimePrice || 100) * (1.1 + i * 0.05)),
         }));
 
         setState((prev) => ({
           ...prev,
-          premiumAndProfitZone: mockPremiums,
-          selectedProfitZone: mockPremiums[0]?.profitZone || 0,
-          selectedPremium: mockPremiums[0]?.premium || "0",
-          isFetchingPremiums: false,
+          premiumAndProfitZone: premiumData,
         }));
       } catch (error) {
-        console.error("Error calculating premiums:", error);
-        setState((prev) => ({
-          ...prev,
-          premiumAndProfitZone: [],
-          selectedProfitZone: 0,
-          selectedPremium: "0",
-          isFetchingPremiums: false,
-        }));
+        console.error('Premium calculation failed:', error);
+        // Use fallback data
+      } finally {
+        setState((prev) => ({ ...prev, isFetchingPremiums: false }));
       }
     };
 

@@ -8,11 +8,15 @@ import { toast } from "react-toastify";
 import { axiosInstance } from "../../utils/axios";
 import { useWallet } from "../../context/WalletContext";
 
+// Import the working transaction manager
+import { createOption, type CreateOptionParams, type StrategyType } from "../../blockchain/stacks/transactionManager";
+
 export function TradeSummary() {
   const [userBalance, setUserBalance] = useState<number | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [txHash, setTxHash] = useState<string>("");
+  const [isCreatingOption, setIsCreatingOption] = useState(false);
 
   const { state } = useAppContext();
   const {
@@ -20,7 +24,7 @@ export function TradeSummary() {
     strategy,
     isFetching,
     selectedPremium,
-    period: _period,
+    period,
     amount,
   } = state;
 
@@ -30,35 +34,85 @@ export function TradeSummary() {
     setUserBalance(balance);
   };
 
+  // Map strategy names to contract strategy types
+  const mapStrategyToType = (strategyName: string): StrategyType => {
+    const name = strategyName.toLowerCase().replace(/\s+/g, '');
+    switch (name) {
+      case 'call':
+        return 'CALL';
+      case 'strap':
+        return 'STRAP';
+      case 'bullcallspread':
+        return 'BCSP';
+      case 'bullputspread':
+        return 'BPSP';
+      default:
+        return 'CALL';
+    }
+  };
+
   const callStrategy = async () => {
+    if (!address) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+
     try {
+      setIsCreatingOption(true);
       setShowConfirmModal(true);
-      // TODO: Implement Stacks contract call
-      console.log("Calling Stacks strategy contract...");
-      const tx = { hash: "mock-tx-hash" }; // Placeholder for now
-
-      if (typeof tx === "object" && "status" in tx) {
-        console.log("Transaction completed");
-        setTxHash(tx.hash);
-        setShowConfirmModal(false);
-        setShowSuccessModal(true);
-
-        // call the referral reward function
-        try {
-          await axiosInstance.post("/referrals/reward", {
-            refereeAddress: address,
-            rewardAmount: parseFloat(amount) * 0.002,
-            transactionHash: tx,
-          });
-        } catch (rewardError) {
-          console.error("Referral reward failed:", rewardError);
-          toast.warning(
-            "Referral reward processing failed, but trade was successful"
-          );
+      
+      console.log("Creating option with Stacks smart contract...");
+      
+      // Get current STX price for strike price calculation
+      const stxPrice = 0.59; // You can fetch this from your price service
+      
+      const params: CreateOptionParams = {
+        strategy: mapStrategyToType(strategy),
+        amount: parseFloat(amount),
+        strikePrice: stxPrice,
+        premium: parseFloat(selectedPremium),
+        period: parseInt(period.replace('D', '')), // Convert "7D" to 7
+        userAddress: address,
+        onFinish: (data) => {
+          console.log("Transaction completed:", data.txId);
+          setTxHash(data.txId);
+          setShowConfirmModal(false);
+          setShowSuccessModal(true);
+          toast.success("Option created successfully!");
+        },
+        onCancel: () => {
+          console.log("Transaction cancelled by user");
+          setShowConfirmModal(false);
+          setIsCreatingOption(false);
         }
+      };
+      
+      const result = await createOption(params);
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Transaction failed');
       }
+
+      // Call referral reward function
+      try {
+        await axiosInstance.post("/referrals/reward", {
+          refereeAddress: address,
+          rewardAmount: parseFloat(amount) * 0.002,
+          transactionHash: result.txId,
+        });
+      } catch (rewardError) {
+        console.error("Referral reward failed:", rewardError);
+        toast.warning(
+          "Referral reward processing failed, but trade was successful"
+        );
+      }
+      
     } catch (error) {
       console.error("Transaction failed:", error);
+      toast.error(error instanceof Error ? error.message : 'Transaction failed');
+      setShowConfirmModal(false);
+    } finally {
+      setIsCreatingOption(false);
     }
   };
 
