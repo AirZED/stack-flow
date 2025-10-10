@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CustomConnectButton from "../atoms/ConnectButton";
 import { Icons } from "../ui/icons";
 import { useAppContext } from "../../context/AppContext";
@@ -6,11 +6,13 @@ import ConfirmModal from "../molecules/ConfirmModal";
 import SuccessModal from "../molecules/SuccessModal";
 import { TransactionStatus } from "../molecules/TransactionStatus";
 import { toast } from "react-toastify";
-import { axiosInstance } from "../../utils/axios";
+// import { axiosInstance } from "../../utils/axios";
 import { useWallet } from "../../context/WalletContext";
+import { useTokenService } from "../../services/tokenService";
 
 export function TradeSummary() {
-  const [userBalance, setUserBalance] = useState<number | null>(null);
+  // const [userBalance, setUserBalance] = useState<number | null>(null);
+  const [usdcBalance, setUsdcBalance] = useState<number | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showTransactionStatus, setShowTransactionStatus] = useState(false);
@@ -23,10 +25,34 @@ export function TradeSummary() {
     state;
 
   const { address } = useWallet();
+  const tokenService = useTokenService();
 
-  const handleBalanceChange = (balance: number) => {
-    setUserBalance(balance);
-  };
+  // Fetch real token balance (sBTC primary, STX fallback)
+  useEffect(() => {
+    const fetchTokenBalance = async () => {
+      if (!address) {
+        setUsdcBalance(0);
+        return;
+      }
+
+      try {
+        // Get primary trading balance (sBTC or STX)
+        const primaryBalance = await tokenService.getPrimaryBalance();
+        setUsdcBalance(primaryBalance);
+        
+        console.log('Primary trading balance:', primaryBalance);
+      } catch (error) {
+        console.error('Error fetching token balance:', error);
+        setUsdcBalance(0);
+      }
+    };
+
+    fetchTokenBalance();
+  }, [address, tokenService]);
+
+  // const handleBalanceChange = (balance: number) => {
+  //   setUserBalance(balance);
+  // };
 
   const callStrategy = async () => {
     if (!address) {
@@ -61,7 +87,7 @@ export function TradeSummary() {
       const mappedStrategy = strategyMap[strategy] || 'CALL';
       
       // Create option on blockchain
-      const result = await createOption({
+        await createOption({
         strategy: mappedStrategy,
         amount: parseFloat(amount),
         strikePrice: state.assetPrice,
@@ -147,13 +173,47 @@ export function TradeSummary() {
             <div className="flex items-center justify-between *:text-xs *:capitalize">
               <p className="text-[#7A7A7A]">Exercising</p>
               <p className="text-[#D6D6D6] font-bold flex items-center gap-2">
-                Manual <Icons.questionMark />
+                {(() => {
+                  switch (strategy) {
+                    case "CALL":
+                    case "PUT":
+                      return "Automatic";
+                    case "STRAP":
+                    case "STRIP":
+                      return "Manual";
+                    case "Bull Call Spread":
+                    case "Bull Put Spread":
+                    case "Bear Put Spread":
+                    case "Bear Call Spread":
+                      return "Automatic";
+                    default:
+                      return "Manual";
+                  }
+                })()}
               </p>
             </div>
 
             <div className="flex items-center justify-between *:text-xs *:capitalize">
               <p className="text-[#7A7A7A]">Liquidation</p>
-              <p className="text-[#D6D6D6] font-bold">None</p>
+              <p className="text-[#D6D6D6] font-bold">
+                {(() => {
+                  switch (strategy) {
+                    case "CALL":
+                    case "PUT":
+                      return "At Expiry";
+                    case "STRAP":
+                    case "STRIP":
+                      return "Manual";
+                    case "Bull Call Spread":
+                    case "Bull Put Spread":
+                    case "Bear Put Spread":
+                    case "Bear Call Spread":
+                      return "At Expiry";
+                    default:
+                      return "None";
+                  }
+                })()}
+              </p>
             </div>
           </div>
 
@@ -188,22 +248,22 @@ export function TradeSummary() {
           <div className="flex items-center justify-between *:text-xs *:text-[#D6D6D6]">
             <p>Your Balance</p>
             <p className="flex items-center gap-2 font-bold">
-              <Icons.USDC /> {userBalance && userBalance.toFixed(2)} USDC.e
+              <Icons.USDC /> {usdcBalance ? usdcBalance.toFixed(8) : "0.00"} sBTC
             </p>
           </div>
 
           <div className="flex items-center justify-between *:text-xs *:text-[#D6D6D6]">
             <p>Platform Fee (0.1%)</p>
             <p className="flex items-center gap-2 font-bold">
-              <Icons.USDC /> {(parseFloat(selectedPremium) / 1000).toFixed(2)}{" "}
-              USDC.e
+              <Icons.USDC /> {(parseFloat(selectedPremium) * 0.001).toFixed(8)}{" "}
+              sBTC
             </p>
           </div>
         </div>
         <div className="w-full">
           <CustomConnectButton
             onclick={callStrategy}
-            onBalanceChange={handleBalanceChange}
+            // onBalanceChange={handleBalanceChange}
           />
         </div>
       </div>

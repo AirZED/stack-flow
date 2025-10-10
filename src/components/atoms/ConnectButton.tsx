@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Button from "./Button";
 import { useWallet } from "../../context/WalletContext";
 import { useAppContext } from "../../context/AppContext";
@@ -14,14 +14,46 @@ const CustomConnectButton = ({
   const { state } = useAppContext();
   const { selectedPremium } = state;
 
-  // For now, we'll simulate a balance - in a real app you'd fetch STX balance
-  const stxBalance = 1000; // This would come from Stacks API
+  // Fetch real STX balance from Stacks API
+  const [stxBalance, setStxBalance] = useState<number>(0);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(false);
 
   useEffect(() => {
-    if (onBalanceChange) {
-      onBalanceChange(stxBalance);
-    }
-  }, [stxBalance, onBalanceChange]);
+    const fetchStxBalance = async () => {
+      if (!address) {
+        setStxBalance(0);
+        if (onBalanceChange) onBalanceChange(0);
+        return;
+      }
+
+      setIsLoadingBalance(true);
+      try {
+        // Fetch STX balance from Stacks API
+        const response = await fetch(
+          `https://api.testnet.hiro.so/extended/v1/address/${address}/stx`
+        );
+        
+        if (response.ok) {
+          const data = await response.json();
+          const balance = parseFloat(data.balance) / 1000000; // Convert from microSTX to STX
+          setStxBalance(balance);
+          if (onBalanceChange) onBalanceChange(balance);
+        } else {
+          console.error('Failed to fetch STX balance:', response.status);
+          setStxBalance(0);
+          if (onBalanceChange) onBalanceChange(0);
+        }
+      } catch (error) {
+        console.error('Error fetching STX balance:', error);
+        setStxBalance(0);
+        if (onBalanceChange) onBalanceChange(0);
+      } finally {
+        setIsLoadingBalance(false);
+      }
+    };
+
+    fetchStxBalance();
+  }, [address, onBalanceChange]);
 
   if (isLoading) {
     return (

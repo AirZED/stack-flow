@@ -72,6 +72,28 @@ export const getBtcPrice = async (): Promise<number> => {
   }
 };
 
+export const getStxPrice = async (): Promise<number> => {
+  const cachedPrice = getCachedPrice("STX");
+  if (cachedPrice !== null) return cachedPrice;
+
+  try {
+    const response = await axios.get(
+      "https://api.coingecko.com/api/v3/simple/price?ids=stacks&vs_currencies=usd"
+    );
+    
+    const price = response.data?.stacks?.usd;
+    if (!price) throw new Error("Invalid API response format");
+
+    setCachedPrice("STX", price);
+    return price;
+  } catch (error) {
+    console.error("Error fetching STX price:", error);
+    const lastCachedPrice = getCachedPrice("STX");
+    if (lastCachedPrice) return lastCachedPrice;
+    throw error;
+  }
+};
+
 export const getAssetPrice = async (asset: string): Promise<number> => {
   const upperAsset = asset.toUpperCase();
   switch (upperAsset) {
@@ -79,6 +101,8 @@ export const getAssetPrice = async (asset: string): Promise<number> => {
       return getEthPrice();
     case "BTC":
       return getBtcPrice();
+    case "STX":
+      return getStxPrice();
     default:
       throw new Error(`Unsupported asset: ${asset}`);
   }
