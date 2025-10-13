@@ -1,6 +1,5 @@
 import { Fragment, ReactElement, useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import Button from "../atoms/Button";
 import { IoCloseOutline } from "react-icons/io5";
 import { MdOutlineMenu } from "react-icons/md";
 import CustomConnectButton from "../atoms/ConnectButton";
@@ -111,7 +110,7 @@ const Nav = (): ReactElement => {
       </div>
 
       <div
-        className={`fixed md:hidden bg-[#0d120c] w-full  flex flex-col justify-between p-2 ${
+        className={`fixed md:hidden bg-[#0d120c] w-full  flex flex-col justify-between z-[1000] p-2 ${
           isMenuOpen ? "h-screen" : "h-fit"
         }`}
       >
@@ -191,10 +190,6 @@ const Nav = (): ReactElement => {
 
         {isMenuOpen && (
           <div className="flex flex-col w-full gap-2">
-            <a className="w-full *:w-full" href="/whitepaper">
-              <Button>Whitepaper</Button>
-            </a>
-
             <div className="w-full">
               <CustomConnectButton />
             </div>
