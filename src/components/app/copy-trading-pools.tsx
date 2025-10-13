@@ -201,7 +201,7 @@ export function CopyTradingPools({ maxPools = 3, onPoolJoin }: CopyTradingPoolsP
             {/* Action Button */}
             <button
               onClick={() => handleJoinPool(pool)}
-              className="w-full py-2 px-4 bg-gradient-to-r from-[#37f741] to-[#FDEE61] text-black text-sm font-bold rounded-lg hover:opacity-90 transition-opacity"
+              className="w-full py-2 px-4 bg-linear-to-r from-[#37f741] to-[#FDEE61] text-black text-sm font-bold rounded-lg hover:opacity-90 transition-opacity"
             >
               Join Pool (Min: {pool.minInvestment} STX)
             </button>

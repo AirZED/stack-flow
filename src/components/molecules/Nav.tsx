@@ -60,7 +60,7 @@ const Nav = (): ReactElement => {
                   </h4>
                 </div>
               </div>
-              <ul className="flex list-none gap-5 m-0 [&>*]:cursor-pointer [&>*]:text-[1.1rem]">
+              <ul className="flex list-none gap-5 m-0 *:cursor-pointer *:text-[1.1rem]">
                 <li
                   className="text-white hover:text-[#bbf737]"
                   onClick={() => handleNavClick("home")}
@@ -101,7 +101,7 @@ const Nav = (): ReactElement => {
 
                 <CustomConnectButton />
 
-                <div className="absolute hidden p-2 text-white bg-gray-800 rounded group-hover:block">
+                <div className="absolute hidden p-2 text-white bg-gray-800 rounded-sm group-hover:block">
                   Coming soon!!
                 </div>
               </div>
@@ -138,7 +138,7 @@ const Nav = (): ReactElement => {
           </div>
           {isMenuOpen && (
             <nav className="pt-10">
-              <ul className="flex flex-col gap-4 [&>*]:border-b border-gray-800">
+              <ul className="flex flex-col gap-4 *:border-b border-gray-800">
                 <li
                   className="text-white hover:text-[#bbf737] cursor-pointer"
                   onClick={() => {
@@ -191,7 +191,7 @@ const Nav = (): ReactElement => {
 
         {isMenuOpen && (
           <div className="flex flex-col w-full gap-2">
-            <a className="w-full [&>*]:w-full" href="/whitepaper">
+            <a className="w-full *:w-full" href="/whitepaper">
               <Button>Whitepaper</Button>
             </a>
 

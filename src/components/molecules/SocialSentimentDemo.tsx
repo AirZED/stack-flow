@@ -37,9 +37,9 @@ export function SocialSentimentDemo() {
     return (
       <div className="bg-[#1D2215] rounded-lg p-6">
         <div className="animate-pulse">
-          <div className="h-6 bg-gray-700 rounded w-1/2 mb-4"></div>
-          <div className="h-4 bg-gray-700 rounded w-full mb-2"></div>
-          <div className="h-4 bg-gray-700 rounded w-3/4"></div>
+          <div className="h-6 bg-gray-700 rounded-sm w-1/2 mb-4"></div>
+          <div className="h-4 bg-gray-700 rounded-sm w-full mb-2"></div>
+          <div className="h-4 bg-gray-700 rounded-sm w-3/4"></div>
         </div>
       </div>
     );
@@ -111,7 +111,7 @@ export function SocialSentimentDemo() {
           {sentimentData.whaleActivity.slice(0, 2).map((whale) => (
             <div key={whale.id} className="bg-[#121412] rounded-lg p-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#37f741] to-[#FDEE61] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-linear-to-r from-[#37f741] to-[#FDEE61] flex items-center justify-center">
                   <span className="text-black font-bold text-xs">
                     {whale.alias.slice(0, 2).toUpperCase()}
                   </span>

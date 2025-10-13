@@ -36,10 +36,10 @@ class PriceService {
     // Fetch fresh price
     const priceData = await this.fetchPrice(asset);
     this.cache.set(asset, priceData);
-    
+
     // Notify subscribers
     this.notifySubscribers(asset, priceData);
-    
+
     return priceData.price;
   }
 
@@ -50,9 +50,9 @@ class PriceService {
     if (!this.subscribers.has(asset)) {
       this.subscribers.set(asset, new Set());
     }
-    
+
     this.subscribers.get(asset)!.add(callback);
-    
+
     // Return unsubscribe function
     return () => {
       this.subscribers.get(asset)?.delete(callback);
@@ -73,7 +73,7 @@ class PriceService {
           const response = await fetch(
             'https://api.coingecko.com/api/v3/simple/price?ids=stacks&vs_currencies=usd'
           );
-          
+
           if (response.ok) {
             const data = await response.json();
             price = data.stacks?.usd || 0;
@@ -89,9 +89,9 @@ class PriceService {
             const response = await fetch(
               'https://api.testnet.hiro.so/v2/pox'
             );
-            
+
             if (response.ok) {
-              const data = await response.json();
+              await response.json();
               // This is a simplified approach - you might need to adjust based on actual API
               price = 0.58; // Fallback price
               source = 'Stacks API';
@@ -103,12 +103,12 @@ class PriceService {
       } else {
         // Use Binance for BTC/ETH
         const symbol = asset === 'BTC' ? 'BTCUSDT' : 'ETHUSDT';
-        
+
         try {
           const response = await fetch(
             `https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`
           );
-          
+
           if (response.ok) {
             const data = await response.json();
             price = parseFloat(data.price);
@@ -137,14 +137,14 @@ class PriceService {
       };
     } catch (error) {
       console.error(`Failed to fetch price for ${asset}:`, error);
-      
+
       // Return fallback price
       const fallbackPrices = {
         'STX': 0.58,
         'BTC': 50000,
         'ETH': 3000
       };
-      
+
       return {
         price: fallbackPrices[asset],
         timestamp: Date.now(),
@@ -159,7 +159,7 @@ class PriceService {
   private startPeriodicUpdates(): void {
     this.updateInterval = setInterval(async () => {
       const assets: AssetType[] = ['STX', 'BTC', 'ETH'];
-      
+
       for (const asset of assets) {
         try {
           const priceData = await this.fetchPrice(asset);

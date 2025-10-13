@@ -43,8 +43,8 @@ export function TransactionStatus({
   }, [status]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="w-full max-w-md p-6 mx-4 space-y-4 rounded-lg bg-gradient-to-b from-[#1D2215] to-[#121412] border border-white/10">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs">
+      <div className="w-full max-w-md p-6 mx-4 space-y-4 rounded-lg bg-linear-to-b from-[#1D2215] to-[#121412] border border-white/10">
         {/* Header */}
         <div className="flex items-start justify-between">
           <h3 className="text-xl font-bold text-white">
@@ -74,7 +74,7 @@ export function TransactionStatus({
           )}
           {status === "success" && (
             <div className="text-center space-y-2">
-              <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-[#37f741] to-[#FDEE61] flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto rounded-full bg-linear-to-r from-[#37f741] to-[#FDEE61] flex items-center justify-center">
                 <Icons.check className="w-8 h-8 text-black" />
               </div>
               {blockHeight && (
@@ -109,7 +109,7 @@ export function TransactionStatus({
             </code>
             <button
               onClick={() => navigator.clipboard.writeText(txId)}
-              className="p-1 hover:bg-white/10 rounded transition-colors"
+              className="p-1 hover:bg-white/10 rounded-sm transition-colors"
               title="Copy transaction ID"
             >
               <Icons.copy className="w-4 h-4 text-gray-400" />
@@ -123,7 +123,7 @@ export function TransactionStatus({
             href={explorerUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full p-3 rounded-lg bg-gradient-to-r from-[#37f741]/10 to-[#FDEE61]/10 border border-[#37f741]/20 hover:border-[#37f741]/40 transition-colors text-white"
+            className="flex items-center justify-center gap-2 w-full p-3 rounded-lg bg-linear-to-r from-[#37f741]/10 to-[#FDEE61]/10 border border-[#37f741]/20 hover:border-[#37f741]/40 transition-colors text-white"
           >
             <span className="text-sm">View on Stacks Explorer</span>
             <Icons.externalLink className="w-4 h-4" />
@@ -134,7 +134,7 @@ export function TransactionStatus({
         {status === "success" && onClose && (
           <button
             onClick={onClose}
-            className="w-full py-3 rounded-lg bg-gradient-to-r from-[#37f741] to-[#FDEE61] text-black font-bold hover:opacity-90 transition-opacity"
+            className="w-full py-3 rounded-lg bg-linear-to-r from-[#37f741] to-[#FDEE61] text-black font-bold hover:opacity-90 transition-opacity"
           >
             Done
           </button>

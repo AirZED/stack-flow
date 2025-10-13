@@ -13,7 +13,7 @@ const Hero = (): ReactElement => {
               <div className="relative flex flex-col items-center md:flex-row">
                 {/* <!-- Left Column (Text) --> */}
                 <div className="max-w-[503px] space-y-5  max-md:mt-20">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#37f741]/20 to-[#ffffff]/5 border border-[#bbf838]/30">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-[#37f741]/20 to-[#ffffff]/5 border border-[#bbf838]/30">
                     <div className="w-2 h-2 rounded-full bg-[#bbf838] animate-pulse"></div>
                     <span className="text-sm font-medium text-[#bbf838]">
                       Built on Stacks

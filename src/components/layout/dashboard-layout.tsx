@@ -14,7 +14,7 @@ export function DashboardLayout() {
     <div className="pb-10 pt-28 mx-auto space-y-10 max-w-[1068px] px-5">
       {" "}
       <div className="space-y-5 ">
-        <h1 className="text-transparent bg-clip-text bg-gradient-to-r from-[#37f741] to-[#FDEE61] text-4xl font-bold tracking-tight">
+        <h1 className="text-transparent bg-clip-text bg-linear-to-r from-[#37f741] to-[#FDEE61] text-4xl font-bold tracking-tight">
           Trade One-Click Option Strategies
         </h1>{" "}
         <div className="flex items-center gap-5">

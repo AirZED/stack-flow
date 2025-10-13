@@ -29,7 +29,7 @@ export default function EnhancedTradingPage() {
             onClick={() => setActiveView('trading')}
             className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
               activeView === 'trading'
-                ? 'bg-gradient-to-r from-[#37f741] to-[#FDEE61] text-black'
+                ? 'bg-linear-to-r from-[#37f741] to-[#FDEE61] text-black'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
@@ -42,7 +42,7 @@ export default function EnhancedTradingPage() {
             onClick={() => setActiveView('social')}
             className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
               activeView === 'social'
-                ? 'bg-gradient-to-r from-[#37f741] to-[#FDEE61] text-black'
+                ? 'bg-linear-to-r from-[#37f741] to-[#FDEE61] text-black'
                 : 'text-gray-400 hover:text-white'
             }`}
           >

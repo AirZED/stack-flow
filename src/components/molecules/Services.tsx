@@ -61,7 +61,7 @@ const Services = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="p-8 rounded-lg hover:from-transparent hover:to-[rgba(187,247,55,0.1)] transition-all duration-500 cursor-pointer flex flex-col items-center justify-center border border-1 border-[#37f741]/20 hover:border-[#37f741]/40 h-full"
+              className="p-8 rounded-lg hover:from-transparent hover:to-[rgba(187,247,55,0.1)] transition-all duration-500 cursor-pointer flex flex-col items-center justify-center border border border-[#37f741]/20 hover:border-[#37f741]/40 h-full"
             >
               <div className="mb-6">
                 <img src={feature.icon} alt={feature.title} className="h-20" />

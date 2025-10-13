@@ -54,11 +54,11 @@ const Referral = () => {
   return (
     <Fragment>
       <div className="bg-[#1D2215] h-fit rounded-lg py-4 sm:py-7 px-3 sm:px-6">
-        <h1 className="font-semibold text-white border-b border-b-[#666666] pb-[1rem] text-[1rem] sm:text-[1.2rem] flex items-center gap-3">
+        <h1 className="font-semibold text-white border-b border-b-[#666666] pb-4 text-[1rem] sm:text-[1.2rem] flex items-center gap-3">
           <FaRegShareFromSquare className="text-[1.2rem]" /> Share & Earn
         </h1>
 
-        <div className="mt-[1rem] flex gap-[.5rem] flex-col">
+        <div className="mt-4 flex gap-[.5rem] flex-col">
           <h2 className="text-white flex flex-col sm:flex-row text-[1rem] sm:text-[1.2rem] gap-3 items-start sm:items-center">
             Your Referral link:{" "}
             {referralCode && (
@@ -69,7 +69,7 @@ const Referral = () => {
                   toast.success("Copied text to clipboard");
                 }}
               >
-                <MdOutlineLink className="text-[1.5rem] min-w-[1.5rem]" />
+                <MdOutlineLink className="text-[1.5rem] min-w-6" />
                 <span className="overflow-hidden text-ellipsis">
                   {referralCode}
                 </span>
@@ -85,7 +85,7 @@ const Referral = () => {
       </div>
 
       <div className="bg-[#1D2215] h-fit rounded-lg py-4 sm:py-7 px-3 sm:px-6 mt-4">
-        <h1 className="font-semibold text-white pb-[1rem] text-[1rem] sm:text-[1.2rem] flex items-center gap-3">
+        <h1 className="font-semibold text-white pb-4 text-[1rem] sm:text-[1.2rem] flex items-center gap-3">
           <RiUserShared2Line className="text-[1.2rem]" />
           {referrals.length > 0 ? "Your Referrals" : "No Referrals"}
         </h1>

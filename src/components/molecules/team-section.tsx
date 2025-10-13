@@ -76,7 +76,7 @@ export function TeamSection() {
                         alt={member.name}
                         className="object-cover w-full h-full"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+                      <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/50 to-transparent"></div>
                     </>
                   )}
 

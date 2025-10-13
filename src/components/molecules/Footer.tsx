@@ -92,7 +92,7 @@ const Footer = () => {
                   <a
                     key={index}
                     href={link.href}
-                    className="text-gray-500 hover:text-gray-300 transition-colors [&>*]:text-[1.3rem] "
+                    className="text-gray-500 hover:text-gray-300 transition-colors *:text-[1.3rem] "
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -128,7 +128,7 @@ const Footer = () => {
 
         <div
           className={`fixed bottom-5 right-12 h-[46px] w-[46px] cursor-pointer rounded-full 
-        shadow-[inset_0_0_0_2px_rgba(187,247,55,0.2)] z-[10000] transition-all duration-200
+        shadow-[inset_0_0_0_2px_rgba(187,247,55,0.2)] z-10000 transition-all duration-200
         ${
           isVisible
             ? "opacity-100 visible translate-y-0"

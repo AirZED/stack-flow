@@ -133,7 +133,7 @@ export function JoinPoolModal({ isOpen, onClose, pool, onSuccess }: JoinPoolModa
   const totalCost = investAmount + platformFee;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
       <div className="bg-[#1D2215] rounded-lg p-6 w-full max-w-md border border-white/10">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -185,7 +185,7 @@ export function JoinPoolModal({ isOpen, onClose, pool, onSuccess }: JoinPoolModa
               min={pool.minInvestment}
               max={balance}
               step="0.01"
-              className="w-full bg-[#121412] border border-white/10 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[#bbf838] focus:outline-none disabled:opacity-50"
+              className="w-full bg-[#121412] border border-white/10 rounded-lg p-3 text-white placeholder-gray-400 focus:border-[#bbf838] focus:outline-hidden disabled:opacity-50"
               placeholder={`Min: ${pool.minInvestment} STX`}
             />
             <div className="absolute right-3 top-3 text-gray-400 text-sm">STX</div>
@@ -240,7 +240,7 @@ export function JoinPoolModal({ isOpen, onClose, pool, onSuccess }: JoinPoolModa
           <button
             onClick={handleJoinPool}
             disabled={isProcessing || !isValidAmount || !address}
-            className="flex-1 py-3 px-4 bg-gradient-to-r from-[#37f741] to-[#FDEE61] text-black font-bold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+            className="flex-1 py-3 px-4 bg-linear-to-r from-[#37f741] to-[#FDEE61] text-black font-bold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {isProcessing ? (
               <>

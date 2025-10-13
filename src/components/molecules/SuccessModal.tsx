@@ -19,10 +19,10 @@ const SuccessModal = ({ isOpen, onClose, txHash }: SuccessModalProps) => {
     <Modal>
       <div className="flex items-center flex-col gap-3">
         <div className="relative flex items-center justify-center">
-          <div className="absolute w-[5rem] h-[5rem] rounded-full bg-green-300/20 animate-pulse"></div>
-          <div className="absolute w-[4rem] h-[4rem] rounded-full bg-green-400/30"></div>
-          <div className="absolute w-[3rem] h-[3rem] rounded-full bg-green-500/40"></div>
-          <div className="relative w-[2.5rem] h-[2.5rem] rounded-full bg-green-600 flex items-center justify-center">
+          <div className="absolute w-20 h-20 rounded-full bg-green-300/20 animate-pulse"></div>
+          <div className="absolute w-16 h-16 rounded-full bg-green-400/30"></div>
+          <div className="absolute w-12 h-12 rounded-full bg-green-500/40"></div>
+          <div className="relative w-10 h-10 rounded-full bg-green-600 flex items-center justify-center">
             <GiCheckMark className="text-white text-[1.5rem]" />
           </div>
         </div>

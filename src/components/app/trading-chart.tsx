@@ -19,7 +19,7 @@ type Props = {
 
 export function TradingChart({ asset }: Props) {
   const { state, formatNumber } = useAppContext();
-  const { assetPrice, isFetching, strategy, amount, selectedPremium, selectedProfitZone } = state;
+  const { assetPrice, isFetching, strategy, amount, selectedPremium, } = state;
   const [expectedPrice, setExpectedPrice] = useState<number>(assetPrice);
   const [currentPrice, setCurrentPrice] = useState<number>(assetPrice);
 

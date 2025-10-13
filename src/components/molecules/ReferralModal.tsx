@@ -48,7 +48,7 @@ const ReferralModal = () => {
   return (
     <>
       {referralCode && showReferralModal && (
-        <div className="fixed inset-0 z-[100000] bg-[#1a1a1ad3] backdrop-blur-sm flex items-center justify-center">
+        <div className="fixed inset-0 z-100000 bg-[#1a1a1ad3] backdrop-blur-xs flex items-center justify-center">
           <div className="bg-[#1D2215] max-w-md w-full mx-4 p-8 rounded-xl border border-[#ffffff1a] shadow-xl relative">
             <IoCloseOutline
               onClick={() => setShowReferralModal(false)}

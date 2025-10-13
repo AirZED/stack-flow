@@ -274,7 +274,7 @@ const WhitepaperPage = () => {
             sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
           }`}
         >
-          <div className="p-6 border-b border-gray-800 flex-shrink-0">
+          <div className="p-6 border-b border-gray-800 shrink-0">
             <h2 className="text-xl font-bold text-[#bbf838]">
               Table of Contents
             </h2>
@@ -310,7 +310,7 @@ const WhitepaperPage = () => {
           </nav>
 
           {/* Sidebar Footer */}
-          <div className="p-6 border-t border-gray-800 flex-shrink-0">
+          <div className="p-6 border-t border-gray-800 shrink-0">
             <a
               href="/"
               className="block text-center py-2 px-4 bg-[#1a1a1a] hover:bg-[#252525] rounded-lg transition-colors text-sm text-gray-400 hover:text-white"
@@ -322,7 +322,7 @@ const WhitepaperPage = () => {
 
         {/* Right Sidebar - Search */}
         <aside className="fixed top-0 right-0 h-screen w-80 bg-[#0a0a0a] border-l border-gray-800 z-40 pt-20 lg:pt-24 flex flex-col hidden lg:flex">
-          <div className="p-6 border-b border-gray-800 flex-shrink-0">
+          <div className="p-6 border-b border-gray-800 shrink-0">
             <h2 className="text-xl font-bold text-[#bbf838] mb-4">Search</h2>
 
             {/* Search Input */}
@@ -332,7 +332,7 @@ const WhitepaperPage = () => {
                 placeholder="Search whitepaper..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-4 pr-10 py-2 bg-[#1a1a1a] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#bbf838] focus:ring-1 focus:ring-[#bbf838] transition-colors"
+                className="w-full pl-4 pr-10 py-2 bg-[#1a1a1a] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-hidden focus:border-[#bbf838] focus:ring-1 focus:ring-[#bbf838] transition-colors"
               />
               <FiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             </div>
@@ -347,14 +347,14 @@ const WhitepaperPage = () => {
                   <div className="flex gap-1">
                     <button
                       onClick={goToPreviousMatch}
-                      className="p-1.5 hover:bg-[#1a1a1a] rounded transition-colors"
+                      className="p-1.5 hover:bg-[#1a1a1a] rounded-sm transition-colors"
                       title="Previous match (Shift+Enter)"
                     >
                       <FiChevronUp size={16} />
                     </button>
                     <button
                       onClick={goToNextMatch}
-                      className="p-1.5 hover:bg-[#1a1a1a] rounded transition-colors"
+                      className="p-1.5 hover:bg-[#1a1a1a] rounded-sm transition-colors"
                       title="Next match (Enter)"
                     >
                       <FiChevronDown size={16} />
@@ -393,7 +393,7 @@ const WhitepaperPage = () => {
                   >
                     <div className="flex items-start gap-2">
                       <span
-                        className={`flex-shrink-0 text-xs font-mono ${
+                        className={`shrink-0 text-xs font-mono ${
                           index === currentMatchIndex
                             ? "text-[#bbf838]"
                             : "text-gray-500"
@@ -422,7 +422,7 @@ const WhitepaperPage = () => {
           </div>
 
           {/* Search Tips Footer */}
-          <div className="p-6 border-t border-gray-800 flex-shrink-0 text-xs text-gray-500">
+          <div className="p-6 border-t border-gray-800 shrink-0 text-xs text-gray-500">
             <p className="mb-2">💡 Tips:</p>
             <ul className="space-y-1">
               <li>• Search is case-insensitive</li>
@@ -452,7 +452,7 @@ const WhitepaperPage = () => {
                 {copied ? "Copied!" : "Copy Link"}
               </button>
             </div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-[#bbf838] to-[#8bc34a] bg-clip-text text-transparent">
+            <h1 className="text-5xl font-bold bg-linear-to-r from-[#bbf838] to-[#8bc34a] bg-clip-text text-transparent">
               About StackFlow
             </h1>
             <p className="text-gray-400 mt-4">
@@ -515,7 +515,7 @@ const WhitepaperPage = () => {
                 code: ({ node, inline, ...props }: any) =>
                   inline ? (
                     <code
-                      className="px-2 py-1 bg-[#1a1a1a] rounded text-[#bbf838] text-sm"
+                      className="px-2 py-1 bg-[#1a1a1a] rounded-sm text-[#bbf838] text-sm"
                       {...props}
                     />
                   ) : (

@@ -144,19 +144,19 @@ export function StrategySelector({
         <div
           className={`p-px rounded-lg ${
             selectedStrategy?.toLowerCase() === strategy.name.toLowerCase()
-              ? " bg-gradient-to-r from-[#37f741] to-[#FDEE61]"
+              ? " bg-linear-to-r from-[#37f741] to-[#FDEE61]"
               : " bg-transparent"
           }`}
           key={i}
         >
           <div
             key={i}
-            className={`p-3 rounded-lg h-full cursor-pointer space-y-3 bg-gradient-to-b from-[#1D2215] to-[#121412]`}
+            className={`p-3 rounded-lg h-full cursor-pointer space-y-3 bg-linear-to-b from-[#1D2215] to-[#121412]`}
             onClick={() => {
               handleStrategyChange(strategy.name);
             }}
           >
-            <p className="text-transparent bg-gradient-to-r from-[#37f741] to-[#FDEE61] bg-clip-text">
+            <p className="text-transparent bg-linear-to-r from-[#37f741] to-[#FDEE61] bg-clip-text">
               {strategy.name}
             </p>
 

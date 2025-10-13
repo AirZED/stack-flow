@@ -122,7 +122,7 @@ export function MemeSignals({ maxSignals = 5, onSignalSelect }: MemeSignalsProps
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value as any)}
-          className="bg-[#121412] border border-white/10 rounded-lg px-3 py-1 text-sm text-white focus:outline-none focus:border-[#bbf838]/50"
+          className="bg-[#121412] border border-white/10 rounded-lg px-3 py-1 text-sm text-white focus:outline-hidden focus:border-[#bbf838]/50"
         >
           <option value="all">All Sentiments</option>
           <option value="bullish">Bullish</option>

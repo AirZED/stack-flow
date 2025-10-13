@@ -30,7 +30,7 @@ const About = (): ReactElement => {
   return (
     <div
       id="about"
-      className="bg-gradient-to-b from-[#101210] via-[#0c0d0c] to-[#080908] pt-5 pb-16"
+      className="bg-linear-to-b from-[#101210] via-[#0c0d0c] to-[#080908] pt-5 pb-16"
     >
       <div className="container px-4 mx-auto md:px-7 lg:px-12">
         <div className="flex flex-wrap">

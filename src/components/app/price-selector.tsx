@@ -30,11 +30,11 @@ export function PriceSelector() {
       <div className="bg-[#1D2215] p-6 rounded-lg space-y-2">
         <p className="text-sm text-[#ECECEC]">Amount</p>
         <div className="space-y-2">
-          <div className="bg-gradient-to-r w-full h-[50px] from-[#37f741] rounded-lg to-[#FDEE61] overflow-hidden p-px">
+          <div className="bg-linear-to-r w-full h-[50px] from-[#37f741] rounded-lg to-[#FDEE61] overflow-hidden p-px">
             <div className="rounded-lg px-5  bg-[#171717] h-full flex justify-between items-center">
               <input
                 type="number"
-                className="h-full w-[70%] bg-transparent border-none outline-none text-sm text-[#D6D6D6]"
+                className="h-full w-[70%] bg-transparent border-none outline-hidden text-sm text-[#D6D6D6]"
                 placeholder="1"
                 value={state.amount || ""}
                 onChange={(value) => handleAmountChange(value.target.value)}
@@ -72,7 +72,7 @@ export function PriceSelector() {
       <div className="bg-[#1D2215] p-6 rounded-lg space-y-2">
         <p className="text-sm text-[#ECECEC]">Profit Zone</p>
         <div className="space-y-2">
-          <div className="bg-gradient-to-r w-full h-[50px] from-[#37f741] rounded-lg to-[#FDEE61] overflow-hidden p-px">
+          <div className="bg-linear-to-r w-full h-[50px] from-[#37f741] rounded-lg to-[#FDEE61] overflow-hidden p-px">
             <Select
               value={
                 selectedProfitZone !== undefined
@@ -81,7 +81,7 @@ export function PriceSelector() {
               }
               onValueChange={handlePremiumSelect}
             >
-              <SelectTrigger className="w-full bg-[#171717] h-full border-none outline-none rounded-lg">
+              <SelectTrigger className="w-full bg-[#171717] h-full border-none outline-hidden rounded-lg">
                 <SelectValue className="text-[#D6D6D6] text-sm">
                   {isFetchingPremiums ? (
                     <Loader />

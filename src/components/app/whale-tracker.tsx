@@ -133,7 +133,7 @@ export function WhaleTracker({ onWhaleSelect, maxWhales = 5 }: WhaleTrackerProps
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value as any)}
-          className="bg-[#121412] border border-white/10 rounded-lg px-3 py-1 text-sm text-white focus:outline-none focus:border-[#bbf838]/50"
+          className="bg-[#121412] border border-white/10 rounded-lg px-3 py-1 text-sm text-white focus:outline-hidden focus:border-[#bbf838]/50"
         >
           <option value="all">All Strategies</option>
           <option value="bullish">Bullish</option>
@@ -155,7 +155,7 @@ export function WhaleTracker({ onWhaleSelect, maxWhales = 5 }: WhaleTrackerProps
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#37f741] to-[#FDEE61] flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-linear-to-r from-[#37f741] to-[#FDEE61] flex items-center justify-center">
                   <span className="text-black font-bold text-sm">
                     {whale.alias.slice(0, 2).toUpperCase()}
                   </span>
@@ -200,7 +200,7 @@ export function WhaleTracker({ onWhaleSelect, maxWhales = 5 }: WhaleTrackerProps
                       e.stopPropagation();
                       handleFollowWhale(whale.id);
                     }}
-                    className="px-3 py-1.5 bg-gradient-to-r from-[#37f741] to-[#FDEE61] text-black text-xs font-bold rounded-lg hover:opacity-90 transition-opacity"
+                    className="px-3 py-1.5 bg-linear-to-r from-[#37f741] to-[#FDEE61] text-black text-xs font-bold rounded-lg hover:opacity-90 transition-opacity"
                   >
                     Follow Whale
                   </button>
