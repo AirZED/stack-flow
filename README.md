@@ -104,9 +104,8 @@ We welcome contributions! Please:
 
 ## Community
 
-- **Telegram**: [t.me/stackflow_io](https://t.me/stackflow_io)
-- **Twitter**: [@StackFlow_io](https://x.com/StackFlow_io)
-- **Website**: [stackflow.io](https://stackflow.io)
+- **Twitter**: [@stackflowBTC](https://x.com/stackflowBTC)
+- **Website**: [stackflow](https://stack-flow-myqo.vercel.app/)
 
 ## License
 
