@@ -1,7 +1,4 @@
-// Simplified version without post conditions for immediate testing
-// Post conditions will be added back after successful testnet verification
-
-import { openContractCall, type FinishedTxData } from '@stacks/connect';
+import { makeContractCall, broadcastTransaction } from '@stacks/transactions';
 import { uintCV, AnchorMode, PostConditionMode } from '@stacks/transactions';
 import { STACKS_TESTNET, STACKS_MAINNET } from '@stacks/network';
 
@@ -14,7 +11,7 @@ const TESTNET_CONTRACT = {
 const NETWORK = import.meta.env.VITE_STACKS_NETWORK || 'testnet';
 const API_URL = import.meta.env.VITE_STACKS_API_URL || 'https://api.testnet.hiro.so';
 
-export const CONTRACT_ADDRESS = import.meta.env.VITE_STACKS_CONTRACT_ADDRESS 
+export const CONTRACT_ADDRESS = import.meta.env.VITE_STACKS_CONTRACT_ADDRESS
   ? import.meta.env.VITE_STACKS_CONTRACT_ADDRESS.split('.')[0]
   : TESTNET_CONTRACT.address;
 
@@ -33,8 +30,9 @@ export interface CreateOptionParams {
   premium: number;
   period: number;
   userAddress: string;
-  onFinish?: (data: FinishedTxData) => void;
+  onFinish?: (data: { txId: string }) => void;
   onCancel?: () => void;
+  onError?: (error: Error) => void;
 }
 
 async function getCurrentBlockHeight(): Promise<number> {
@@ -52,22 +50,119 @@ function toMicroUnits(value: number): number {
   return Math.floor(value * 1_000_000);
 }
 
-export async function createOption(params: CreateOptionParams): Promise<void> {
-  const { strategy, amount, strikePrice, premium, period, onFinish, onCancel } = params;
-  
-  console.log('🚀 Creating option with params:', {
+function getStrategyFunctionDetails(
+  strategy: StrategyType,
+  amountMicro: number,
+  strikeMicro: number,
+  premiumMicro: number,
+  expiryBlock: number
+): { functionName: string; functionArgs: ReturnType<typeof uintCV>[] } {
+  const baseArgs = [
+    uintCV(amountMicro),
+    uintCV(strikeMicro),
+    uintCV(premiumMicro),
+    uintCV(expiryBlock),
+  ];
+
+  switch (strategy) {
+    case 'STRAP':
+      return {
+        functionName: 'create-strap-option',
+        functionArgs: baseArgs,
+      };
+    case 'PUT':
+      return {
+        functionName: 'create-put-option',
+        functionArgs: baseArgs,
+      };
+    case 'STRIP':
+      return {
+        functionName: 'create-strip-option',
+        functionArgs: baseArgs,
+      };
+    case 'BCSP': {
+      const upperStrike = strikeMicro + toMicroUnits(strikeMicro / 10_000_000 * 0.1);
+      return {
+        functionName: 'create-bull-call-spread',
+        functionArgs: [
+          uintCV(amountMicro),
+          uintCV(strikeMicro),
+          uintCV(upperStrike),
+          uintCV(premiumMicro),
+          uintCV(expiryBlock),
+        ],
+      };
+    }
+    case 'BPSP': {
+      const upperStrike = strikeMicro + toMicroUnits(strikeMicro / 10_000_000 * 0.1);
+      return {
+        functionName: 'create-bull-put-spread',
+        functionArgs: [
+          uintCV(amountMicro),
+          uintCV(strikeMicro),
+          uintCV(upperStrike),
+          uintCV(premiumMicro),
+          uintCV(expiryBlock),
+        ],
+      };
+    }
+    case 'BEPS': {
+      const upperStrike = strikeMicro + toMicroUnits(strikeMicro / 10_000_000 * 0.1);
+      return {
+        functionName: 'create-bear-put-spread',
+        functionArgs: [
+          uintCV(amountMicro),
+          uintCV(strikeMicro),
+          uintCV(upperStrike),
+          uintCV(premiumMicro),
+          uintCV(expiryBlock),
+        ],
+      };
+    }
+    case 'BECS': {
+      const upperStrike = strikeMicro + toMicroUnits(strikeMicro / 10_000_000 * 0.1);
+      return {
+        functionName: 'create-bear-call-spread',
+        functionArgs: [
+          uintCV(amountMicro),
+          uintCV(strikeMicro),
+          uintCV(upperStrike),
+          uintCV(premiumMicro),
+          uintCV(expiryBlock),
+        ],
+      };
+    }
+    case 'CALL':
+    default:
+      return {
+        functionName: 'create-call-option',
+        functionArgs: baseArgs,
+      };
+  }
+}
+
+export async function createOption(
+  params: CreateOptionParams,
+  signTransaction: (tx: any) => Promise<string>
+): Promise<void> {
+  const { strategy, amount, strikePrice, premium, period, userAddress, onFinish, onCancel, onError } = params;
+
+  console.log('Creating option with params:', {
     strategy,
     amount,
     strikePrice,
     premium,
     period,
+    userAddress,
     contractAddress: CONTRACT_ADDRESS,
-    contractName: CONTRACT_NAME
+    contractName: CONTRACT_NAME,
   });
 
   // Validation
   if (amount <= 0 || strikePrice <= 0 || premium <= 0 || period <= 0) {
-    throw new Error('Invalid parameters: all values must be positive');
+    const error = new Error('Invalid parameters: all values must be positive');
+    onError?.(error);
+    throw error;
   }
 
   try {
@@ -76,92 +171,66 @@ export async function createOption(params: CreateOptionParams): Promise<void> {
       throw new Error('Unable to fetch current block height');
     }
 
-    const blocksPerDay = 144; // Stacks blocks per day
-    const BLOCK_BUFFER = 20; // Increased safety margin
-    const expiryBlock = currentBlock + (Math.floor(period) * blocksPerDay) + BLOCK_BUFFER;
-    
-    console.log(`📅 Block calculation: current=${currentBlock}, expiry=${expiryBlock}, period=${period} days`);
-    
+    const blocksPerDay = 144;
+    const BLOCK_BUFFER = 20;
+    const expiryBlock = currentBlock + Math.floor(period) * blocksPerDay + BLOCK_BUFFER;
+
+    console.log(`Block calculation: current=${currentBlock}, expiry=${expiryBlock}, period=${period} days`);
+
     const amountMicro = toMicroUnits(amount);
     const strikeMicro = toMicroUnits(strikePrice);
     const premiumMicro = toMicroUnits(premium);
-    
-    console.log('🔢 Micro unit conversion:', {
+
+    console.log('Micro unit conversion:', {
+      amountMicro,
+      strikeMicro,
+      premiumMicro,
+      expiryBlock,
+    });
+
+    const { functionName, functionArgs } = getStrategyFunctionDetails(
+      strategy,
       amountMicro,
       strikeMicro,
       premiumMicro,
       expiryBlock
-    });
-    
-    let functionName = 'create-call-option';
-    let functionArgs = [
-      uintCV(amountMicro),
-      uintCV(strikeMicro),
-      uintCV(premiumMicro),
-      uintCV(expiryBlock),
-    ];
-    
-    // Map strategy to contract function
-    switch (strategy) {
-      case 'STRAP':
-        functionName = 'create-strap-option';
-        break;
-      case 'PUT':
-        functionName = 'create-put-option';
-        break;
-      case 'STRIP':
-        functionName = 'create-strip-option';
-        break;
-      case 'BCSP':
-        functionName = 'create-bull-call-spread';
-        const upperStrikeBCSP = strikeMicro + toMicroUnits(strikePrice * 0.1); // 10% spread
-        functionArgs = [uintCV(amountMicro), uintCV(strikeMicro), uintCV(upperStrikeBCSP), uintCV(premiumMicro), uintCV(expiryBlock)];
-        break;
-      case 'BPSP':
-        functionName = 'create-bull-put-spread';
-        const upperStrikeBPSP = strikeMicro + toMicroUnits(strikePrice * 0.1);
-        functionArgs = [uintCV(amountMicro), uintCV(strikeMicro), uintCV(upperStrikeBPSP), uintCV(premiumMicro), uintCV(expiryBlock)];
-        break;
-      case 'BEPS':
-        functionName = 'create-bear-put-spread';
-        const upperStrikeBEPS = strikeMicro + toMicroUnits(strikePrice * 0.1);
-        functionArgs = [uintCV(amountMicro), uintCV(strikeMicro), uintCV(upperStrikeBEPS), uintCV(premiumMicro), uintCV(expiryBlock)];
-        break;
-      case 'BECS':
-        functionName = 'create-bear-call-spread';
-        const upperStrikeBECS = strikeMicro + toMicroUnits(strikePrice * 0.1);
-        functionArgs = [uintCV(amountMicro), uintCV(strikeMicro), uintCV(upperStrikeBECS), uintCV(premiumMicro), uintCV(expiryBlock)];
-        break;
-      case 'CALL':
-      default:
-        functionName = 'create-call-option';
-        break;
-    }
-    
-    console.log(`📞 Calling contract function: ${functionName}`);
-    console.log(`📋 Function args:`, functionArgs.map(arg => arg.value.toString()));
-    
-    await openContractCall({
+    );
+
+    console.log(`Calling contract function: ${functionName}`);
+    console.log('Function args:', functionArgs.map((arg) => arg.value?.toString()));
+
+    // Build the contract call transaction
+    const transaction = await makeContractCall({
       network: getNetwork(),
-      anchorMode: AnchorMode.Any,
       contractAddress: CONTRACT_ADDRESS,
       contractName: CONTRACT_NAME,
       functionName,
       functionArgs,
-      postConditionMode: PostConditionMode.Allow, // Using Allow for testing
-      onFinish: (data: FinishedTxData) => {
-        console.log('✅ Transaction successfully broadcast:', data.txId);
-        console.log('🔗 Explorer URL:', getExplorerUrl(data.txId));
-        onFinish?.(data);
-      },
-      onCancel: () => {
-        console.log('❌ Transaction cancelled by user');
-        onCancel?.();
-      },
+      senderKey: userAddress,
+      postConditionMode: PostConditionMode.Allow,
     });
-    
+
+    console.log('Transaction built, sending to wallet for signing...');
+
+    // Sign the transaction using Turnkey
+    const signedTx = await signTransaction(transaction);
+
+    console.log('Transaction signed:', signedTx.substring(0, 50) + '...');
+
+    // Broadcast the signed transaction
+    const response = await broadcastTransaction({
+      transaction: signedTx as any,
+      network: getNetwork(),
+    });
+
+    console.log('Transaction broadcasted:', response);
+    onFinish?.({ txId: response as any});
+
   } catch (error) {
-    console.error('💥 Error creating option:', error);
+    console.error('Error creating option:', error);
+    const err = error instanceof Error ? error : new Error(String(error));
+    onError?.(err);
+    onCancel?.();
     throw error;
   }
 }
@@ -171,58 +240,56 @@ export async function monitorTransaction(
   onUpdate: (status: string, details?: any) => void,
   maxAttempts = 60
 ): Promise<boolean> {
-  console.log(`🔍 Starting transaction monitoring for ${txId}`);
-  
+  console.log(`Starting transaction monitoring for ${txId}`);
+
   for (let i = 0; i < maxAttempts; i++) {
     try {
       const response = await fetch(`${API_URL}/extended/v1/tx/${txId}`);
-      
+
       if (!response.ok) {
         console.warn(`API response not OK: ${response.status}`);
         onUpdate('pending');
         await new Promise(resolve => setTimeout(resolve, 3000));
         continue;
       }
-      
+
       const data = await response.json();
-      console.log(`📊 Transaction ${txId} status: ${data.tx_status} (attempt ${i + 1}/${maxAttempts})`);
-      
+      console.log(`Transaction ${txId} status: ${data.tx_status} (attempt ${i + 1}/${maxAttempts})`);
+
       if (data.tx_status === 'success') {
-        console.log(`✅ Transaction confirmed: ${txId}`);
-        onUpdate('confirmed', { 
+        console.log(`Transaction confirmed: ${txId}`);
+        onUpdate('confirmed', {
           blockHeight: data.block_height,
-          blockHash: data.block_hash 
+          blockHash: data.block_hash,
         });
         return true;
       }
-      
+
       if (data.tx_status === 'abort_by_response' || data.tx_status === 'abort_by_post_condition') {
-        console.error(`❌ Transaction failed: ${txId}`, data);
-        onUpdate('failed', { 
+        console.error(`Transaction failed: ${txId}`, data);
+        onUpdate('failed', {
           reason: data.tx_result?.repr || 'Unknown error',
-          errorCode: data.tx_status 
+          errorCode: data.tx_status,
         });
         return false;
       }
-      
-      // Still pending
-      onUpdate('pending', { 
+
+      onUpdate('pending', {
         attempts: i + 1,
         maxAttempts,
-        nonce: data.nonce 
+        nonce: data.nonce,
       });
-      
+
     } catch (error) {
-      console.error(`⚠️ Error checking transaction ${txId}:`, error);
+      console.error(`Error checking transaction ${txId}:`, error);
       onUpdate('pending');
     }
-    
-    // Progressive backoff: start with 2s, increase to 5s after 15 attempts
+
     const delay = i < 15 ? 2000 : 5000;
     await new Promise(resolve => setTimeout(resolve, delay));
   }
-  
-  console.warn(`⏰ Transaction monitoring timeout for ${txId}`);
+
+  console.warn(`Transaction monitoring timeout for ${txId}`);
   onUpdate('failed', { reason: 'Monitoring timeout' });
   return false;
 }

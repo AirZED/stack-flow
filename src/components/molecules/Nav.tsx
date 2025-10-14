@@ -3,15 +3,17 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import Button from "../atoms/Button";
 import { IoCloseOutline } from "react-icons/io5";
 import { MdOutlineMenu } from "react-icons/md";
-import CustomConnectButton from "../atoms/ConnectButton";
+// import CustomConnectButton from "../atoms/ConnectButton";
 
 import StackFlowIcon from "../../assets/stackflow-icon.svg";
 import twitterIcon from "../../assets/icons/twitter.svg";
+import { useTurnkey } from "@turnkey/react-wallet-kit";
 
 const Nav = (): ReactElement => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { handleLogin } = useTurnkey();
 
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
@@ -99,7 +101,10 @@ const Nav = (): ReactElement => {
                   <img src={twitterIcon} className="w-8 h-8" />
                 </a>
 
-                <CustomConnectButton />
+                <Button variant="gradient" onClick={() => handleLogin()}>
+                  Connect Button
+                </Button>
+                {/* <CustomConnectButton /> */}
 
                 <div className="absolute hidden p-2 text-white bg-gray-800 rounded-sm group-hover:block">
                   Coming soon!!
@@ -196,7 +201,10 @@ const Nav = (): ReactElement => {
             </a>
 
             <div className="w-full">
-              <CustomConnectButton />
+              {/* <CustomConnectButton /> */}
+              <Button variant="gradient" onClick={() => handleLogin()}>
+                Connect Button
+              </Button>
             </div>
           </div>
         )}
