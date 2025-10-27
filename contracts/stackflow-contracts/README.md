@@ -20,14 +20,20 @@ contracts/stackflow-contracts/
 │   ├── stackflow-options-m1.clar     # M1 contract (CALL + BPSP)
 │   └── stackflow-options-v1.clar     # V1 contract (all 8 strategies)
 ├── tests/
-│   ├── stackflow-options-m1.test.ts  # M1 comprehensive tests (31 tests)
-│   └── stackflow-options-v1.test.ts  # V1 tests
+│   ├── unit/                         # Unit tests (Vitest)
+│   ├── integration/                  # Integration tests
+│   ├── contract-calls/               # Contract API tests
+│   └── README.md                     # Test documentation
 ├── simulation/
 │   └── m1-simulation.ts              # Advanced simulation framework
 ├── settings/
 │   ├── Simnet.toml                   # Simnet configuration
-│   └── Devnet.toml                   # Devnet configuration
-├── run-simulation.cjs                # Clean simulation runner
+│   ├── Devnet.toml                   # Devnet configuration
+│   └── Testnet.toml                  # Testnet configuration
+├── deployments/                      # Clarinet deployment plans
+├── deploy-m1-node.js                 # M1 contract deployment script
+├── run-simulation.cjs                # Simulation runner
+├── run-tests.js                      # Test runner
 ├── README.md                         # Project documentation
 ├── Clarinet.toml                     # Clarinet configuration
 └── package.json                      # Dependencies & scripts
@@ -37,38 +43,47 @@ contracts/stackflow-contracts/
 
 ### **Run Tests**
 ```bash
-# Note: Tests require proper mnemonic configuration in settings/Simnet.toml
-npm test
+# Run all tests (comprehensive)
+pnpm run test:all
 
+# Run individual test categories
+pnpm run test:unit          # Unit tests (requires mnemonic)
+pnpm run test:integration   # Integration tests
+pnpm run test:api          # Contract API tests
+
+# Note: Unit tests require proper mnemonic configuration in settings/Simnet.toml
 # Alternative: Run simulation instead (works without mnemonic issues)
-npm run simulate:quick
+pnpm run simulate:quick
 ```
 
 ### **Run Simulation**
 ```bash
 # Full simulation (1000 trades)
-npm run simulate
+pnpm run simulate
 
 # Quick simulation (200 trades)
-npm run simulate:quick
+pnpm run simulate:quick
 ```
 
 ### **Deploy Contract**
 ```bash
-# Generate deployment plan first
-clarinet deployments generate --testnet --medium-cost
+# Deploy M1 contract to testnet (recommended method)
+node deploy-m1-node.js
 
-# Deploy to testnet (requires STX for gas fees)
+# Alternative: Use Clarinet deployment
 clarinet deployments apply --testnet
-
-# Deploy to devnet
-clarinet deployments apply --devnet
 ```
 
 **Note**: Deployment requires:
-- STX for gas fees (~0.22 STX for both contracts)
+- STX for gas fees (~0.15 STX for M1 contract)
 - Valid mnemonic in `settings/Testnet.toml`
 - Testnet network access
+
+### **Install Dependencies**
+```bash
+# Install all dependencies
+pnpm install
+```
 
 ## 📈 **Strategy Details**
 

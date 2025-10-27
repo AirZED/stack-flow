@@ -149,13 +149,13 @@
 ```bash
 # Run all tests
 cd contracts/stackflow-contracts
-npm test
+pnpm test
 
 # Run with coverage
-npm test -- --coverage
+pnpm test -- --coverage
 
 # Run specific test suite
-npm test -- --grep "CALL Strategy"
+pnpm test -- --grep "CALL Strategy"
 ```
 
 ---

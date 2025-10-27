@@ -10,8 +10,8 @@ plan:
       transactions:
         - contract-publish:
             contract-name: stackflow-options-m1
-            expected-sender: ST3DSAPR2WF7D7SMR6W0R436AA6YYTD8RFT9E9NPH
-            cost: 96150
+            expected-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            cost: 104520
             path: contracts/stackflow-options-m1.clar
             anchor-block-only: true
             clarity-version: 3

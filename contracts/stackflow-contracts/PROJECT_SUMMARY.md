@@ -37,13 +37,13 @@ contracts/stackflow-contracts/
 
 ```bash
 # Run comprehensive tests
-npm test
+pnpm test
 
 # Run full simulation (1000 trades)
-npm run simulate
+pnpm run simulate
 
 # Run quick simulation (200 trades)
-npm run simulate:quick
+ppnpm run simulate:quick
 
 # Deploy contract
 clarinet deploy
