@@ -1,0 +1,57 @@
+note: using existing deployments/default.testnet-plan.yaml
+The following deployment plan will be applied:
+---
+id: 0
+name: Testnet deployment
+network: testnet
+stacks-node: "https://api.testnet.hiro.so"
+bitcoin-node: "http://blockstack:blockstacksystem@bitcoind.testnet.stacks.co:18332"
+plan:
+  batches:
+    - id: 0
+      transactions:
+        - contract-publish:
+            contract-name: stackflow-options-m1
+            expected-sender: ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7
+            cost: 104900
+            path: contracts/stackflow-options-m1.clar
+            anchor-block-only: true
+            clarity-version: 3
+        - contract-publish:
+            contract-name: stackflow-options-m2
+            expected-sender: ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7
+            cost: 270750
+            path: contracts/stackflow-options-m2.clar
+            anchor-block-only: true
+            clarity-version: 3
+        - contract-publish:
+            contract-name: stackflow-options-v1
+            expected-sender: ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7
+            cost: 125550
+            path: contracts/stackflow-options-v1.clar
+            anchor-block-only: true
+            clarity-version: 3
+        - contract-publish:
+            contract-name: stackflow-oracle-mock
+            expected-sender: ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7
+            cost: 60480
+            path: contracts/stackflow-oracle-mock.clar
+            anchor-block-only: true
+            clarity-version: 3
+        - contract-publish:
+            contract-name: stackflow-pyth-oracle
+            expected-sender: ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7
+            cost: 31480
+            path: contracts/stackflow-pyth-oracle.clar
+            anchor-block-only: true
+            clarity-version: 3
+      epoch: "3.2"
+
+
+Total cost:	0.593160 STX
+Duration:	1 blocks
+
+
+Continue [Y/n]?
+[?1049h[1;1H[38;5;15;49mBroadcasting transactions to https://api.testnet.hiro[2;1H🟪[2;3H  Contract publish ST3F4WE Transaction indexed     [3;1H🟪[3;3H  Contract publish ST3F4WE Transaction indexed     [4;1H🟪[4;3H  Contract publish ST3F4WE Transaction indexed     [5;1H🟪[5;3H  Contract publish ST3F4WE Transaction indexed     [6;1H🟪[6;3H  Contract publish ST3F4WE Transaction indexed     [7;1H                                                     [8;1H                                                     [9;1H                                                     [10;1H                                                     [11;1H                                                     [12;1H                                                     [39m[49m[0m[?25l[2;1H[38;5;15;49m🟦[2;5HPublish ST3F4WEX90KZQ6D2[2;42He[2;44Hcod[2;50Hand[39m[49m[0m[?25l[3;1H[38;5;15;49m🟦[3;5HPublish ST3F4WEX90KZQ6D2[3;42He[3;44Hcod[3;50Hand[39m[49m[0m[?25l[4;1H[38;5;15;49m🟦[4;5HPublish ST3F4WEX90KZQ6D2[4;42He[4;44Hcod[4;50Hand[39m[49m[0m[?25l[5;1H[38;5;15;49m🟦[5;5HPublish ST3F4WEX90KZQ6D2[5;42He[5;44Hcod[5;50Hand[39m[49m[0m[?25l[6;1H[38;5;15;49m🟦[6;5HPublish ST3F4WEX90KZQ6D2[6;42He[6;44Hcod[6;50Hand[39m[49m[0m[?25l[2;1H[38;5;15;49m🟥[2;30Hun[2;33Hble [2;38Ho post trans[2;51Hcti[39m[49m[0m[?25l[?1049l[?25hx Error publishing transactions: unable to post transaction
+{"error":"transaction rejected","reason":"ContractAlreadyExists","reason_data":{"contract_identifier":"ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7.stackflow-options-m1"},"txid":"f5e25a616a8b736830eb2ba9cab8d002e9bb0819eff4d258cb6f002ae8adccba"}

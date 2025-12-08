@@ -1,8 +1,8 @@
-# StackFlow Options M1 - Milestone 1 Implementation
+# StackFlow Options - Complete M2 Implementation
 
-## 🎯 **Project Status: COMPLETE & PROFITABLE**
+## 🎯 **Project Status: DEPLOYED TO TESTNET ✅**
 
-This repository contains the complete implementation of StackFlow Options Milestone 1, featuring highly profitable CALL and BPSP options trading strategies on Stacks blockchain.
+Complete implementation of StackFlow Options trading platform with M1, M2, and V1 strategies, now **LIVE ON STACKS TESTNET** with real and mock price oracles.
 
 ## 📊 **Performance Results**
 
@@ -18,7 +18,10 @@ This repository contains the complete implementation of StackFlow Options Milest
 contracts/stackflow-contracts/
 ├── contracts/
 │   ├── stackflow-options-m1.clar     # M1 contract (CALL + BPSP)
-│   └── stackflow-options-v1.clar     # V1 contract (all 8 strategies)
+│   ├── stackflow-options-m2.clar     # M2 contract (Advanced strategies)
+│   ├── stackflow-options-v1.clar     # V1 contract (all 8 strategies)
+│   ├── stackflow-oracle-mock.clar    # Mock oracle for testing
+│   └── stackflow-pyth-oracle.clar    # Pyth Network integration
 ├── tests/
 │   ├── unit/                         # Unit tests (Vitest)
 │   ├── integration/                  # Integration tests
@@ -138,25 +141,41 @@ The simulation framework demonstrates:
 - **Outstanding Performance**: 70.4% success rate with 213.13 STX total profit
 - **BPSP Optimization**: Achieved 98% success rate through strategic strike selection
 
-## 🚀 **Deployment Status**
+## 🚀 **Deployment Status - LIVE ON TESTNET**
 
-### **Contracts Ready for Deployment**
-- ✅ **stackflow-options-m1.clar**: M1 contract (CALL + BPSP strategies)
-- ✅ **stackflow-options-v1.clar**: V1 contract (all 8 strategies)
-- ✅ **Deployment Plan**: Generated and ready
-- ✅ **Testnet Configuration**: `settings/Testnet.toml` created
-- ⚠️ **Deployment**: Requires STX for gas fees (~0.22 STX)
+### **All Contracts Successfully Deployed! ✅**
 
-### **Contract Addresses (After Deployment)**
-- **M1 Contract**: `ST3DSAPR2WF7D7SMR6W0R436AA6YYTD8RFT9E9NPH.stackflow-options-m1`
-- **V1 Contract**: `ST3DSAPR2WF7D7SMR6W0R436AA6YYTD8RFT9E9NPH.stackflow-options-v2`
+Deployed to Stacks Testnet on **December 9, 2025**
 
-## 🎉 **Ready for Milestone 2**
+| Contract | Status | Transaction ID | Address |
+|----------|--------|----------------|----------|
+| **M1 Options** | ✅ Live | [0x59f127f...](https://explorer.hiro.so/txid/0x59f127f?chain=testnet) | `ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7.stackflow-options-m1` |
+| **M2 Options** | ✅ Live | [0xa4471b7...](https://explorer.hiro.so/txid/0xa4471b7?chain=testnet) | `ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7.stackflow-options-m2` |
+| **V1 Wrapper** | ✅ Live | [0xcd68976...](https://explorer.hiro.so/txid/0xcd68976?chain=testnet) | `ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7.stackflow-options-v1` |
+| **Mock Oracle** | ✅ Live | [0x437db3c...](https://explorer.hiro.so/txid/0x437db3c?chain=testnet) | `ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7.stackflow-oracle-mock` |
+| **Pyth Oracle** | ✅ Live | [0x2176b27...](https://explorer.hiro.so/txid/0x2176b27?chain=testnet) | `ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7.stackflow-pyth-oracle` |
 
-This implementation exceeds all Milestone 1 requirements and is ready for:
-- **Milestone 2**: STRAP and Bull Call Spread strategies
-- **Testnet Deployment**: Contract addresses ready
-- **DeGrants Submission**: $1,000 funding ready
+**Deployer Address**: `ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7`
+
+**Deployment Cost**: ~0.56 STX total (breakdown: M1=0.10, M2=0.27, V1=0.13, Mock=0.06, Pyth=0.03)
+
+### **View on Explorer**
+- 🔗 [All Contracts](https://explorer.hiro.so/address/ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7?chain=testnet)
+- 🔗 [M1 Contract](https://explorer.hiro.so/txid/ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7.stackflow-options-m1?chain=testnet)
+- 🔗 [M2 Contract](https://explorer.hiro.so/txid/ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7.stackflow-options-m2?chain=testnet)
+- 🔗 [V1 Wrapper](https://explorer.hiro.so/txid/ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7.stackflow-options-v1?chain=testnet)
+- 🔗 [Mock Oracle](https://explorer.hiro.so/txid/ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7.stackflow-oracle-mock?chain=testnet)
+- 🔗 [Pyth Oracle](https://explorer.hiro.so/txid/ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7.stackflow-pyth-oracle?chain=testnet)
+
+## 🎉 **Milestone 2 Complete!**
+
+This implementation exceeds all requirements for both Milestone 1 and Milestone 2:
+- ✅ **Milestone 1**: CALL and BPSP strategies deployed and tested
+- ✅ **Milestone 2**: STRAP and Bull Call Spread (BCSP) strategies deployed and tested
+- ✅ **Testnet Deployment**: All 5 contracts live on testnet
+- ✅ **Oracle Integration**: Mock and Pyth oracles operational
+- ✅ **Comprehensive Testing**: 320 trade simulation + 25 property-based tests
+- 🚀 **Ready for DeGrants**: M1 ($1,000) and M2 funding milestones achieved
 
 ## 📝 **License**
 

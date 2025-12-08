@@ -30,7 +30,6 @@ genesis:
     - pox-4
     - signers
     - signers-voting
-    - costs-4
 plan:
   batches:
     - id: 0
@@ -41,8 +40,23 @@ plan:
             path: contracts/stackflow-options-m1.clar
             clarity-version: 3
         - emulated-contract-publish:
+            contract-name: stackflow-options-m2
+            emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            path: contracts/stackflow-options-m2.clar
+            clarity-version: 3
+        - emulated-contract-publish:
             contract-name: stackflow-options-v1
             emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
             path: contracts/stackflow-options-v1.clar
+            clarity-version: 3
+        - emulated-contract-publish:
+            contract-name: stackflow-oracle-mock
+            emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            path: contracts/stackflow-oracle-mock.clar
+            clarity-version: 3
+        - emulated-contract-publish:
+            contract-name: stackflow-pyth-oracle
+            emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            path: contracts/stackflow-pyth-oracle.clar
             clarity-version: 3
       epoch: "3.2"

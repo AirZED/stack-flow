@@ -10,10 +10,27 @@ path = 'contracts/stackflow-options-m1.clar'
 clarity_version = 3
 epoch = 'latest'
 
+[contracts.stackflow-options-m2]
+path = 'contracts/stackflow-options-m2.clar'
+clarity_version = 3
+epoch = 'latest'
+
+
 [contracts.stackflow-options-v1]
 path = 'contracts/stackflow-options-v1.clar'
 clarity_version = 3
 epoch = 'latest'
+
+[contracts.stackflow-oracle-mock]
+path = 'contracts/stackflow-oracle-mock.clar'
+clarity_version = 3
+epoch = 'latest'
+
+[contracts.stackflow-pyth-oracle]
+path = 'contracts/stackflow-pyth-oracle.clar'
+clarity_version = 3
+epoch = 'latest'
+
 [repl.analysis]
 passes = ['check_checker']
 
