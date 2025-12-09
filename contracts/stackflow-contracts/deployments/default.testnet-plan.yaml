@@ -9,6 +9,13 @@ plan:
     - id: 0
       transactions:
         - contract-publish:
+            contract-name: price-oracle-trait
+            expected-sender: ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7
+            cost: 1000
+            path: contracts/price-oracle-trait.clar
+            anchor-block-only: true
+            clarity-version: 3
+        - contract-publish:
             contract-name: stackflow-options-m1
             expected-sender: ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7
             cost: 109380

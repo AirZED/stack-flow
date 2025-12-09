@@ -718,7 +718,6 @@ describe("StackFlow M2 - Property-Based Tests", () => {
             deployer
           );
           
-          if (priceQuery.type === "ok") {
             const data = (priceQuery.value as any).value; // Access the map value
             expect(data["price"].value).toBe(BigInt(sbtcPrice));
             consistencyCount++;
