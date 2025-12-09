@@ -2,6 +2,8 @@
 ;; Integrates with Pyth Network for reliable STX/USD and BTC/USD price feeds
 
 ;; Pyth Oracle Interface (simplified for Stacks integration)
+(impl-trait .price-oracle-trait.price-oracle-trait)
+
 ;; Based on Pyth's Stacks integration pattern
 
 ;; Price feed IDs (Pyth mainnet)
@@ -65,7 +67,7 @@
   }))
 
 ;; Main interface for M2 contract
-(define-read-only (get-oracle-price (asset (string-ascii 12)))
+(define-read-only (get-price (asset (string-ascii 12)))
   (if (is-eq asset "STX")
       (match (get-stx-price)
         pyth-data (pyth-price-to-micro-usd pyth-data)
@@ -78,6 +80,6 @@
 
 ;; Freshness check (Pyth includes timestamp in response)
 (define-read-only (is-price-fresh (asset (string-ascii 12)) (max-age uint))
-  (match (get-oracle-price asset)
+  (match (get-price asset)
     price-data (ok (<= (- stacks-block-height (get timestamp price-data)) max-age))
     err (ok false)))

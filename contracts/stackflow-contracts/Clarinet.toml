@@ -5,6 +5,16 @@ authors = []
 telemetry = true
 cache_dir = './.cache'
 requirements = []
+[contracts.price-oracle-trait]
+path = 'contracts/price-oracle-trait.clar'
+clarity_version = 3
+epoch = 'latest'
+
+[contracts.sip-010-trait-ft-standard]
+path = 'contracts/sip-010-trait-ft-standard.clar'
+clarity_version = 3
+epoch = 'latest'
+
 [contracts.stackflow-options-m1]
 path = 'contracts/stackflow-options-m1.clar'
 clarity_version = 3
@@ -28,6 +38,11 @@ epoch = 'latest'
 
 [contracts.stackflow-pyth-oracle]
 path = 'contracts/stackflow-pyth-oracle.clar'
+clarity_version = 3
+epoch = 'latest'
+
+[contracts.stackflow-sbtc-mock]
+path = 'contracts/stackflow-sbtc-mock.clar'
 clarity_version = 3
 epoch = 'latest'
 

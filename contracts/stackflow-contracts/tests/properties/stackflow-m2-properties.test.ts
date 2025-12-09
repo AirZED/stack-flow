@@ -83,11 +83,11 @@ describe("StackFlow M2 - Property-Based Tests", () => {
         const { result } = simnet.callPublicFn(
           "stackflow-options-m2",
           "create-strap-option",
-          [Cl.uint(amount), Cl.uint(strike), Cl.uint(premium), Cl.uint(expiry)],
+          [Cl.uint(amount), Cl.uint(strike), Cl.uint(premium), Cl.uint(expiry), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
           user1
         );
         
-        if (result.type === Cl.ResponseOkType) {
+        if (result.type === "ok") {
           const strapId = (result.value as any).value;
           const components = simnet.callReadOnlyFn(
             "stackflow-options-m2",
@@ -99,7 +99,7 @@ describe("StackFlow M2 - Property-Based Tests", () => {
           // Verify components exist
           expect(components.result).not.toBeNone();
           if (components.result.type !== "none") {
-            const comp = (components.result as any).value;
+            const comp = (components.result as any).value.value;
             // Verify we have 3 component IDs
             expect(comp["call-option-1"]).toBeDefined();
             expect(comp["call-option-2"]).toBeDefined();
@@ -128,11 +128,11 @@ describe("StackFlow M2 - Property-Based Tests", () => {
         const { result: createResult } = simnet.callPublicFn(
           "stackflow-options-m2",
           "create-strap-option",
-          [Cl.uint(amount), Cl.uint(strike), Cl.uint(premium), Cl.uint(expiry)],
+          [Cl.uint(amount), Cl.uint(strike), Cl.uint(premium), Cl.uint(expiry), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
           user1
         );
         
-        if (createResult.type === Cl.ResponseOkType) {
+        if (createResult.type === "ok") {
           const strapId = (createResult.value as any).value;
           
           // Set price significantly above strike
@@ -144,15 +144,15 @@ describe("StackFlow M2 - Property-Based Tests", () => {
             deployer
           );
           
-          // Exercise
+          // Exercise STRAP
           const { result: exerciseResult } = simnet.callPublicFn(
             "stackflow-options-m2",
             "exercise-option",
-            [Cl.uint(strapId)],
+            [Cl.uint(strapId), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
             user1
           );
           
-          if (exerciseResult.type === Cl.ResponseOkType) {
+          if (exerciseResult.type === "ok") {
             const payout = (exerciseResult.value as any).value;
             // When price > strike, payout should be positive (from 2 calls)
             expect(payout).toBeGreaterThan(0);
@@ -178,18 +178,18 @@ describe("StackFlow M2 - Property-Based Tests", () => {
         const { result: createResult } = simnet.callPublicFn(
           "stackflow-options-m2",
           "create-strap-option",
-          [Cl.uint(amount), Cl.uint(strike), Cl.uint(premium), Cl.uint(expiry)],
+          [Cl.uint(amount), Cl.uint(strike), Cl.uint(premium), Cl.uint(expiry), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
           user1
         );
         
-        if (createResult.type === Cl.ResponseOkType) {
+        if (createResult.type === "ok") {
           const strapId = (createResult.value as any).value;
           
           // Set price below strike
           const currentPrice = strike - Math.floor(Math.random() * 1_500_000) - 100_000;
           simnet.callPublicFn(
             "stackflow-oracle-mock",
-            " update-price",
+            "update-price",
             [Cl.stringAscii("STX"), Cl.uint(currentPrice), Cl.uint(5)],
             deployer
           );
@@ -197,11 +197,11 @@ describe("StackFlow M2 - Property-Based Tests", () => {
           const { result: exerciseResult } = simnet.callPublicFn(
             "stackflow-options-m2",
             "exercise-option",
-            [Cl.uint(strapId)],
+            [Cl.uint(strapId), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
             user1
           );
           
-          if (exerciseResult.type === Cl.ResponseOkType) {
+          if (exerciseResult.type === "ok") {
             // Payout calculation should be from PUT only
             successCount++;
           }
@@ -272,11 +272,11 @@ describe("StackFlow M2 - Property-Based Tests", () => {
         const { result: validResult } = simnet.callPublicFn(
           "stackflow-options-m2",
           "create-bull-call-spread",
-          [Cl.uint(amount), Cl.uint(lowerStrike), Cl.uint(upperStrike), Cl.uint(netPremium), Cl.uint(expiry)],
+          [Cl.uint(amount), Cl.uint(lowerStrike), Cl.uint(upperStrike), Cl.uint(netPremium), Cl.uint(expiry), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
           user1
         );
         
-        if (lowerStrike < upperStrike && validResult.type === Cl.ResponseOkType) {
+        if (lowerStrike < upperStrike && validResult.type === "ok") {
           validationCount++;
         }
         
@@ -284,11 +284,11 @@ describe("StackFlow M2 - Property-Based Tests", () => {
         const { result: invalidResult } = simnet.callPublicFn(
           "stackflow-options-m2",
           "create-bull-call-spread",
-          [Cl.uint(amount), Cl.uint(upperStrike), Cl.uint(lowerStrike), Cl.uint(netPremium), Cl.uint(expiry)],
+          [Cl.uint(amount), Cl.uint(upperStrike), Cl.uint(lowerStrike), Cl.uint(netPremium), Cl.uint(expiry), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
           user1
         );
         
-        if (invalidResult.type === Cl.ResponseErrType) {
+        if (invalidResult.type === "err") {
           validationCount++;
         }
       }
@@ -312,11 +312,11 @@ describe("StackFlow M2 - Property-Based Tests", () => {
         const { result: createResult } = simnet.callPublicFn(
           "stackflow-options-m2",
           "create-bull-call-spread",
-          [Cl.uint(amount), Cl.uint(lowerStrike), Cl.uint(upperStrike), Cl.uint(netPremium), Cl.uint(expiry)],
+          [Cl.uint(amount), Cl.uint(lowerStrike), Cl.uint(upperStrike), Cl.uint(netPremium), Cl.uint(expiry), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
           user1
         );
         
-        if (createResult.type === Cl.ResponseOkType) {
+        if (createResult.type === "ok") {
           const spreadId = (createResult.value as any).value;
           
           // Set price above upper strike
@@ -331,11 +331,11 @@ describe("StackFlow M2 - Property-Based Tests", () => {
           const { result: exerciseResult } = simnet.callPublicFn(
             "stackflow-options-m2",
             "exercise-option",
-            [Cl.uint(spreadId)],
+            [Cl.uint(spreadId), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
             user1
           );
           
-          if (exerciseResult.type === Cl.ResponseOkType) {
+          if (exerciseResult.type === "ok") {
             const payout = (exerciseResult.value as any).value;
             const maxProfit = upperStrike - lowerStrike - netPremium;
             
@@ -364,11 +364,11 @@ describe("StackFlow M2 - Property-Based Tests", () => {
         const { result: createResult } = simnet.callPublicFn(
           "stackflow-options-m2",
           "create-bull-call-spread",
-          [Cl.uint(amount), Cl.uint(lowerStrike), Cl.uint(upperStrike), Cl.uint(netPremium), Cl.uint(expiry)],
+          [Cl.uint(amount), Cl.uint(lowerStrike), Cl.uint(upperStrike), Cl.uint(netPremium), Cl.uint(expiry), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
           user1
         );
         
-        if (createResult.type === Cl.ResponseOkType) {
+        if (createResult.type === "ok") {
           const spreadId = (createResult.value as any).value;
           
           // Set price between strikes
@@ -386,11 +386,11 @@ describe("StackFlow M2 - Property-Based Tests", () => {
             const { result: exerciseResult } = simnet.callPublicFn(
               "stackflow-options-m2",
               "exercise-option",
-              [Cl.uint(spreadId)],
+              [Cl.uint(spreadId), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
               user1
             );
             
-            if (exerciseResult.type === Cl.ResponseOkType) {
+            if (exerciseResult.type === "ok") {
               const payout = (exerciseResult.value as any).value;
               const profitRaw = currentPrice - lowerStrike;
               const expectedPayout = profitRaw > netPremium ? profitRaw - netPremium : 0;
@@ -421,11 +421,11 @@ describe("StackFlow M2 - Property-Based Tests", () => {
         const { result: createResult } = simnet.callPublicFn(
           "stackflow-options-m2",
           "create-bull-call-spread",
-          [Cl.uint(amount), Cl.uint(lowerStrike), Cl.uint(upperStrike), Cl.uint(netPremium), Cl.uint(expiry)],
+          [Cl.uint(amount), Cl.uint(lowerStrike), Cl.uint(upperStrike), Cl.uint(netPremium), Cl.uint(expiry), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
           user1
         );
         
-        if (createResult.type === Cl.ResponseOkType) {
+        if (createResult.type === "ok") {
           const spreadId = (createResult.value as any).value;
           
           // Set price below lower strike
@@ -440,14 +440,14 @@ describe("StackFlow M2 - Property-Based Tests", () => {
           const { result: exerciseResult } = simnet.callPublicFn(
             "stackflow-options-m2",
             "exercise-option",
-            [Cl.uint(spreadId)],
+            [Cl.uint(spreadId), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
             user1
           );
           
-          if (exerciseResult.type === Cl.ResponseOkType) {
+          if (exerciseResult.type === "ok") {
             const payout = (exerciseResult.value as any).value;
             // Payout should be zero
-            expect(payout).toBe(0);
+            expect(payout).toBe(0n);
             successCount++;
           }
         }
@@ -471,11 +471,11 @@ describe("StackFlow M2 - Property-Based Tests", () => {
         const { result } = simnet.callPublicFn(
           "stackflow-options-m2",
           "create-bull-call-spread",
-          [Cl.uint(amount), Cl.uint(lowerStrike), Cl.uint(upperStrike), Cl.uint(netPremium), Cl.uint(expiry)],
+          [Cl.uint(amount), Cl.uint(lowerStrike), Cl.uint(upperStrike), Cl.uint(netPremium), Cl.uint(expiry), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
           user1
         );
         
-        if (result.type === Cl.ResponseOkType) {
+        if (result.type === "ok") {
           const spreadId = (result.value as any).value;
           const spread = simnet.callReadOnlyFn(
             "stackflow-options-m2",
@@ -485,7 +485,7 @@ describe("StackFlow M2 - Property-Based Tests", () => {
           );
           
           if (spread.result.type !== "none") {
-            const spreadData = (spread.result as any).value;
+            const spreadData = (spread.result as any).value.value;
             // Max loss = net premium paid
             expect(spreadData["max-loss"]).toBeDefined();
             successCount++;
@@ -514,7 +514,7 @@ describe("StackFlow M2 - Property-Based Tests", () => {
           deployer
         );
         
-        if (validResult.type === Cl.ResponseOkType) {
+        if (validResult.type === "ok") {
           validationCount++;
         }
         
@@ -526,7 +526,7 @@ describe("StackFlow M2 - Property-Based Tests", () => {
           deployer
         );
         
-        if (invalidResult.type === Cl.ResponseErrType) {
+        if (invalidResult.type === "err") {
           validationCount++;
         }
       }
@@ -550,7 +550,7 @@ describe("StackFlow M2 - Property-Based Tests", () => {
           deployer
         );
         
-        if (result.type === Cl.ResponseOkType) {
+        if (result.type === "ok") {
           const priceData = simnet.callReadOnlyFn(
             "stackflow-oracle-mock",
             "get-price",
@@ -558,10 +558,10 @@ describe("StackFlow M2 - Property-Based Tests", () => {
             deployer
           );
           
-          if (priceData.result.type === Cl.ResponseOkType) {
-            const data = (priceData.result.value as any).value;
-            expect(data.price).toBe(price);
-            expect(data["confidence-score"]).toBeGreaterThan(0);
+          if (priceData.result.type === "ok") {
+            const data = (priceData.result.value as any).value; // Access the map value
+            expect(data["price"].value).toBe(BigInt(price));
+            expect(data["confidence"].value).toBeGreaterThan(0n); // Confidence derived from mock
             consensusCount++;
           }
         }
@@ -585,11 +585,11 @@ describe("StackFlow M2 - Property-Based Tests", () => {
         const { result: createResult } = simnet.callPublicFn(
           "stackflow-options-m2",
           "create-call-option",
-          [Cl.uint(amount), Cl.uint(strike), Cl.uint(premium), Cl.uint(expiry)],
+          [Cl.uint(amount), Cl.uint(strike), Cl.uint(premium), Cl.uint(expiry), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
           user1
         );
         
-        if (createResult.type === Cl.ResponseOkType) {
+        if (createResult.type === "ok") {
           const optionId = (createResult.value as any).value;
           
           // Update oracle price
@@ -605,11 +605,11 @@ describe("StackFlow M2 - Property-Based Tests", () => {
           const { result: exerciseResult } = simnet.callPublicFn(
             "stackflow-options-m2",
             "exercise-option",
-            [Cl.uint(optionId)],
+            [Cl.uint(optionId), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
             user1
           );
           
-          if (exerciseResult.type === Cl.ResponseOkType) {
+          if (exerciseResult.type === "ok") {
             // Verify settlement used oracle price
             const option = simnet.callReadOnlyFn(
               "stackflow-options-m2",
@@ -619,8 +619,8 @@ describe("StackFlow M2 - Property-Based Tests", () => {
             );
             
             if (option.result.type !== "none") {
-              const optionData = (option.result as any).value;
-              expect(optionData["settlement-price"]).toBe(settlementPrice);
+              const optionData = (option.result.value as any).value;
+              expect(optionData["settlement-price"].value).toBe(BigInt(settlementPrice));
               successCount++;
             }
           }
@@ -641,7 +641,7 @@ describe("StackFlow M2 - Property-Based Tests", () => {
         deployer
       );
       
-      expect(updateResult.type).toBe(Cl.ResponseOkType);
+      expect(updateResult.type).toBe("ok");
       
       // Immediately after update, should be fresh
       const { result: freshnessResult } = simnet.callReadOnlyFn(
@@ -651,7 +651,7 @@ describe("StackFlow M2 - Property-Based Tests", () => {
         deployer
       );
       
-      expect(freshnessResult.type).toBe(Cl.ResponseOkType);
+      expect(freshnessResult.type).toBe("ok");
     });
   });
 
@@ -675,7 +675,7 @@ describe("StackFlow M2 - Property-Based Tests", () => {
           deployer
         );
         
-        if (mintResult.type === Cl.ResponseOkType) {
+        if (mintResult.type === "ok") {
           // Attempt deposit
           const { result: depositResult } = simnet.callPublicFn(
             "stackflow-options-m2",
@@ -684,7 +684,7 @@ describe("StackFlow M2 - Property-Based Tests", () => {
             user1
           );
           
-          if (depositResult.type === Cl.ResponseOkType) {
+          if (depositResult.type === "ok") {
             validationCount++;
           }
         }
@@ -709,7 +709,7 @@ describe("StackFlow M2 - Property-Based Tests", () => {
           deployer
         );
         
-        if (priceUpdate.type === Cl.ResponseOkType) {
+        if (priceUpdate.type === "ok") {
           // Verify price is retrievable
           const { result: priceQuery } = simnet.callReadOnlyFn(
             "stackflow-oracle-mock",
@@ -718,9 +718,9 @@ describe("StackFlow M2 - Property-Based Tests", () => {
             deployer
           );
           
-          if (priceQuery.type === Cl.ResponseOkType) {
-            const data = (priceQuery.value as any).value;
-            expect(data.price).toBe(sbtcPrice);
+          if (priceQuery.type === "ok") {
+            const data = (priceQuery.value as any).value; // Access the map value
+            expect(data["price"].value).toBe(BigInt(sbtcPrice));
             consistencyCount++;
           }
         }
@@ -762,7 +762,7 @@ describe("StackFlow M2 - Property-Based Tests", () => {
         );
         
         // Should succeed or fail based on available balance
-        if (withdrawResult.type === Cl.ResponseOkType || withdrawResult.type === Cl.ResponseErrType) {
+        if (withdrawResult.type === "ok" || withdrawResult.type === "err") {
           marginCheckCount++;
         }
       }
@@ -784,7 +784,7 @@ describe("StackFlow M2 - Property-Based Tests", () => {
           deployer
         );
         
-        if (result.type === Cl.ResponseOkType) {
+        if (result.type === "ok") {
           liquidationChecks++;
         }
       }
@@ -831,7 +831,7 @@ describe("StackFlow M2 - Property-Based Tests", () => {
       const call = simnet.callPublicFn(
         "stackflow-options-m2",
         "create-call-option",
-        [Cl.uint(amount), Cl.uint(strike), Cl.uint(premium), Cl.uint(expiry)],
+        [Cl.uint(amount), Cl.uint(strike), Cl.uint(premium), Cl.uint(expiry), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
         user1
       );
       
@@ -839,12 +839,12 @@ describe("StackFlow M2 - Property-Based Tests", () => {
       const bpsp = simnet.callPublicFn(
         "stackflow-options-m2",
         "create-bull-put-spread",
-        [Cl.uint(amount), Cl.uint(2_000_000), Cl.uint(3_000_000), Cl.uint(premium), Cl.uint(expiry)],
+        [Cl.uint(amount), Cl.uint(strike), Cl.uint(strike + 1000000), Cl.uint(premium), Cl.uint(expiry), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
         user1
       );
       
-      expect(call.result.type).toBe(Cl.ResponseOkType);
-      expect(bpsp.result.type).toBe(Cl.ResponseOkType);
+      expect(call.result.type).toBe("ok");
+      expect(bpsp.result.type).toBe("ok");
     });
   });
 
@@ -853,15 +853,20 @@ describe("StackFlow M2 - Property-Based Tests", () => {
       let errorCount = 0;
       
       for (let i = 0; i < MIN_ITERATIONS; i++) {
+        const amount = randomAmount();
+        const strike = randomStrike();
+        const premium = randomPremium();
+        const expiry = randomExpiry();
+
         // Test zero amount
         const { result: zeroAmount } = simnet.callPublicFn(
           "stackflow-options-m2",
           "create-call-option",
-          [Cl.uint(0), Cl.uint(2_500_000), Cl.uint(500_000), Cl.uint(randomExpiry())],
+          [Cl.uint(0), Cl.uint(strike), Cl.uint(premium), Cl.uint(expiry), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
           user1
         );
         
-        if (zeroAmount.type === Cl.ResponseErrType) {
+        if (zeroAmount.type === "err") {
           errorCount++;
         }
         
@@ -869,11 +874,11 @@ describe("StackFlow M2 - Property-Based Tests", () => {
         const { result: zeroPremium } = simnet.callPublicFn(
           "stackflow-options-m2",
           "create-call-option",
-          [Cl.uint(10_000_000), Cl.uint(2_500_000), Cl.uint(0), Cl.uint(randomExpiry())],
+          [Cl.uint(amount), Cl.uint(strike), Cl.uint(0), Cl.uint(expiry), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
           user1
         );
         
-        if (zeroPremium.type === Cl.ResponseErrType) {
+        if (zeroPremium.type === "err") {
           errorCount++;
         }
       }
@@ -888,11 +893,11 @@ describe("StackFlow M2 - Property-Based Tests", () => {
       const { result } = simnet.callPublicFn(
         "stackflow-options-m2",
         "create-call-option",
-        [Cl.uint(10_000_000), Cl.uint(2_500_000), Cl.uint(500_000), Cl.uint(randomExpiry())],
+        [Cl.uint(10_000_000), Cl.uint(2_500_000), Cl.uint(500_000), Cl.uint(randomExpiry()), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
         user1
       );
       
-      expect(result.type).toBe(Cl.ResponseOkType);
+      expect(result.type).toBe("ok");
     });
   });
 
@@ -905,11 +910,11 @@ describe("StackFlow M2 - Property-Based Tests", () => {
         const { result } = simnet.callPublicFn(
           "stackflow-options-m2",
           "create-call-option",
-          [Cl.uint(randomAmount()), Cl.uint(randomStrike()), Cl.uint(randomPremium()), Cl.uint(randomExpiry())],
+          [Cl.uint(randomAmount()), Cl.uint(randomStrike()), Cl.uint(randomPremium()), Cl.uint(randomExpiry()), Cl.contractPrincipal(deployer, "stackflow-oracle-mock")],
           user1
         );
         
-        if (result.type === Cl.ResponseOkType) {
+        if (result.type === "ok") {
           successCount++;
         }
       }

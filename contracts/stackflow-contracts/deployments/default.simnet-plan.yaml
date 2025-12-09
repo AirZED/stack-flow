@@ -35,6 +35,16 @@ plan:
     - id: 0
       transactions:
         - emulated-contract-publish:
+            contract-name: price-oracle-trait
+            emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            path: contracts/price-oracle-trait.clar
+            clarity-version: 3
+        - emulated-contract-publish:
+            contract-name: sip-010-trait-ft-standard
+            emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            path: contracts/sip-010-trait-ft-standard.clar
+            clarity-version: 3
+        - emulated-contract-publish:
             contract-name: stackflow-options-m1
             emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
             path: contracts/stackflow-options-m1.clar
@@ -58,5 +68,10 @@ plan:
             contract-name: stackflow-pyth-oracle
             emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
             path: contracts/stackflow-pyth-oracle.clar
+            clarity-version: 3
+        - emulated-contract-publish:
+            contract-name: stackflow-sbtc-mock
+            emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            path: contracts/stackflow-sbtc-mock.clar
             clarity-version: 3
       epoch: "3.2"

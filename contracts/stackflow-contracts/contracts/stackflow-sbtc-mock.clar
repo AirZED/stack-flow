@@ -2,7 +2,7 @@
 ;; SIP-010 compliant fungible token for testing sBTC collateral functionality
 ;; Mock implementation for M2 development
 
-(impl-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
+(impl-trait .sip-010-trait-ft-standard.sip-010-trait)
 
 ;; Token Definition
 (define-fungible-token sbtc-token)

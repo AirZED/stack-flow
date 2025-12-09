@@ -3,13 +3,9 @@
 ;; Mock implementation for M2 testing and development
 
 ;; Trait Definition
-(define-trait price-oracle-trait
-  (
-    (get-price ((string-ascii 12)) (response {price: uint, timestamp: uint, confidence: uint} uint))
-    (update-price ((string-ascii 12) uint uint) (response bool uint))
-    (is-price-fresh ((string-ascii 12) uint) (response bool uint))
-  )
-)
+;; Trait Definition
+(impl-trait .price-oracle-trait.price-oracle-trait)
+
 
 ;; Contract Owner
 (define-data-var contract-owner principal tx-sender)
@@ -55,7 +51,10 @@
 
 (define-private (add-to-price-history (history (list 10 uint)) (new-price uint))
   ;; Add new price to history, keeping last 10
-  (unwrap-panic (as-max-len? (append history new-price) u10)))
+  (if (>= (len history) u10)
+      (let ((sliced (unwrap-panic (slice? history u1 (len history)))))
+        (unwrap-panic (as-max-len? (append sliced new-price) u10)))
+      (unwrap-panic (as-max-len? (append history new-price) u10))))
 
 ;; Public Functions
 

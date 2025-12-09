@@ -87,17 +87,14 @@
 (define-data-var max-option-period uint u12960) ;; 90 days
 
 ;; M2 New Configuration
+;; M2 New Configuration
+(use-trait price-oracle-trait .price-oracle-trait.price-oracle-trait)
 (define-data-var oracle-contract (optional principal) none)
-;; sBTC contract - configurable for testnet vs mainnet
-;; Mainnet: SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token
-;; Testnet: Set via set-sbtc-contract before deployment
 (define-data-var sbtc-contract (optional principal) none)
 (define-data-var margin-requirement-pct uint u150)  ;; 150% of position value
 
 ;; Constants for sBTC integration
-;; Update these based on deployment environment
 (define-constant sbtc-mainnet-contract 'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token)
-;; Testnet address to be set by admin
 
 ;; Helper Functions
 (define-private (fee (p uint)) (/ (* p (var-get protocol-fee-bps)) u10000))
@@ -114,15 +111,9 @@
 (define-private (valid-collateral-type (ctype (string-ascii 4))) 
   (or (is-eq ctype "STX") (is-eq ctype "sBTC")))
 
-;; Oracle Integration Functions
-;; For testing: returns default STX price of $2.50
-;; In production, this would integrate with external oracle contract
-(define-read-only (get-oracle-price (asset (string-ascii 12)))
-  (ok {price: u2500000, timestamp: stacks-block-height, confidence: u100}))
-
-;; Helper function to get current oracle price  
-(define-private (get-current-oracle-price)
-  (ok u2500000))
+;; Helper function to get current oracle price - UPDATED to take trait
+(define-private (get-current-oracle-price (oracle <price-oracle-trait>))
+  (contract-call? oracle get-price "STX"))
 
 ;; M1 Payout Calculators (unchanged)
 (define-private (call-payout (strike uint) (amount uint) (premium uint) (current-price uint))
@@ -177,15 +168,16 @@
 ;; M1 Strategy Functions (maintained for backward compatibility)
 
 ;; Create CALL Option (enhanced with oracle and collateral options)
-(define-public (create-call-option (amount uint) (strike uint) (premium uint) (expiry uint))
-  (create-call-option-with-collateral amount strike premium expiry "STX"))
+(define-public (create-call-option (amount uint) (strike uint) (premium uint) (expiry uint) (oracle <price-oracle-trait>))
+  (create-call-option-with-collateral amount strike premium expiry "STX" oracle))
 
 (define-public (create-call-option-with-collateral 
     (amount uint) 
     (strike uint) 
     (premium uint) 
     (expiry uint)
-    (collateral-type (string-ascii 4)))
+    (collateral-type (string-ascii 4))
+    (oracle <price-oracle-trait>))
   (begin
     (asserts! (not (var-get paused)) err-protocol-paused)
     (asserts! (> amount u0) err-invalid-amount)
@@ -197,7 +189,7 @@
     (let ((id (+ (var-get option-nonce) u1))
           (fee-amount (fee premium))
           (total (+ premium fee-amount))
-          (oracle-price (unwrap! (get-current-oracle-price) err-oracle-failure)))
+          (oracle-price (get price (unwrap! (get-current-oracle-price oracle) err-oracle-failure))))
       
       ;; Handle collateral based on type
       (if (is-eq collateral-type "STX")
@@ -227,8 +219,8 @@
       (ok id))))
 
 ;; Create Bull Put Spread (enhanced)
-(define-public (create-bull-put-spread (amount uint) (lower-strike uint) (upper-strike uint) (collateral uint) (expiry uint))
-  (create-bull-put-spread-with-collateral amount lower-strike upper-strike collateral expiry "STX"))
+(define-public (create-bull-put-spread (amount uint) (lower-strike uint) (upper-strike uint) (collateral uint) (expiry uint) (oracle <price-oracle-trait>))
+  (create-bull-put-spread-with-collateral amount lower-strike upper-strike collateral expiry "STX" oracle))
 
 (define-public (create-bull-put-spread-with-collateral
     (amount uint) 
@@ -236,7 +228,8 @@
     (upper-strike uint) 
     (collateral uint) 
     (expiry uint)
-    (collateral-type (string-ascii 4)))
+    (collateral-type (string-ascii 4))
+    (oracle <price-oracle-trait>))
   (begin
     (asserts! (not (var-get paused)) err-protocol-paused)
     (asserts! (> amount u0) err-invalid-amount)
@@ -247,7 +240,7 @@
     (asserts! (valid-collateral-type collateral-type) err-invalid-collateral-type)
     
     (let ((id (+ (var-get option-nonce) u1))
-          (oracle-price (unwrap! (get-current-oracle-price) err-oracle-failure)))
+          (oracle-price (get price (unwrap! (get-current-oracle-price oracle) err-oracle-failure))))
       
       ;; Handle collateral
       (if (is-eq collateral-type "STX")
@@ -281,15 +274,17 @@
     (amount uint) 
     (strike uint) 
     (premium uint) 
-    (expiry uint))
-  (create-strap-option-with-collateral amount strike premium expiry "STX"))
+    (expiry uint)
+    (oracle <price-oracle-trait>))
+  (create-strap-option-with-collateral amount strike premium expiry "STX" oracle))
 
 (define-public (create-strap-option-with-collateral
     (amount uint) 
     (strike uint) 
     (premium uint) 
     (expiry uint)
-    (collateral-type (string-ascii 4)))
+    (collateral-type (string-ascii 4))
+    (oracle <price-oracle-trait>))
   (begin
     (asserts! (not (var-get paused)) err-protocol-paused)
     (asserts! (> amount u0) err-invalid-amount)
@@ -305,7 +300,7 @@
           (total-premium (* premium u3))  ;; Premium for all 3 components
           (fee-amount (fee total-premium))
           (total-cost (+ total-premium fee-amount))
-          (oracle-price (unwrap! (get-current-oracle-price) err-oracle-failure)))
+          (oracle-price (get price (unwrap! (get-current-oracle-price oracle) err-oracle-failure))))
       
       ;; Collect collateral
       (if (is-eq collateral-type "STX")
@@ -403,8 +398,9 @@
     (lower-strike uint) 
     (upper-strike uint) 
     (net-premium uint) 
-    (expiry uint))
-  (create-bull-call-spread-with-collateral amount lower-strike upper-strike net-premium expiry "STX"))
+    (expiry uint)
+    (oracle <price-oracle-trait>))
+  (create-bull-call-spread-with-collateral amount lower-strike upper-strike net-premium expiry "STX" oracle))
 
 (define-public (create-bull-call-spread-with-collateral
     (amount uint) 
@@ -412,7 +408,8 @@
     (upper-strike uint) 
     (net-premium uint) 
     (expiry uint)
-    (collateral-type (string-ascii 4)))
+    (collateral-type (string-ascii 4))
+    (oracle <price-oracle-trait>))
   (begin
     (asserts! (not (var-get paused)) err-protocol-paused)
     (asserts! (> amount u0) err-invalid-amount)
@@ -428,7 +425,7 @@
           (max-profit (- upper-strike lower-strike))
           (max-loss net-premium)
           (collateral-required (+ net-premium (fee net-premium)))
-          (oracle-price (unwrap! (get-current-oracle-price) err-oracle-failure)))
+          (oracle-price (get price (unwrap! (get-current-oracle-price oracle) err-oracle-failure))))
       
       ;; Require collateral equal to max loss
       (if (is-eq collateral-type "STX")
@@ -504,9 +501,9 @@
       (ok spread-id))))
 
 ;; Exercise Option (enhanced for all 4 strategies)
-(define-public (exercise-option (option-id uint))
+(define-public (exercise-option (option-id uint) (oracle <price-oracle-trait>))
   (let ((option (unwrap! (map-get? options option-id) err-option-not-found))
-        (oracle-price-data (unwrap! (get-oracle-price "STX") err-oracle-failure))
+        (oracle-price-data (unwrap! (get-current-oracle-price oracle) err-oracle-failure))
         (current-price (get price oracle-price-data)))
     (begin
       (asserts! (not (var-get paused)) err-protocol-paused)
@@ -549,9 +546,9 @@
             (ok u0)))))))
 
 ;; Settle Expired Option (enhanced with oracle)
-(define-public (settle-expired (option-id uint))
+(define-public (settle-expired (option-id uint) (oracle <price-oracle-trait>))
   (let ((option (unwrap! (map-get? options option-id) err-option-not-found))
-        (oracle-price-data (unwrap! (get-oracle-price "STX") err-oracle-failure))
+        (oracle-price-data (unwrap! (get-current-oracle-price oracle) err-oracle-failure))
         (settlement-price (get price oracle-price-data)))
     (begin
       (asserts! (not (var-get paused)) err-protocol-paused)
