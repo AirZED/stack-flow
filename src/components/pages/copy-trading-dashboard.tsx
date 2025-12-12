@@ -9,7 +9,6 @@ import { WhaleTracker } from "../app/whale-tracker";
 import { useWallet } from "../../context/WalletContext";
 import { Users, TrendingUp, Wallet } from 'lucide-react';
 import {
-    socialSentimentService,
     type CopyTradingPool,
     type WhaleWallet
 } from "../../services/socialSentimentService";
