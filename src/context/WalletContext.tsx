@@ -30,6 +30,7 @@ interface WalletContextType {
   userSession: UserSession;
   isLoading: boolean;
   isConnecting: boolean;
+  isConnected: boolean;
   connectWallet: () => Promise<void>;
   disconnect: () => void;
   address: string | null;
@@ -81,19 +82,19 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       // Use the new connect() API from @stacks/connect v8
       // This automatically stores addresses in localStorage
       const result = await connect();
-      
+
       if (result && result.addresses) {
         // Separate STX and BTC addresses
         const stxAddrs: AddressData[] = [];
         const btcAddrs: AddressData[] = [];
-        
+
         result.addresses.forEach((addr) => {
           const addressData = {
             address: addr.address,
             symbol: addr.symbol,
             // purpose: addr.purpose, // Property doesn't exist on AddressEntry
           };
-          
+
           // STX addresses start with 'S'
           if (addr.address.startsWith('S')) {
             stxAddrs.push(addressData);
@@ -101,7 +102,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
             btcAddrs.push(addressData);
           }
         });
-        
+
         setAddresses({ stx: stxAddrs, btc: btcAddrs });
       }
     } catch (error) {
@@ -120,7 +121,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
   // Extract primary addresses
   const stxAddress = addresses.stx.length > 0 ? addresses.stx[0].address : null;
-  const btcAddress = addresses.btc.length > 0 
+  const btcAddress = addresses.btc.length > 0
     ? addresses.btc.find(a => a.purpose === 'payment')?.address || addresses.btc[0].address
     : null;
 
@@ -133,6 +134,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         userSession,
         isLoading,
         isConnecting,
+        isConnected: !!address,
         connectWallet: handleConnect,
         disconnect: handleDisconnect,
         address,
