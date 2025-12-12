@@ -5523,7 +5523,7 @@ snapshots:
 
   '@types/bn.js@5.2.0':
     dependencies:
-      '@types/node': 18.19.130
+      '@types/node': 22.7.5
 
   '@types/debug@4.1.12':
     dependencies:
