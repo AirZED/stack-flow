@@ -46,8 +46,8 @@ export default function SentimentDashboard() {
     }) || [];
 
     const getSentimentLabel = (score: number) => {
-        if (score >= 60) return { label: 'Extremely Bullish', color: 'text-[#37f741]' };
-        if (score >= 20) return { label: 'Bullish', color: 'text-[#bbf737]' };
+        if (score >= 60) return { label: 'Extremely Bullish', color: 'text-[#40F749]' };
+        if (score >= 20) return { label: 'Bullish', color: 'text-[#37F741]' };
         if (score >= -20) return { label: 'Neutral', color: 'text-slate-300' };
         if (score >= -60) return { label: 'Bearish', color: 'text-red-300' };
         return { label: 'Extremely Bearish', color: 'text-red-400' };
@@ -61,9 +61,9 @@ export default function SentimentDashboard() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 flex items-center justify-center">
+            <div className="min-h-screen bg-[#1D2215] flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto mb-4"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: '#37F741' }}></div>
                     <p className="text-slate-400">Loading sentiment data...</p>
                 </div>
             </div>
@@ -72,7 +72,7 @@ export default function SentimentDashboard() {
 
     if (!sentimentData) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 flex items-center justify-center">
+            <div className="min-h-screen bg-[#1D2215] flex items-center justify-center">
                 <p className="text-slate-400">Failed to load sentiment data</p>
             </div>
         );
@@ -81,11 +81,11 @@ export default function SentimentDashboard() {
     const sentiment = getSentimentLabel(sentimentData.overallSentiment.score);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 text-white">
+        <div className="min-h-screen bg-[#1D2215] text-white">
             {/* Header */}
             <div className="border-b border-white/10 bg-black/20 backdrop-blur-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-[#37f741] to-[#FDEE61] bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold text-[#40F749]">
                         Sentiment Dashboard
                     </h1>
                     <p className="text-slate-400 mt-2">
@@ -96,7 +96,7 @@ export default function SentimentDashboard() {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Overall Sentiment */}
-                <div className="bg-gradient-to-br from-[#37f741]/10 to-[#FDEE61]/10 border border-white/20 rounded-2xl p-8 mb-8">
+                <div className="bg-[#131712] border border-white/10 rounded-2xl p-8 mb-8">
                     <div className="text-center">
                         <div className="text-sm text-slate-400 mb-2">Overall Market Sentiment</div>
                         <div className={`text-6xl font-bold mb-2 ${sentiment.color}`}>
@@ -106,23 +106,24 @@ export default function SentimentDashboard() {
                             {sentiment.label}
                         </div>
                         <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
-                            <TrendingUp className={`w-4 h-4 ${sentimentData.overallSentiment.trend === 'up' ? 'text-[#37f741]' :
-                                sentimentData.overallSentiment.trend === 'down' ? 'text-red-400' :
-                                    'text-slate-400'
-                                }`} />
+                            <TrendingUp className="w-4 h-4" style={{ color: sentimentData.overallSentiment.trend === 'up' ? '#37F741' : sentimentData.overallSentiment.trend === 'down' ? '#ff4d4d' : '#94a3b8' }} />
                             Confidence: {sentimentData.overallSentiment.confidence}%
                         </div>            </div>
                 </div>
 
                 {/* Sentiment Bar */}
                 <div className="mt-6">
-                    <div className="h-3 bg-slate-800 rounded-full overflow-hidden">
+                    {/* Track with a non-gradient pointer */}
+                    <div className="h-3 bg-[#0b1209] rounded-full relative">
+                        {/* thin indicator line */}
                         <div
-                            className="h-full bg-gradient-to-r from-red-500 via-slate-400 to-green-500 transition-all"
-                            style={{
-                                width: '100%',
-                                marginLeft: `${((sentimentData.overallSentiment.score + 100) / 200) * 100 - 50}%`
-                            }}
+                            style={{ left: `${((sentimentData.overallSentiment.score + 100) / 200) * 100}%` }}
+                            className="absolute top-0 bottom-0 w-[2px] bg-[#37F741]"
+                        />
+                        {/* pointer */}
+                        <div
+                            style={{ left: `${((sentimentData.overallSentiment.score + 100) / 200) * 100}%`, transform: 'translateX(-50%)', backgroundColor: sentimentData.overallSentiment.score >= 0 ? '#40F749' : '#ff4d4d' }}
+                            className="absolute -top-2 w-3 h-3 rounded-full border border-white/10"
                         />
                     </div>
                     <div className="flex justify-between mt-2 text-xs text-slate-500">
