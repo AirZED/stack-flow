@@ -30,19 +30,68 @@ genesis:
     - pox-4
     - signers
     - signers-voting
-    - costs-4
 plan:
   batches:
     - id: 0
       transactions:
+        - emulated-contract-publish:
+            contract-name: price-oracle-trait-v2
+            emulated-sender: ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7
+            path: "./.cache/requirements/ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7.price-oracle-trait-v2.clar"
+            clarity-version: 3
+        - emulated-contract-publish:
+            contract-name: sip-010-trait-ft-standard
+            emulated-sender: ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7
+            path: "./.cache/requirements/ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7.sip-010-trait-ft-standard.clar"
+            clarity-version: 3
+        - emulated-contract-publish:
+            contract-name: stackflow-options-m1
+            emulated-sender: ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7
+            path: "./.cache/requirements/ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7.stackflow-options-m1.clar"
+            clarity-version: 3
+        - emulated-contract-publish:
+            contract-name: stackflow-options-v1
+            emulated-sender: ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7
+            path: "./.cache/requirements/ST3F4WEX90KZQ6D25TWP09J90D6CSYGW1JX8WH3Y7.stackflow-options-v1.clar"
+            clarity-version: 3
+        - emulated-contract-publish:
+            contract-name: price-oracle-trait-v2
+            emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            path: contracts/price-oracle-trait-v2.clar
+            clarity-version: 3
+        - emulated-contract-publish:
+            contract-name: sip-010-trait-ft-standard
+            emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            path: contracts/sip-010-trait-ft-standard.clar
+            clarity-version: 3
         - emulated-contract-publish:
             contract-name: stackflow-options-m1
             emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
             path: contracts/stackflow-options-m1.clar
             clarity-version: 3
         - emulated-contract-publish:
+            contract-name: stackflow-options-m2-v2
+            emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            path: contracts/stackflow-options-m2-v2.clar
+            clarity-version: 3
+        - emulated-contract-publish:
             contract-name: stackflow-options-v1
             emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
             path: contracts/stackflow-options-v1.clar
+            clarity-version: 3
+        - emulated-contract-publish:
+            contract-name: stackflow-oracle-mock-v2
+            emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            path: contracts/stackflow-oracle-mock-v2.clar
+            clarity-version: 3
+        - emulated-contract-publish:
+            contract-name: stackflow-pyth-oracle-v2
+            emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            path: contracts/stackflow-pyth-oracle-v2.clar
+            clarity-version: 3
+        - emulated-contract-publish:
+            contract-name: stackflow-sbtc-mock
+            emulated-sender: STC5KHM41H6WHAST7MWWDD807YSPRQKJ68T330BQ
+            path: contracts/stackflow-sbtc-mock.clar
             clarity-version: 3
       epoch: "3.2"
