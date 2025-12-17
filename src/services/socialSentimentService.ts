@@ -96,6 +96,12 @@ class SocialSentimentService {
   constructor() {
     this.refreshData();
     this.startPeriodicUpdates();
+    // Warn if no tweet data source is available at startup
+    const hasBearer = !!(twitterService as any)?.bearerToken;
+    const hasRapid = !!import.meta.env.VITE_RAPIDAPI_KEY;
+    if (!hasBearer && !hasRapid) {
+      console.warn('[SocialSentiment] No Twitter bearer token or RapidAPI key detected. The sentiment dashboard will fall back to mock data. Set VITE_TWITTER_BEARER_TOKEN or VITE_RAPIDAPI_KEY to enable real data.');
+    }
   }
 
   /**
@@ -199,11 +205,40 @@ class SocialSentimentService {
   private async refreshData(): Promise<void> {
     const now = Date.now();
 
-    // Try to fetch real Twitter data
+    // Try to fetch real Twitter data (Twitter Bearer Token or RapidAPI provider)
     let twitterData = null;
     try {
-      if (import.meta.env.VITE_TWITTER_BEARER_TOKEN) {
-        twitterData = await twitterService.getTopicSentiment('Stacks OR $STX OR Blockstack');
+      // Query multiple related terms to increase coverage and sample size
+      const queries = [
+        '(Stacks OR $STX OR STX OR #stacks OR #stx OR stackflow)',
+        '(BTC OR #btc OR bitcoin)',
+        '(stackflow OR "stack flow" OR #stackflow)'
+      ];
+
+      // Fetch sentiments for each query and combine results
+      const results = await Promise.all(queries.map(q => twitterService.getTopicSentiment(q).catch(err => {
+        console.warn('[SocialSentiment] Twitter query failed for:', q, err);
+        return null;
+      })));
+
+      // Merge logic: pick the result with the most sampleSize, or aggregate weighted average
+      const valid = results.filter(r => r && r.sampleSize > 0) as any[];
+      if (valid.length > 0) {
+        // Weighted average by sample size
+        const totalSamples = valid.reduce((s, r) => s + r.sampleSize, 0);
+        const combinedScore = Math.round(valid.reduce((acc, r) => acc + r.score * r.sampleSize, 0) / Math.max(1, totalSamples));
+        const combinedConfidence = Math.min(100, Math.round(Math.sqrt(totalSamples) * 10));
+        // Use top tweets from all results
+        const topTweets = valid.flatMap(r => r.topTweets).slice(0, 20);
+        const trendingTopics = Array.from(new Set(valid.flatMap(r => r.trendingTopics))).slice(0, 5);
+
+        twitterData = {
+          score: combinedScore,
+          confidence: combinedConfidence,
+          sampleSize: totalSamples,
+          topTweets,
+          trendingTopics
+        };
       }
     } catch (error) {
       console.warn('Failed to fetch Twitter data, falling back to mock:', error);

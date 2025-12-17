@@ -9,12 +9,21 @@ import {
     socialSentimentService,
     type SocialSentimentData,
 } from "../../services/socialSentimentService";
+import { AITweetFeed } from "../app/ai-tweet-feed";
+import { TokenTradeModal } from "../app/token-trade-modal";
+import { type TokenMention } from "../../services/openRouterService";
 
 export default function SentimentDashboard() {
     const [sentimentData, setSentimentData] = useState<SocialSentimentData | null>(null);
     const [selectedTimeframe, setSelectedTimeframe] = useState<'1h' | '4h' | '1d' | '1w'>('4h');
     const [selectedAsset, setSelectedAsset] = useState<'all' | 'STX' | 'BTC'>('all');
     const [isLoading, setIsLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<'ai-tweets' | 'signals'>('ai-tweets');
+    const [selectedToken, setSelectedToken] = useState<TokenMention | null>(null);
+
+    const handleTokenClick = (token: TokenMention) => {
+        setSelectedToken(token);
+    };
 
     useEffect(() => {
         loadSentimentData();
@@ -204,7 +213,43 @@ export default function SentimentDashboard() {
                     </div>
                 </div>
 
-                {/* Trending Signals */}
+                {/* Tab Navigation */}
+                <div className="flex gap-2 mb-6">
+                    <button
+                        onClick={() => setActiveTab('ai-tweets')}
+                        className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                            activeTab === 'ai-tweets'
+                                ? 'bg-[#37f741] text-black'
+                                : 'bg-white/5 text-slate-400 hover:bg-white/10'
+                        }`}
+                    >
+                        Yaps on X
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('signals')}
+                        className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+                            activeTab === 'signals'
+                                ? 'bg-[#37f741] text-black'
+                                : 'bg-white/5 text-slate-400 hover:bg-white/10'
+                        }`}
+                    >
+                         Trending Signals
+                    </button>
+                </div>
+
+                {/* Yaps on X Tab */}
+                {activeTab === 'ai-tweets' && (
+                    <div className="card p-6">
+                        <AITweetFeed 
+                            onTokenClick={handleTokenClick} 
+                            selectedTimeframe={selectedTimeframe}
+                            selectedAsset={selectedAsset}
+                        />
+                    </div>
+                )}
+
+                {/* Trending Signals Tab */}
+                {activeTab === 'signals' && (
                 <div>
                     <h2 className="text-xl font-bold mb-4">Trending Signals</h2>
 
@@ -277,6 +322,13 @@ export default function SentimentDashboard() {
                         </div>
                     )}
                 </div>
+                )}
+
+                {/* Token Trade Modal */}
+                <TokenTradeModal 
+                    token={selectedToken} 
+                    onClose={() => setSelectedToken(null)} 
+                />
 
                 {/* Last Updated */}
                 <div className="text-center mt-8 text-sm text-slate-500">
