@@ -9,6 +9,7 @@ const MONGODB_DATA_API_URL = import.meta.env.VITE_MONGODB_DATA_API_URL || '';
 const MONGODB_API_KEY = import.meta.env.VITE_MONGODB_API_KEY || '';
 const MONGODB_DATA_SOURCE = import.meta.env.VITE_MONGODB_DATA_SOURCE || 'Cluster0';
 const MONGODB_DATABASE = import.meta.env.VITE_MONGODB_DATABASE || 'stackflow';
+const MONGODB_PROXY_URL = import.meta.env.VITE_MONGODB_PROXY_URL || 'http://localhost:5179';
 
 export interface MongoDBConfig {
   apiUrl: string;
@@ -42,6 +43,22 @@ class MongoDBClient {
   }
 
   private async request(action: string, body: Record<string, unknown>) {
+    // If proxy URL is available and enabled, use it
+    if (MONGODB_PROXY_URL && !MONGODB_DATA_API_URL) {
+      try {
+        const response = await fetch(`${MONGODB_PROXY_URL}/api/db/${body.collection}/${action}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        });
+        if (response.ok) return response.json();
+      } catch (e) {
+        console.warn('[MongoDB] Proxy failed, falling back to Data API or mock', e);
+      }
+    }
+
     if (!this.isConfigured) {
       console.warn('[MongoDB] Not configured - using mock data');
       return null;
