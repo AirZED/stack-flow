@@ -1,73 +1,50 @@
 /**
- * Yaps on X Feed Component
- * Displays tweets with clickable token mentions and pagination
+ * Yaps on X Feed Component - Premium Glassmorphism Design
+ * Displays REAL tweets from X with AI-powered sentiment analysis
  */
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { RefreshCw, Heart, Repeat2, MessageCircle, ChevronDown } from 'lucide-react';
-import {
-  getTweetsForPage,
-  clearTweetCache,
-  type AITweet,
-  type TokenMention,
-} from '../../services/openRouterService';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { RefreshCw, Heart, Repeat2, MessageCircle, ChevronDown, ExternalLink, Zap } from 'lucide-react';
+import { 
+  getRealSentimentData, 
+  type SentimentAnalysisResult 
+} from '../../services/twitterSentimentService';
 
 interface AITweetFeedProps {
-  onTokenClick: (token: TokenMention) => void;
+  onTokenClick?: (token: any) => void;
   selectedTimeframe: '1h' | '4h' | '1d' | '1w';
   selectedAsset: 'all' | 'STX' | 'BTC';
 }
 
-export function AITweetFeed({ onTokenClick, selectedTimeframe, selectedAsset }: AITweetFeedProps) {
-  const [tweets, setTweets] = useState<AITweet[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+export function AITweetFeed({ onTokenClick: _onTokenClick, selectedTimeframe: _selectedTimeframe, selectedAsset }: AITweetFeedProps) {
+  const [data, setData] = useState<SentimentAnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [nextRefreshTime, setNextRefreshTime] = useState<number | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(7);
   const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const loadInitialTweets = async () => {
-    setIsLoading(true);
+  const loadTweets = async (showRefresh = false) => {
+    if (showRefresh) setIsRefreshing(true);
+    else setIsLoading(true);
+    
     try {
-      const { tweets: newTweets } = await getTweetsForPage(1);
-      setTweets(newTweets);
-      setCurrentPage(1);
-      setNextRefreshTime(Date.now() + 45 * 60 * 1000);
+      const result = await getRealSentimentData(showRefresh);
+      setData(result);
     } catch (error) {
-      console.error('Failed to load tweets:', error);
+      console.error('Failed to load real tweets:', error);
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
   };
 
-  const loadMoreTweets = async () => {
-    if (isLoadingMore) return;
-    setIsLoadingMore(true);
-    try {
-      const nextPage = currentPage + 1;
-      const { tweets: newTweets } = await getTweetsForPage(nextPage);
-      setTweets((prev) => [...prev, ...newTweets]);
-      setCurrentPage(nextPage);
-    } catch (error) {
-      console.error('Failed to load more tweets:', error);
-    } finally {
-      setIsLoadingMore(false);
-    }
-  };
-
-  const handleRefresh = async () => {
-    clearTweetCache();
-    await loadInitialTweets();
-  };
-
-  // Auto-refresh timer
   useEffect(() => {
-    loadInitialTweets();
+    loadTweets();
 
-    // Set up 45-minute refresh interval
+    // Refresh every 5 minutes (matching service cache)
     refreshTimerRef.current = setInterval(() => {
-      loadInitialTweets();
-    }, 45 * 60 * 1000);
+      loadTweets(true);
+    }, 5 * 60 * 1000);
 
     return () => {
       if (refreshTimerRef.current) {
@@ -76,49 +53,44 @@ export function AITweetFeed({ onTokenClick, selectedTimeframe, selectedAsset }: 
     };
   }, []);
 
-  // Filter tweets based on timeframe and asset
+  const handleRefresh = () => {
+    loadTweets(true);
+  };
+
+  const loadMore = () => {
+    setVisibleCount(prev => prev + 7);
+  };
+
+  // Filter tweets based on asset
   const filteredTweets = useMemo(() => {
-    return tweets.filter((tweet) => {
-      // Timeframe filter - show tweets from selected timeframe or broader
-      const timeframeOrder = { '1h': 1, '4h': 2, '1d': 3, '1w': 4 };
-      const tweetTimeframeValue = timeframeOrder[tweet.timeframe] || 2;
-      const selectedTimeframeValue = timeframeOrder[selectedTimeframe] || 2;
-      const matchesTimeframe = selectedTimeframe === '1w' || tweetTimeframeValue <= selectedTimeframeValue;
-
-      // Asset filter
-      const matchesAsset =
-        selectedAsset === 'all' || tweet.asset === selectedAsset || tweet.asset === 'general';
-
-      return matchesTimeframe && matchesAsset;
+    if (!data?.tweets) return [];
+    
+    return data.tweets.filter((tweet) => {
+      if (selectedAsset === 'all') return true;
+      const text = tweet.text.toLowerCase();
+      if (selectedAsset === 'STX' && (text.includes('stx') || text.includes('stacks'))) return true;
+      if (selectedAsset === 'BTC' && (text.includes('btc') || text.includes('bitcoin') || text.includes('sbtc'))) return true;
+      return false;
     });
-  }, [tweets, selectedTimeframe, selectedAsset]);
+  }, [data, selectedAsset]);
 
-  // Countdown timer display
-  const [timeUntilRefresh, setTimeUntilRefresh] = useState('');
-  useEffect(() => {
-    const updateCountdown = () => {
-      if (nextRefreshTime) {
-        const remaining = Math.max(0, nextRefreshTime - Date.now());
-        const minutes = Math.floor(remaining / 60000);
-        const seconds = Math.floor((remaining % 60000) / 1000);
-        setTimeUntilRefresh(`${minutes}m ${seconds}s`);
-      }
-    };
-
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
-    return () => clearInterval(interval);
-  }, [nextRefreshTime]);
+  const displayedTweets = useMemo(() => {
+    return filteredTweets.slice(0, visibleCount);
+  }, [filteredTweets, visibleCount]);
 
   const formatTime = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+    try {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-    if (diff < 60) return `${diff}s`;
-    if (diff < 3600) return `${Math.floor(diff / 60)}m`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
-    return `${Math.floor(diff / 86400)}d`;
+      if (diff < 60) return `${diff}s`;
+      if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+      if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+      return `${Math.floor(diff / 86400)}d`;
+    } catch (e) {
+      return 'now';
+    }
   };
 
   const formatNumber = (num: number) => {
@@ -127,72 +99,21 @@ export function AITweetFeed({ onTokenClick, selectedTimeframe, selectedAsset }: 
     return num.toString();
   };
 
-  const renderTweetText = useCallback(
-    (tweet: AITweet) => {
-      const text = tweet.text;
-      const elements: (string | JSX.Element)[] = [];
-      let lastIndex = 0;
-
-      const mentions: { start: number; end: number; token: TokenMention }[] = [];
-
-      tweet.tokens.forEach((token) => {
-        const searchValue = token.value;
-        let index = text.indexOf(searchValue, lastIndex);
-        // Also try case-insensitive for tickers
-        if (index === -1 && token.type === 'ticker') {
-          index = text.toLowerCase().indexOf(searchValue.toLowerCase());
-        }
-        if (index !== -1 && !mentions.some((m) => m.start === index)) {
-          mentions.push({ start: index, end: index + searchValue.length, token });
-        }
-      });
-
-      mentions.sort((a, b) => a.start - b.start);
-
-      mentions.forEach((mention, idx) => {
-        if (mention.start > lastIndex) {
-          elements.push(text.slice(lastIndex, mention.start));
-        }
-
-        elements.push(
-          <button
-            key={`token-${tweet.id}-${idx}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              onTokenClick(mention.token);
-            }}
-            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#37f741]/20 text-[#37f741] hover:bg-[#37f741]/30 transition-colors font-medium"
-          >
-            {mention.token.type === 'ticker' ? (
-              mention.token.value
-            ) : (
-              <>
-                <span className="text-xs opacity-70">CA:</span>
-                {mention.token.value.slice(0, 8)}...
-              </>
-            )}
-          </button>
-        );
-
-        lastIndex = mention.end;
-      });
-
-      if (lastIndex < text.length) {
-        elements.push(text.slice(lastIndex));
-      }
-
-      return elements.length > 0 ? elements : text;
-    },
-    [onTokenClick]
-  );
-
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#37f741] mx-auto mb-3"></div>
-          <p className="text-slate-400 text-sm">Loading yaps...</p>
-        </div>
+      <div className="space-y-4">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="animate-pulse backdrop-blur-md bg-white/[0.03] rounded-2xl p-5 border border-white/5">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-white/10"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-white/10 rounded w-1/4"></div>
+                <div className="h-3 bg-white/5 rounded w-1/2"></div>
+              </div>
+            </div>
+            <div className="h-20 bg-white/5 rounded-xl"></div>
+          </div>
+        ))}
       </div>
     );
   }
@@ -200,125 +121,131 @@ export function AITweetFeed({ onTokenClick, selectedTimeframe, selectedAsset }: 
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between px-2">
         <div>
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">Yaps on X</h3>
+          <h3 className="text-xl font-bold text-white flex items-center gap-2">
+            Yaps on X 
+            <Zap className="w-4 h-4 text-[#37F741] fill-[#37F741]" />
+          </h3>
           <p className="text-sm text-slate-400">
-            Click on tokens to trade • Refreshes in {timeUntilRefresh}
-            {filteredTweets.length !== tweets.length && (
-              <span className="ml-2 text-[#37f741]">
-                ({filteredTweets.length} of {tweets.length} shown)
-              </span>
-            )}
+            Real-time feed for <span className="text-white font-medium">"{data?.query}"</span>
           </p>
         </div>
         <button
           onClick={handleRefresh}
-          disabled={isLoading}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm text-slate-300 disabled:opacity-50"
+          disabled={isRefreshing}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-sm font-medium disabled:opacity-50"
         >
-          <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-4 h-4 text-[#37F741] ${isRefreshing ? 'animate-spin' : ''}`} />
           Refresh
         </button>
       </div>
 
       {/* Tweet List */}
-      {filteredTweets.length === 0 ? (
-        <div className="text-center py-12 bg-[#121412] rounded-xl border border-white/5">
-          <p className="text-slate-400">No yaps found for the selected filters</p>
-          <p className="text-slate-500 text-sm mt-1">Try adjusting timeframe or asset filter</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filteredTweets.map((tweet) => (
-            <div
-              key={tweet.id}
-              className="bg-[#121412] rounded-xl p-4 border border-white/5 hover:border-white/10 transition-colors"
-            >
+      <div className="space-y-3">
+        {displayedTweets.map((tweet) => (
+          <a
+            key={tweet.id}
+            href={tweet.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block group transition-all"
+          >
+            <div className="backdrop-blur-md bg-white/[0.03] rounded-2xl p-5 border border-white/5 group-hover:bg-white/[0.05] group-hover:border-white/20 transition-all relative overflow-hidden">
+              {/* Sentiment Highlight Line */}
+              <div className={`absolute left-0 top-0 bottom-0 w-1 ${
+                tweet.sentiment?.label === 'bullish' ? 'bg-[#37F741]' : 
+                tweet.sentiment?.label === 'bearish' ? 'bg-red-500' : 'bg-slate-500'
+              } opacity-50 group-hover:opacity-100 transition-opacity`} />
+
               {/* Author */}
-              <div className="flex items-start gap-3 mb-3">
-                <img
-                  src={tweet.author.avatar}
-                  alt={tweet.author.displayName}
-                  className="w-10 h-10 rounded-full bg-slate-700"
-                />
+              <div className="flex items-start gap-3 mb-4">
+                <div className="relative">
+                  <img
+                    src={tweet.author.avatar || `https://api.dicebear.com/7.x/identicon/svg?seed=${tweet.author.username}`}
+                    alt={tweet.author.name}
+                    className="w-10 h-10 rounded-full bg-slate-800 border border-white/10"
+                  />
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-black flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 fill-white" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+                  </div>
+                </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-white truncate">{tweet.author.displayName}</span>
-                    <span className="text-slate-500 text-sm">@{tweet.author.username}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-white truncate group-hover:text-[#37F741] transition-colors">{tweet.author.name}</span>
+                    <span className="text-slate-500 text-sm truncate">@{tweet.author.username}</span>
                     <span className="text-slate-600">·</span>
                     <span className="text-slate-500 text-sm">{formatTime(tweet.createdAt)}</span>
                   </div>
-
-                  {/* Tweet Text */}
-                  <p className="text-white mt-1 whitespace-pre-wrap break-words">{renderTweetText(tweet)}</p>
                 </div>
+                <ExternalLink className="w-4 h-4 text-slate-600 group-hover:text-slate-400" />
               </div>
 
-              {/* Footer */}
-              <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                <div className="flex items-center gap-6">
-                  <div className="flex items-center gap-1.5 text-slate-500 text-sm">
-                    <MessageCircle className="w-4 h-4" />
+              {/* Tweet Text */}
+              <p className="text-white text-[15px] leading-relaxed mb-4 whitespace-pre-wrap break-words">
+                {tweet.text}
+              </p>
+
+              {/* Footer Metrics */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-5">
+                  <div className="flex items-center gap-1.5 text-slate-500 text-xs">
+                    <MessageCircle className="w-3.5 h-3.5" />
                     {formatNumber(tweet.metrics.replies)}
                   </div>
-                  <div className="flex items-center gap-1.5 text-slate-500 text-sm">
-                    <Repeat2 className="w-4 h-4" />
+                  <div className="flex items-center gap-1.5 text-slate-500 text-xs">
+                    <Repeat2 className="w-3.5 h-3.5" />
                     {formatNumber(tweet.metrics.retweets)}
                   </div>
-                  <div className="flex items-center gap-1.5 text-slate-500 text-sm">
-                    <Heart className="w-4 h-4" />
+                  <div className="flex items-center gap-1.5 text-slate-500 text-xs">
+                    <Heart className="w-3.5 h-3.5" />
                     {formatNumber(tweet.metrics.likes)}
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-500 px-2 py-0.5 rounded bg-white/5">
-                    {tweet.timeframe}
-                  </span>
-                  <span className="text-xs text-slate-500 px-2 py-0.5 rounded bg-white/5">
-                    {tweet.asset}
-                  </span>
-                  <span
-                    className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                      tweet.sentiment === 'bullish'
-                        ? 'bg-[#37f741]/20 text-[#37f741]'
-                        : tweet.sentiment === 'bearish'
-                          ? 'bg-red-500/20 text-red-400'
-                          : 'bg-slate-500/20 text-slate-400'
-                    }`}
-                  >
-                    {tweet.sentiment.toUpperCase()}
-                  </span>
+                  {tweet.sentiment && (
+                    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase ${
+                      tweet.sentiment.label === 'bullish'
+                        ? 'bg-[#37F741]/10 text-[#37F741] border border-[#37F741]/20'
+                        : tweet.sentiment.label === 'bearish'
+                          ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'
+                    }`}>
+                      {tweet.sentiment.label}
+                      <span className="opacity-60">{tweet.sentiment.score > 0 ? '+' : ''}{tweet.sentiment.score}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-          ))}
+          </a>
+        ))}
+      </div>
+
+      {/* Empty State */}
+      {filteredTweets.length === 0 && (
+        <div className="backdrop-blur-xl bg-white/[0.02] rounded-2xl border border-white/10 p-12 text-center">
+          <p className="text-slate-400 italic">No yaps match the selected asset filter</p>
+          <button onClick={() => loadTweets(true)} className="mt-4 text-[#37F741] text-sm hover:underline">
+            Try a fresh search
+          </button>
         </div>
       )}
 
-      {/* Load More Button */}
-      <div className="flex justify-center pt-4">
+      {/* Load More */}
+      {filteredTweets.length > visibleCount && (
         <button
-          onClick={loadMoreTweets}
-          disabled={isLoadingMore}
-          className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-slate-300 disabled:opacity-50"
+          onClick={loadMore}
+          className="w-full py-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-all text-slate-400 text-sm font-medium flex items-center justify-center gap-2"
         >
-          {isLoadingMore ? (
-            <>
-              <RefreshCw className="w-4 h-4 animate-spin" />
-              Loading...
-            </>
-          ) : (
-            <>
-              <ChevronDown className="w-4 h-4" />
-              Load More Yaps
-            </>
-          )}
+          <ChevronDown className="w-4 h-4" />
+          Load More Yaps
         </button>
-      </div>
+      )}
     </div>
   );
 }
 
 export default AITweetFeed;
+
