@@ -6,19 +6,11 @@ import {
   useEffect,
 } from "react";
 import {
-  AppConfig,
-  UserSession,
-  connect,
+  showConnect,
+  disconnect,
   isConnected,
-  getLocalStorage,
-  disconnect as disconnectWallet,
+  request,
 } from "@stacks/connect";
-
-// Configure the app - only request necessary permissions
-const appConfig = new AppConfig(["store_write"]);
-
-// Create a single user session instance
-const userSession = new UserSession({ appConfig });
 
 interface AddressData {
   address: string;
@@ -27,9 +19,9 @@ interface AddressData {
 }
 
 interface WalletContextType {
-  userSession: UserSession;
   isLoading: boolean;
   isConnecting: boolean;
+  isConnected: boolean;
   connectWallet: () => Promise<void>;
   disconnect: () => void;
   address: string | null;
@@ -50,92 +42,102 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   }>({ stx: [], btc: [] });
   const [isLoading, setIsLoading] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [connected, setConnected] = useState(false);
 
-  // Load wallet state from localStorage on mount
+  // Check if user is already authenticated on mount
   useEffect(() => {
-    const loadWalletState = () => {
+    const checkConnection = async () => {
       try {
-        // Check if user is connected using v8 API
-        if (isConnected()) {
-          const storageData = getLocalStorage();
-          if (storageData && storageData.addresses) {
+        const connectionStatus = isConnected();
+        setConnected(connectionStatus);
+        
+        if (connectionStatus) {
+          // Fetch addresses if connected
+          const result = await request('getAddresses');
+          if (result?.addresses && Array.isArray(result.addresses)) {
             setAddresses({
-              stx: storageData.addresses.stx || [],
-              btc: storageData.addresses.btc || [],
+              stx: result.addresses.map((addr: any) => ({
+                address: addr.address,
+                symbol: addr.symbol || 'STX',
+                purpose: addr.type || 'mainnet'
+              })),
+              btc: [] // BTC addresses can be added if available
             });
           }
         }
       } catch (error) {
-        console.error("Error loading wallet state:", error);
+        console.error('[WalletContext] Error checking connection:', error);
+        setConnected(false);
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadWalletState();
+    checkConnection();
   }, []);
 
   const handleConnect = async () => {
     setIsConnecting(true);
     try {
-      // Use the new connect() API from @stacks/connect v8
-      // This automatically stores addresses in localStorage
-      const result = await connect();
-      
-      if (result && result.addresses) {
-        // Separate STX and BTC addresses
-        const stxAddrs: AddressData[] = [];
-        const btcAddrs: AddressData[] = [];
-        
-        result.addresses.forEach((addr) => {
-          const addressData = {
-            address: addr.address,
-            symbol: addr.symbol,
-            // purpose: addr.purpose, // Property doesn't exist on AddressEntry
-          };
+      await showConnect({
+        appDetails: {
+          name: import.meta.env.VITE_APP_NAME || 'StackFlow',
+          icon: import.meta.env.VITE_APP_ICON || window.location.origin + '/icon.svg',
+        },
+        onFinish: async () => {
+          setIsConnecting(false);
+          setConnected(true);
           
-          // STX addresses start with 'S'
-          if (addr.address.startsWith('S')) {
-            stxAddrs.push(addressData);
-          } else {
-            btcAddrs.push(addressData);
+          // Fetch addresses after successful connection
+          try {
+            const result = await request('getAddresses');
+            if (result?.addresses && Array.isArray(result.addresses)) {
+              setAddresses({
+                stx: result.addresses.map((addr: any) => ({
+                  address: addr.address,
+                  symbol: addr.symbol || 'STX',
+                  purpose: addr.type || 'mainnet'
+                })),
+                btc: []
+              });
+            }
+          } catch (error) {
+            console.error('[WalletContext] Error fetching addresses:', error);
           }
-        });
-        
-        setAddresses({ stx: stxAddrs, btc: btcAddrs });
-      }
+        },
+        onCancel: () => {
+          setIsConnecting(false);
+        },
+      });
     } catch (error) {
-      console.error("Error connecting wallet:", error);
-    } finally {
+      console.error("Error opening Stacks Connect modal:", error);
       setIsConnecting(false);
     }
   };
 
   const handleDisconnect = () => {
-    // Use v8's built-in disconnect function
-    disconnectWallet();
-    setAddresses({ stx: [], btc: [] });
-    userSession.signUserOut();
+    try {
+      disconnect();
+      setConnected(false);
+      setAddresses({ stx: [], btc: [] });
+    } catch (error) {
+      console.error("Error disconnecting wallet:", error);
+    }
   };
 
-  // Extract primary addresses
-  const stxAddress = addresses.stx.length > 0 ? addresses.stx[0].address : null;
-  const btcAddress = addresses.btc.length > 0 
-    ? addresses.btc.find(a => a.purpose === 'payment')?.address || addresses.btc[0].address
-    : null;
-
-  // Use STX address as primary address
-  const address = stxAddress;
+  // Primary address (mainnet by default)
+  const stxAddress = addresses.stx.find(a => a.purpose === 'mainnet')?.address || addresses.stx[0]?.address || null;
+  const btcAddress = addresses.btc.length > 0 ? addresses.btc[0].address : null;
 
   return (
     <WalletContext.Provider
       value={{
-        userSession,
         isLoading,
         isConnecting,
+        isConnected: connected,
         connectWallet: handleConnect,
         disconnect: handleDisconnect,
-        address,
+        address: stxAddress,
         stxAddress,
         btcAddress,
         addresses,
@@ -153,4 +155,3 @@ export function useWallet() {
   }
   return context;
 }
-
