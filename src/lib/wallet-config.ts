@@ -9,7 +9,8 @@ if (projectId === '8e390c8b668d2a65a2977727e0256860') {
 
 // Define Stacks networks for Reown
 export const stacksMainnet = {
-  id: 'stacks:1',
+  id: '1',
+  caipNetworkId: 'stacks:1',
   name: 'Stacks Mainnet',
   chainNamespace: 'stacks',
   rpcUrl: 'https://api.mainnet.hiro.so',
@@ -18,7 +19,8 @@ export const stacksMainnet = {
 };
 
 export const stacksTestnet = {
-  id: 'stacks:2147483648', // 0x80000000 as decimal
+  id: '2147483648', // 0x80000000 as decimal
+  caipNetworkId: 'stacks:2147483648',
   name: 'Stacks Testnet',
   chainNamespace: 'stacks',
   rpcUrl: 'https://api.testnet.hiro.so',
@@ -49,5 +51,21 @@ export const modal = createAppKit({
   },
   themeVariables: {
     '--w3m-accent': '#37F741',
+  },
+  // Explicitly request the stacks namespace via optionalNamespaces
+  // This prevents AppKit from defaulting to eip155 for the stacks chains
+  // @ts-ignore - Some versions of AppKit types might not yet fully expose this via the top-level option
+  optionalNamespaces: {
+    stacks: {
+      methods: [
+        'stx_signTransaction',
+        'stx_transferStx',
+        'stx_callContract',
+        'stx_signMessage',
+        'stx_contractDeploy'
+      ],
+      chains: ['stacks:1', 'stacks:2147483648'],
+      events: ['addressesChanged', 'chainChanged']
+    }
   }
 });
