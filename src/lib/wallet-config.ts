@@ -41,6 +41,12 @@ export const modal = createAppKit({
   projectId,
   metadata,
   themeMode: 'dark',
+  features: {
+    analytics: false,
+    onramp: false,
+    email: false, // Stacks typically uses wallet direct
+    socials: []   // Stacks typically uses wallet direct
+  },
   themeVariables: {
     '--w3m-accent': '#37F741',
   }
