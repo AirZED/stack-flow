@@ -6,12 +6,11 @@ import {
   useEffect,
 } from "react";
 import {
-  connect,
+  showConnect,
   disconnect,
   isConnected,
   request,
 } from "@stacks/connect";
-import { projectId } from "../lib/wallet-config";
 
 interface AddressData {
   address: string;
@@ -80,12 +79,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const handleConnect = async () => {
     setIsConnecting(true);
     try {
-      await connect({
+      await showConnect({
         appDetails: {
           name: import.meta.env.VITE_APP_NAME || 'StackFlow',
           icon: import.meta.env.VITE_APP_ICON || window.location.origin + '/icon.svg',
         },
-        walletConnectProjectId: projectId,
         onFinish: async () => {
           setIsConnecting(false);
           setConnected(true);
