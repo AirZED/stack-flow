@@ -48,26 +48,25 @@ const Nav = (): ReactElement => {
 
   return (
     <Fragment>
-      {/* Desktop Floating Glass Navbar - Split Layout */}
-      <div className="fixed top-6 left-0 right-0 z-50 hidden md:flex justify-between px-4 max-w-[1440px] mx-auto gap-4 pointer-events-none">
-        {/* Left Island: Logo + Nav */}
+      {/* Desktop Floating Glass Navbar - Unified Layout */}
+      <div className="fixed top-6 left-0 right-0 z-50 hidden md:flex justify-center px-4">
         <div 
           className={`
-            pointer-events-auto
-            flex items-center gap-8
-            px-6 py-3 
+            w-full max-w-[1440px] 
+            mx-auto px-6 py-3 
             rounded-2xl 
             transition-all duration-300 ease-in-out
             border border-white/5
+            flex items-center justify-between
             ${scrolled 
               ? "bg-[#0d120c]/80 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.3)] border-white/10" 
               : "bg-[#0d120c]/60 backdrop-blur-md shadow-lg"
             }
           `}
         >
-          {/* Logo Section */}
+          {/* Left: Logo Section */}
           <div
-            className="flex items-center gap-3 cursor-pointer group"
+            className="flex items-center gap-3 cursor-pointer group shrink-0"
             title="StackFlow"
             onClick={handleLogoClick}
           >
@@ -80,49 +79,42 @@ const Nav = (): ReactElement => {
             </h4>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="flex items-center gap-6">
-            <ul className="flex list-none gap-6 m-0 items-center">
-              {['About', 'Services', 'Contact'].map((item) => (
-                <li
-                  key={item}
-                  className="relative text-white/90 text-[0.95rem] font-medium cursor-pointer transition-all duration-300 hover:text-[#37F741] group"
-                  onClick={() => handleNavClick(item.toLowerCase())}
-                >
-                  {item}
-                  <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#37F741] transition-all duration-300 group-hover:w-full"></span>
-                </li>
-              ))}
-            </ul>
-             <a
-              href="https://x.com/stackflowBTC"
-              className="hover:opacity-80 hover:scale-110 transition-transform duration-300 bg-white/5 p-1.5 rounded-full border border-white/5 hover:border-[#37F741]/50 flex items-center justify-center ml-2"
-              target="_blank"
-            >
-              <img src={twitterIcon} className="w-4 h-4" />
-            </a>
-          </nav>
-        </div>
+          {/* Right Group: Nav + Social + Wallet */}
+          <div className="flex items-center gap-8">
+            {/* Navigation Links */}
+            <nav className="flex items-center gap-6">
+              <ul className="flex list-none gap-6 m-0 items-center">
+                {['About', 'Services', 'Contact'].map((item) => (
+                  <li
+                    key={item}
+                    className="relative text-white/80 text-[0.85rem] font-medium cursor-pointer transition-all duration-300 hover:text-[#37F741] group"
+                    onClick={() => handleNavClick(item.toLowerCase())}
+                  >
+                    {item}
+                    <span className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-[#37F741] transition-all duration-300 group-hover:w-full"></span>
+                  </li>
+                ))}
+              </ul>
+            </nav>
 
-        {/* Right Island: Wallet */}
-        <div 
-          className={`
-            pointer-events-auto
-            flex items-center gap-4
-            px-4 py-2
-            rounded-2xl 
-            transition-all duration-300 ease-in-out
-            border border-white/5
-            ${scrolled 
-              ? "bg-[#0d120c]/80 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.3)] border-white/10" 
-              : "bg-[#0d120c]/60 backdrop-blur-md shadow-lg"
-            }
-          `}
-        >
-          <div className="relative group min-w-[140px]">
-            <CustomConnectButton />
-            <div className="absolute top-full mt-2 right-0 hidden p-2 text-xs text-white bg-black/90 backdrop-blur border border-white/10 rounded-md whitespace-nowrap group-hover:block z-50">
-              Connecting Bitcoin Economy
+            <div className="w-px h-6 bg-white/10"></div>
+
+            {/* Social & Wallet */}
+            <div className="flex items-center gap-3">
+              <a
+                href="https://x.com/stackflowBTC"
+                className="hover:opacity-80 hover:scale-110 transition-transform duration-300 bg-white/5 p-1.5 rounded-full border border-white/5 hover:border-[#37F741]/50 flex items-center justify-center"
+                target="_blank"
+              >
+                <img src={twitterIcon} className="w-4 h-4" />
+              </a>
+
+              <div className="relative group min-w-[140px]">
+                <CustomConnectButton />
+                <div className="absolute top-full mt-2 right-0 hidden p-2 text-xs text-white bg-black/90 backdrop-blur border border-white/10 rounded-md whitespace-nowrap group-hover:block z-50">
+                  Connecting Bitcoin Economy
+                </div>
+              </div>
             </div>
           </div>
         </div>
