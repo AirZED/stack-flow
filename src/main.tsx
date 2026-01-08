@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
 import { Connect } from "@stacks/connect-react";
+import { AppConfig, UserSession } from "@stacks/auth";
 import { TurnKeyProviderEl } from "./lib/turnkey.tsx";
 import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
 
@@ -12,11 +13,24 @@ import { WalletProvider } from "./context/WalletContext.tsx";
 
 const queryClient = new QueryClient();
 
+// Configure Stacks authentication
+const appConfig = new AppConfig(['store_write', 'publish_data']);
+const userSession = new UserSession({ appConfig });
+
+const authOptions = {
+  appDetails: {
+    name: "StackFlow",
+    icon: window.location.origin + "/logo.png",
+  },
+  redirectTo: "/",
+  userSession,
+};
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
       <Suspense fallback={<div>Loading...</div>}>
-        <Connect>
+        <Connect authOptions={authOptions}>
           <TurnKeyProviderEl>
             <QueryClientProvider client={queryClient}>
               <WalletProvider>
