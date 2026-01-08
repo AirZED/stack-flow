@@ -5,7 +5,7 @@ import {
   useState,
   useEffect,
 } from "react";
-import { showConnect } from "@stacks/connect";
+import { useConnect } from "@stacks/connect-react";
 import { AppConfig, UserSession } from "@stacks/auth";
 
 interface AddressData {
@@ -45,6 +45,9 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
 
+  // Use @stacks/connect-react v8 hook
+  const { doOpenAuth } = useConnect();
+
   // Check for existing session on mount
   useEffect(() => {
     try {
@@ -77,7 +80,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const handleConnect = async () => {
     setIsConnecting(true);
     try {
-      showConnect({
+      // Use v8 API with doOpenAuth from useConnect hook
+      doOpenAuth({
         appDetails: {
           name: "StackFlow",
           icon: window.location.origin + "/logo.png",
