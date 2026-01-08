@@ -5,9 +5,8 @@
 
 import mongoClient from '../lib/mongoClient';
 
-// Stacks API configuration
-const STACKS_API_URL = import.meta.env.VITE_STACKS_API_URL || 'https://api.mainnet.hiro.so';
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
+// Stacks API configuration (routed through our dev proxy)
+const STACKS_API_URL = '/api/stacks';
 
 // Types
 export interface WhaleProfile {
@@ -32,6 +31,25 @@ export interface WhaleProfile {
     lastActiveAt: string;
     activityLevel: 'high' | 'medium' | 'low';
   };
+  
+  // New fields from whale-indexer
+  scores?: {
+    composite: number;
+    balance: number;
+    activity: number;
+    diversity: number;
+  };
+  
+  stats?: {
+    txCount30d: number;
+    txCount90d: number;
+    volume30dSTX: number;
+    protocolsUsed: string[];
+    lastActiveAt: string;
+    activityLevel: 'high' | 'medium' | 'low';
+  };
+  
+  recentTransactions?: StacksTransaction[];
   
   ai?: {
     confidence: number;
@@ -277,6 +295,8 @@ class EcosystemWhaleService {
         activityLevel: this.calculateActivityLevel(txCount),
       },
       
+      recentTransactions: transactions.slice(0, 5),
+      
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -314,25 +334,11 @@ class EcosystemWhaleService {
   }
 
   /**
-   * Get all whales from MongoDB
+   * Get all whales from MongoDB (indexed by whale-indexer service)
    */
   async getWhales(limit = 20): Promise<WhaleProfile[]> {
-    if (mongoClient.isConfigured) {
-      try {
-        const whales = await mongoClient.find('whales', {}, {
-          sort: { 'portfolio.stxBalance': -1 },
-          limit,
-        });
-        if (whales.length > 0) {
-          return whales as WhaleProfile[];
-        }
-      } catch (error) {
-        console.error('[WhaleService] MongoDB error:', error);
-      }
-    }
-    
-    // Fallback: return curated whales with live data
-    return this.getCuratedWhales();
+    // Use indexed whales from MongoDB (populated by whale-indexer service)
+    return this.getIndexedWhales(limit);
   }
 
   /**
@@ -357,133 +363,125 @@ class EcosystemWhaleService {
    * Get whales by category
    */
   async getWhalesByCategory(category: string): Promise<WhaleProfile[]> {
-    if (mongoClient.isConfigured) {
-      try {
-        return await mongoClient.find('whales', { category }, {
-          sort: { 'portfolio.stxBalance': -1 },
-        }) as WhaleProfile[];
-      } catch (error) {
-        console.error('[WhaleService] MongoDB error:', error);
-      }
-    }
-    
-    const allWhales = await this.getCuratedWhales();
-    return allWhales.filter(w => w.category === category);
+    return this.getIndexedWhales(20, { category });
   }
 
   /**
    * Get whales by protocol
    */
   async getWhalesByProtocol(protocol: string): Promise<WhaleProfile[]> {
-    if (mongoClient.isConfigured) {
-      try {
-        return await mongoClient.find('whales', {
-          'activity.protocols': protocol
-        }, {
-          sort: { 'portfolio.stxBalance': -1 },
-        }) as WhaleProfile[];
-      } catch (error) {
-        console.error('[WhaleService] MongoDB error:', error);
-      }
-    }
-    
-    const allWhales = await this.getCuratedWhales();
-    return allWhales.filter(w => w.activity.protocols.includes(protocol));
+    return this.getIndexedWhales(20, { protocol });
   }
 
   /**
-   * Discover new whales using AI (requires Gemini API key)
+   * Get indexed whales from MongoDB (populated by whale-indexer service)
    */
-  async discoverWhalesWithAI(): Promise<WhaleProfile[]> {
-    if (!GEMINI_API_KEY) {
-      console.warn('[WhaleService] Gemini API key not configured, skipping AI discovery');
-      return [];
+  async getIndexedWhales(limit = 20, filters?: {
+    category?: string;
+    protocol?: string;
+    minScore?: number;
+  }): Promise<WhaleProfile[]> {
+    if (!mongoClient.isConfigured) {
+      console.warn('[WhaleService] MongoDB not configured - returning curated whales');
+      return this.getCuratedWhales();
     }
-    
-    console.log('[WhaleService] Starting AI whale discovery...');
     
     try {
-      // Fetch recent high-value transactions
-      const response = await this.rateLimitedFetch(
-        `${STACKS_API_URL}/extended/v1/tx?limit=100`
-      );
+      // Build filter query
+      const query: Record<string, unknown> = {};
       
-      if (!response.ok) {
-        throw new Error(`Failed to fetch transactions: ${response.status}`);
+      if (filters?.category) {
+        query.category = filters.category;
       }
       
-      const data = await response.json();
-      const transactions = data.results || [];
+      if (filters?.protocol) {
+        query['stats.protocolsUsed'] = filters.protocol;
+      }
       
-      // Extract unique addresses with high activity
-      const addressCounts = new Map<string, number>();
-      transactions.forEach((tx: StacksTransaction) => {
-        addressCounts.set(
-          tx.sender_address,
-          (addressCounts.get(tx.sender_address) || 0) + 1
-        );
+      if (filters?.minScore) {
+        query['scores.composite'] = { $gte: filters.minScore };
+      }
+      
+      const whales = await mongoClient.find('whales', query, {
+        sort: { 'scores.composite': -1 },
+        limit,
       });
       
-      // Get addresses with 3+ transactions
-      const potentialWhales = Array.from(addressCounts.entries())
-        .filter(([, count]) => count >= 3)
-        .map(([address]) => address)
-        .slice(0, 10);
-      
-      // Build profiles for potential whales
-      const profiles: WhaleProfile[] = [];
-      for (const address of potentialWhales) {
-        const profile = await this.buildWhaleProfile(address, {
-          source: 'ai_discovered',
-        });
-        
-        if (profile && profile.portfolio.stxBalance >= 10000) { // 10k STX minimum
-          profiles.push(profile);
-        }
+      if (whales.length > 0) {
+        console.log(`[WhaleService] ✓ Retrieved ${whales.length} indexed whales from MongoDB`);
+        return whales as WhaleProfile[];
       }
       
-      // Store in MongoDB if configured
-      if (mongoClient.isConfigured) {
-        for (const profile of profiles) {
-          await mongoClient.updateOne(
-            'whales',
-            { address: profile.address },
-            profile as unknown as Record<string, unknown>,
-            true // upsert
-          );
-        }
-        console.log(`[WhaleService] Stored ${profiles.length} whales in MongoDB`);
-      }
-      
-      return profiles;
+      // Fallback to curated if no indexed whales found
+      console.warn('[WhaleService] No indexed whales found, using curated list');
+      return this.getCuratedWhales();
     } catch (error) {
-      console.error('[WhaleService] AI discovery error:', error);
-      return [];
+      console.error('[WhaleService] Error fetching indexed whales:', error);
+      return this.getCuratedWhales();
     }
+  }
+
+  /**
+   * Calculate composite whale score
+   */
+  calculateCompositeScore(whale: Partial<WhaleProfile>): number {
+    const stxBalance = whale.portfolio?.stxBalance || 0;
+    const txCount = whale.activity?.txCount30d || whale.stats?.txCount30d || 0;
+    const protocols = whale.activity?.protocols || whale.stats?.protocolsUsed || [];
+    
+    // Balance score (0-100 based on size)
+    const balanceScore = Math.min(100, (stxBalance / 1000000) * 10);
+    
+    // Activity score (0-100 based on transaction count)
+    const activityScore = Math.min(100, txCount * 2);
+    
+    // Diversity score (0-100 based on protocols used)
+    const diversityScore = Math.min(100, protocols.length * 20);
+    
+    // Weighted composite
+    return Math.round(
+      balanceScore * 0.50 +
+      activityScore * 0.30 +
+      diversityScore * 0.20
+    );
+  }
+
+  /**
+   * Get finality status of a transaction based on block heights
+   */
+  getFinalityStatus(
+    stacksBlockHeight: number,
+    bitcoinBlockHeight?: number
+  ): 'mempool' | 'microblock' | 'bitcoin-anchored' | 'bitcoin-final' {
+    if (!bitcoinBlockHeight) {
+      return 'microblock';
+    }
+    
+    // Get current Bitcoin block (approximate)
+    // In production, this should query a Bitcoin node
+    const currentBtcBlock = 931428; // Approximate current block
+    const confirmations = currentBtcBlock - bitcoinBlockHeight;
+    
+    if (confirmations >= 6) {
+      return 'bitcoin-final';
+    } else if (confirmations >= 1) {
+      return 'bitcoin-anchored';
+    }
+    
+    return 'microblock';
   }
 
   /**
    * Refresh whale data (call periodically)
+   * NOTE: This is now handled by the whale-indexer service
+   * Keeping for backward compatibility but delegating to indexer
    */
   async refreshWhaleData(): Promise<void> {
-    console.log('[WhaleService] Refreshing whale data...');
+    console.log('[WhaleService] Whale data refresh is now handled by whale-indexer service');
+    console.log('[WhaleService] To manually refresh, restart the whale-indexer service');
     
-    const whales = await this.getWhales(50);
-    
-    for (const whale of whales) {
-      const updatedProfile = await this.buildWhaleProfile(whale.address, whale);
-      
-      if (updatedProfile && mongoClient.isConfigured) {
-        await mongoClient.updateOne(
-          'whales',
-          { address: whale.address },
-          updatedProfile as unknown as Record<string, unknown>,
-          true
-        );
-      }
-    }
-    
-    console.log(`[WhaleService] Refreshed ${whales.length} whale profiles`);
+    // The whale-indexer service handles automatic discovery and updates
+    // This method is kept for backward compatibility but does nothing
   }
 }
 
