@@ -6,11 +6,11 @@ import {
   useEffect,
 } from "react";
 import {
-  showConnect,
   disconnect,
   isConnected,
-  request,
+  openSignatureRequest,
 } from "@stacks/connect";
+import { useAppKit, useAppKitAccount } from "@reown/appkit/react";
 
 interface AddressData {
   address: string;
@@ -36,6 +36,9 @@ interface WalletContextType {
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 export function WalletProvider({ children }: { children: ReactNode }) {
+  const { open } = useAppKit();
+  const { address: appKitAddress, isConnected: appKitConnected } = useAppKitAccount();
+  
   const [addresses, setAddresses] = useState<{
     stx: AddressData[];
     btc: AddressData[];
@@ -44,73 +47,31 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [isConnecting, setIsConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
 
-  // Check if user is already authenticated on mount
+  // Sync with AppKit state
   useEffect(() => {
-    const checkConnection = async () => {
-      try {
-        const connectionStatus = isConnected();
-        setConnected(connectionStatus);
-        
-        if (connectionStatus) {
-          // Fetch addresses if connected
-          const result = await request('getAddresses');
-          if (result?.addresses && Array.isArray(result.addresses)) {
-            setAddresses({
-              stx: result.addresses.map((addr: any) => ({
-                address: addr.address,
-                symbol: addr.symbol || 'STX',
-                purpose: addr.type || 'mainnet'
-              })),
-              btc: [] // BTC addresses can be added if available
-            });
-          }
-        }
-      } catch (error) {
-        console.error('[WalletContext] Error checking connection:', error);
-        setConnected(false);
-      } finally {
-        setIsLoading(false);
+    if (appKitConnected && appKitAddress) {
+      setConnected(true);
+      // If we don't have addresses yet, set the primary one
+      if (addresses.stx.length === 0) {
+        setAddresses({
+          stx: [{ address: appKitAddress, symbol: 'STX', purpose: 'mainnet' }],
+          btc: []
+        });
       }
-    };
-
-    checkConnection();
-  }, []);
+    } else {
+      setConnected(false);
+      setAddresses({ stx: [], btc: [] });
+    }
+    setIsLoading(false);
+  }, [appKitConnected, appKitAddress]);
 
   const handleConnect = async () => {
     setIsConnecting(true);
     try {
-      await showConnect({
-        appDetails: {
-          name: import.meta.env.VITE_APP_NAME || 'StackFlow',
-          icon: import.meta.env.VITE_APP_ICON || window.location.origin + '/icon.svg',
-        },
-        onFinish: async () => {
-          setIsConnecting(false);
-          setConnected(true);
-          
-          // Fetch addresses after successful connection
-          try {
-            const result = await request('getAddresses');
-            if (result?.addresses && Array.isArray(result.addresses)) {
-              setAddresses({
-                stx: result.addresses.map((addr: any) => ({
-                  address: addr.address,
-                  symbol: addr.symbol || 'STX',
-                  purpose: addr.type || 'mainnet'
-                })),
-                btc: []
-              });
-            }
-          } catch (error) {
-            console.error('[WalletContext] Error fetching addresses:', error);
-          }
-        },
-        onCancel: () => {
-          setIsConnecting(false);
-        },
-      });
+      await open();
+      setIsConnecting(false);
     } catch (error) {
-      console.error("Error opening Stacks Connect modal:", error);
+      console.error("Error opening Reown AppKit modal:", error);
       setIsConnecting(false);
     }
   };

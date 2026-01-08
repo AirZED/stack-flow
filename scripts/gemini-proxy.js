@@ -11,6 +11,8 @@ app.use(express.json({ limit: '1mb' }))
 const GEMINI_KEY = process.env.GEMINI_API_KEY
 if (!GEMINI_KEY) console.warn('[gemini-proxy] WARNING: GEMINI_API_KEY is not set in environment')
 
+app.get('/health', (req, res) => res.json({ status: 'ok', hasKey: !!GEMINI_KEY }))
+
 app.post('/generate', async (req, res) => {
   try {
     const response = await axios.post(

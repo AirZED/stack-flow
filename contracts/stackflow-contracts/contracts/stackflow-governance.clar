@@ -65,12 +65,6 @@
 (define-read-only (get-vote (proposal-id uint) (voter principal))
   (map-get? votes {proposal-id: proposal-id, voter: voter}))
 
-;; Read-only: Calculate voting power (based on staked FLOW)
-(define-read-only (get-voting-power (voter principal))
-  (match (contract-call? staking-contract get-stake voter)
-    stake-data (ok (get amount stake-data))
-    (ok u0)))
-
 ;; Read-only: Check if proposal passed
 (define-read-only (has-proposal-passed (proposal-id uint))
   (match (get-proposal proposal-id)
@@ -95,7 +89,8 @@
   (let (
     (proposer tx-sender)
     (proposal-id (+ (var-get proposal-nonce) u1))
-    (voting-power (unwrap! (get-voting-power proposer) err-insufficient-flow))
+    (stake-info (contract-call? staking-contract get-stake proposer))
+    (voting-power (match stake-info data (get amount data) u0))
   )
     (asserts! (not (var-get paused)) err-owner-only)
     (asserts! (>= voting-power min-proposal-stake) err-insufficient-flow)
@@ -134,7 +129,8 @@
   (let (
     (voter tx-sender)
     (proposal (unwrap! (get-proposal proposal-id) err-not-found))
-    (voting-power (unwrap! (get-voting-power voter) err-insufficient-flow))
+    (stake-info (contract-call? staking-contract get-stake voter))
+    (voting-power (match stake-info data (get amount data) u0))
   )
     (asserts! (> voting-power u0) err-insufficient-flow)
     (asserts! (<= stacks-block-height (get voting-ends-at proposal)) err-voting-closed)

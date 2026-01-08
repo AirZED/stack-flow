@@ -82,11 +82,9 @@
 
 ;; Read-only: Calculate discounted fee
 (define-read-only (calculate-discounted-fee (user principal) (original-fee uint))
-  (match (get-fee-discount user)
-    discount-bps
-      (let ((discount-amount (/ (* original-fee discount-bps) u10000)))
-        (ok (- original-fee discount-amount)))
-    err-val (err err-val)))
+  (let ((discount-bps (unwrap-panic (get-fee-discount user))))
+    (let ((discount-amount (/ (* original-fee discount-bps) u10000)))
+      (ok (- original-fee discount-amount)))))
 
 ;; Stake FLOW tokens
 (define-public (stake (amount uint))
@@ -126,7 +124,7 @@
           })
           
           (ok true))
-      error (err err-transfer-failed))))
+      error err-transfer-failed)))
 
 ;; Unstake FLOW tokens
 (define-public (unstake (amount uint))

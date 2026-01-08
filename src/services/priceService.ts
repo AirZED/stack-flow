@@ -63,80 +63,21 @@ class PriceService {
    * Fetch price from external APIs with improved CORS and rate-limit handling
    */
   private async fetchPrice(asset: AssetType): Promise<PriceData> {
-    const assetMap: Record<AssetType, { coingecko: string; coincap: string; binance: string }> = {
-      STX: { coingecko: 'blockstack', coincap: 'stacks', binance: 'STXUSDT' },
-      BTC: { coingecko: 'bitcoin', coincap: 'bitcoin', binance: 'BTCUSDT' },
-      ETH: { coingecko: 'ethereum', coincap: 'ethereum', binance: 'ETHUSDT' },
-    };
-
-    const config = assetMap[asset];
-    const errors: string[] = [];
-
-    // 1. Try CoinCap first (usually better CORS support for browser)
     try {
-      const response = await fetch(`https://api.coincap.io/v2/assets/${config.coincap}`);
+      const response = await fetch(`/api/prices?asset=${asset}`);
       if (response.ok) {
-        const json = await response.json();
-        if (json.data?.priceUsd) {
-          return {
-            price: parseFloat(json.data.priceUsd),
-            timestamp: Date.now(),
-            source: 'CoinCap'
-          };
-        }
+        return await response.json();
       }
+      throw new Error(`Proxy returned ${response.status}`);
     } catch (e) {
-      errors.push(`CoinCap: ${e instanceof Error ? e.message : String(e)}`);
+      console.warn(`[PriceService] Proxy fetch failed for ${asset}, using static fallback.`, e);
+      const fallbacks: Record<AssetType, number> = { STX: 0.58, BTC: 64000, ETH: 3400 };
+      return {
+        price: fallbacks[asset],
+        timestamp: Date.now(),
+        source: 'Internal Fallback'
+      };
     }
-
-    // 2. Try CoinGecko (fallback, often rate limited 429)
-    try {
-      const response = await fetch(
-        `https://api.coingecko.com/api/v3/simple/price?ids=${config.coingecko}&vs_currencies=usd`,
-        { mode: 'cors' }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        if (data[config.coingecko]?.usd) {
-          return {
-            price: data[config.coingecko].usd,
-            timestamp: Date.now(),
-            source: 'CoinGecko'
-          };
-        }
-      } else if (response.status === 429) {
-        console.warn(`[PriceService] CoinGecko rate limited (429) for ${asset}`);
-      }
-    } catch (e) {
-      errors.push(`CoinGecko: ${e instanceof Error ? e.message : String(e)}`);
-    }
-
-    // 3. Special STX/HIRO Fallback
-    if (asset === 'STX') {
-      try {
-        const response = await fetch('https://api.mainnet.hiro.so/v2/pox');
-        if (response.ok) {
-          // Note: pox endpoint doesn't directly return price, 
-          // but we can use it to verify connectivity and return a stable fallback
-          return {
-            price: 0.58, // Stable fallack if Hiro is reachable but price APIs are down
-            timestamp: Date.now(),
-            source: 'Stacks API'
-          };
-        }
-      } catch (e) {
-        errors.push(`Hiro API: ${e instanceof Error ? e.message : String(e)}`);
-      }
-    }
-
-    // 4. Final Fallback (Mock/Static)
-    console.warn(`[PriceService] All sources failed for ${asset}. Using static fallback.`, errors);
-    const fallbacks: Record<AssetType, number> = { STX: 0.58, BTC: 64000, ETH: 3400 };
-    return {
-      price: fallbacks[asset],
-      timestamp: Date.now(),
-      source: 'Internal Fallback'
-    };
   }
 
   /**

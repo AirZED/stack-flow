@@ -1,4 +1,6 @@
-import { io } from 'socket.io-client';
+so import { io } from 'socket.io-client';
+import { Server } from 'socket.io';
+import http from 'http';
 import dotenv from 'dotenv';
 import { dbService } from '../src/lib/db.ts';
 
@@ -7,6 +9,7 @@ dotenv.config();
 const STACKS_API_URL = process.env.VITE_STACKS_API_URL || 'https://api.mainnet.hiro.so';
 const UPDATE_THRESHOLD_USD = parseInt(process.env.WHALE_ALERT_THRESHOLD || '50000'); // $50K+ transactions
 const STX_PRICE_ESTIMATE = 1.5; // Rough estimate, should use price service
+const WHALE_SOCKET_PORT = parseInt(process.env.WHALE_SOCKET_PORT || '5181');
 
 // Known protocols for transaction classification
 const PROTOCOLS = {
@@ -146,6 +149,51 @@ function logSignificantMovement(whale, tx, classification, value) {
   }
 }
 
+// Create HTTP server for WebSocket broadcasting to frontend
+const httpServer = http.createServer();
+const frontendIO = new Server(httpServer, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+});
+
+// Track connected frontend clients
+let connectedClients = 0;
+frontendIO.on('connection', (socket) => {
+  connectedClients++;
+  console.log(`[WhaleMonitor] Frontend client connected (${connectedClients} total)`);
+  
+  socket.on('disconnect', () => {
+    connectedClients--;
+    console.log(`[WhaleMonitor] Frontend client disconnected (${connectedClients} remaining)`);
+  });
+});
+
+/**
+ * Broadcast whale transaction to frontend clients
+ */
+function broadcastToFrontend(whale, tx, classification, value) {
+  frontendIO.emit('whale:transaction', {
+    whale: {
+      address: whale.address,
+      alias: whale.alias || null
+    },
+    transaction: {
+      tx_id: tx.tx_id,
+      type: classification.type,
+      intent: classification.intent,
+      action: classification.action,
+      protocol: classification.protocol || null,
+      valueSTX: value.stx,
+      valueUSD: value.usd,
+      blockHeight: tx.block_height,
+      timestamp: new Date(tx.burn_block_time * 1000).toISOString()
+    },
+    isSignificant: value.usd > UPDATE_THRESHOLD_USD
+  });
+}
+
 /**
  * Main WebSocket monitoring service
  */
@@ -162,6 +210,11 @@ async function startWhaleMonitor() {
     console.error('[WhaleMonitor] ❌ Failed to connect to MongoDB:', error);
     process.exit(1);
   }
+  
+  // Start WebSocket server for frontend
+  httpServer.listen(WHALE_SOCKET_PORT, () => {
+    console.log(`[WhaleMonitor] 📡 WebSocket server for frontend listening on port ${WHALE_SOCKET_PORT}`);
+  });
   
   // Get tracked whales from database
   const collection = dbService.getCollection('whales');
@@ -249,6 +302,9 @@ async function startWhaleMonitor() {
       // Update database
       await updateWhaleTransaction(address, tx, classification, value);
       
+      // Broadcast to frontend clients
+      broadcastToFrontend(whale, tx, classification, value);
+      
       // Alert on significant movements
       logSignificantMovement(whale, tx, classification, value);
       
@@ -267,6 +323,8 @@ async function startWhaleMonitor() {
   process.on('SIGINT', async () => {
     console.log('\n[WhaleMonitor] 🛑 Shutting down gracefully...');
     socket.disconnect();
+    frontendIO.close();
+    httpServer.close();
     await dbService.close();
     process.exit(0);
   });

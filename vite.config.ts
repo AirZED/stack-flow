@@ -37,6 +37,16 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/gemini\/generate/, '/generate'),
         // No upstream headers here — the local proxy will attach the API key.
+      },
+      '/api/prices': {
+        target: `http://localhost:${process.env.PRICE_PROXY_PORT || 5177}`,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/prices/, '/api/prices'),
+      },
+      '/api/stacks': {
+        target: 'https://api.mainnet.hiro.so',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/stacks/, ''),
       }
     }
   }

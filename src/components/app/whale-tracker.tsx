@@ -7,6 +7,9 @@
 import { useState, useEffect } from "react";
 import { RefreshCw, ExternalLink, TrendingUp, Activity, Users, Zap, Eye } from 'lucide-react';
 import { ecosystemWhaleService, type WhaleProfile } from "../../services/ecosystemWhaleService";
+import { useWhaleWebSocket, WhaleTransaction } from "../../hooks/useWhaleWebSocket";
+import { TransactionCard } from "../ui/transaction-card";
+import { WhaleAlert } from "../ui/whale-alert";
 
 interface WhaleTrackerProps {
   onWhaleSelect?: (whale: WhaleProfile) => void;
@@ -20,6 +23,10 @@ export function WhaleTracker({ onWhaleSelect, maxWhales = 10 }: WhaleTrackerProp
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<'all' | 'defi' | 'nft' | 'stacking'>('all');
   const [error, setError] = useState<string | null>(null);
+  const [alertTransaction, setAlertTransaction] = useState<WhaleTransaction | null>(null);
+  
+  // WebSocket integration for real-time updates
+  const { connected, latestTransaction, transactionHistory } = useWhaleWebSocket();
 
   const fetchWhales = async (showRefresh = false) => {
     if (showRefresh) setRefreshing(true);
@@ -57,6 +64,21 @@ export function WhaleTracker({ onWhaleSelect, maxWhales = 10 }: WhaleTrackerProp
   useEffect(() => {
     fetchWhales();
   }, [filter, maxWhales]);
+  
+  // Listen for real-time whale transactions
+  useEffect(() => {
+    if (latestTransaction) {
+      console.log('[WhaleTracker] New transaction received:', latestTransaction);
+      
+      // Show alert if significant
+      if (latestTransaction.isSignificant) {
+        setAlertTransaction(latestTransaction);
+      }
+      
+      // Auto-refresh whale list to show updated data
+      fetchWhales(true);
+    }
+  }, [latestTransaction]);
 
   const formatAddress = (address: string) => {
     if (!address) return 'Unknown';
@@ -145,6 +167,14 @@ export function WhaleTracker({ onWhaleSelect, maxWhales = 10 }: WhaleTrackerProp
           </div>
           
           <div className="flex items-center gap-3">
+            {/* Live indicator */}
+            {connected && (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                <span className="text-emerald-400 text-xs font-semibold">LIVE</span>
+              </div>
+            )}
+            
             {/* Filter Pills */}
             <div className="hidden sm:flex items-center gap-1 p-1 rounded-lg bg-black/30 border border-white/5">
               {(['all', 'defi', 'nft', 'stacking'] as const).map((f) => (
@@ -301,6 +331,41 @@ export function WhaleTracker({ onWhaleSelect, maxWhales = 10 }: WhaleTrackerProp
                         <div className="font-bold text-[#37F741] capitalize">{whale.source || 'AI'}</div>
                       </div>
                     </div>
+
+                    {/* Recent Transactions Section */}
+                    {whale.recentTransactions && whale.recentTransactions.length > 0 && (
+                      <div className="mb-4">
+                        <h4 className="text-sm font-semibold text-slate-200 mb-2 flex items-center gap-2">
+                          <Activity className="w-4 h-4 text-[#37F741]" />
+                          Recent Transactions
+                        </h4>
+                        <div className="space-y-2">
+                          {whale.recentTransactions.map((tx) => (
+                            <div key={tx.tx_id} className="text-xs backdrop-blur-sm bg-white/[0.02] rounded-lg p-2 border border-white/5 flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className={`w-2 h-2 rounded-full ${tx.tx_status === 'success' ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                                <span className="text-slate-300 font-medium truncate max-w-[120px]">
+                                  {tx.tx_type === 'contract_call' ? tx.contract_call?.function_name : tx.tx_type}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="text-slate-500 font-mono">
+                                  {tx.tx_id.slice(0, 6)}...{tx.tx_id.slice(-4)}
+                                </span>
+                                <a
+                                  href={`https://explorer.stacks.co/txid/${tx.tx_id}?chain=mainnet`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[#37F741] hover:text-white"
+                                >
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     
                     <div className="flex items-center justify-between">
                       <a
@@ -364,6 +429,45 @@ export function WhaleTracker({ onWhaleSelect, maxWhales = 10 }: WhaleTrackerProp
                 {whales.length} whales tracked
               </span>
             </div>
+        
+        {/* Live Transaction Feed */}
+        {transactionHistory.length > 0 && (
+          <div className="mt-6 pt-6 border-t border-white/10">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-sm font-semibold text-white flex items-center gap-2">
+                <Zap className="w-4 h-4 text-yellow-400" />
+                Live Activity Feed
+              </h4>
+              <span className="text-xs text-white/50">
+                {transactionHistory.length} recent transactions
+              </span>
+            </div>
+            <div className="space-y-2 max-h-96 overflow-y-auto custom-scrollbar">
+              {transactionHistory.slice(0, 10).map((tx, index) => (
+                <TransactionCard 
+                  key={`${tx.transaction.tx_id}-${index}`}
+                  transaction={tx}
+                  onWhaleClick={(addr) => {
+                    const whale = whales.find(w => w.address === addr);
+                    if (whale) {
+                      setSelectedWhale(whale);
+                      onWhaleSelect?.(whale);
+                    }
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      
+      {/* Whale Alert Notification */}
+      {alertTransaction && (
+        <WhaleAlert 
+          transaction={alertTransaction}
+          onDismiss={() => setAlertTransaction(null)}
+        />
+      )}
             <span className="text-xs text-slate-500">
               Stacks Mainnet
             </span>

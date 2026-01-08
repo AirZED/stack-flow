@@ -17,7 +17,7 @@ const MAINNET_CONTRACT = {
 };
 
 const NETWORK = import.meta.env.VITE_STACKS_NETWORK || 'mainnet';
-const API_URL = import.meta.env.VITE_STACKS_API_URL || 'https://api.mainnet.hiro.so';
+const API_URL = '/api/stacks';
 
 export const CONTRACT_ADDRESS = import.meta.env.VITE_STACKS_CONTRACT_ADDRESS 
   ? import.meta.env.VITE_STACKS_CONTRACT_ADDRESS.split('.')[0]
