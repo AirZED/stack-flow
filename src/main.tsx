@@ -13,17 +13,12 @@ import { WalletProvider } from "./context/WalletContext.tsx";
 
 const queryClient = new QueryClient();
 
-// Configure Stacks authentication
-const appConfig = new AppConfig(['store_write', 'publish_data']);
-const userSession = new UserSession({ appConfig });
-
+// Configure Stacks authentication for Connect provider
 const authOptions = {
   appDetails: {
     name: "StackFlow",
     icon: window.location.origin + "/logo.png",
   },
-  redirectTo: "/",
-  userSession,
 };
 
 createRoot(document.getElementById("root")!).render(
