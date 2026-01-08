@@ -131,7 +131,7 @@ function calculateTransactionValue(tx) {
   
   return {
     stx: valueSTX,
-    usd: valueSTX * STX_PRICE_ESTIMATE
+    usd: valueSTX * STX_PRICE_USD // Dynamic price
   };
 }
 
@@ -239,6 +239,9 @@ async function startWhaleMonitor() {
   console.log('[WhaleMonitor] 🚀 Starting Whale WebSocket Monitor');
   console.log(`[WhaleMonitor] API: ${STACKS_API_URL}`);
   console.log(`[WhaleMonitor] Alert threshold: $${UPDATE_THRESHOLD_USD.toLocaleString()}`);
+  
+  // Fetch initial STX price
+  await fetchSTXPrice();
   
   // Connect to MongoDB
   try {
