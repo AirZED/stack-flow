@@ -51,7 +51,6 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       if (stacksIsConnected()) {
         const userData = getLocalStorage();
         const stxAddr = userData?.addresses?.stx?.[0]?.address ?? null;
-        const btcAddr = userData?.addresses?.btc?.[0]?.address ?? null;
         console.log('[WalletContext] Existing session found, network:', NETWORK, 'stx:', stxAddr);
         if (stxAddr) {
           setIsConnected(true);
