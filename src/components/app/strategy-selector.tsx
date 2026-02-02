@@ -117,20 +117,20 @@ export function StrategySelector({
   const currentStrategies =
     asset === "STX"
       ? sentiments.find(
-          (sentiment) =>
-            sentiment.tag.toLowerCase() === selectedSentiment.toLowerCase()
-        )?.items || sentiments[0].items
+        (sentiment) =>
+          sentiment.tag.toLowerCase() === selectedSentiment.toLowerCase()
+      )?.items || sentiments[0].items
       : socialStrategies;
 
   useEffect(() => {
     const defaultStrategy =
       asset === "STX"
         ? sentiments?.find(
-            (sentiment) =>
-              sentiment.tag?.toLowerCase() === selectedSentiment?.toLowerCase()
-          )?.items?.[0]?.name ??
-          sentiments?.[0]?.items?.[0]?.name ??
-          ""
+          (sentiment) =>
+            sentiment.tag?.toLowerCase() === selectedSentiment?.toLowerCase()
+        )?.items?.[0]?.name ??
+        sentiments?.[0]?.items?.[0]?.name ??
+        ""
         : "Copy Trading";
 
     if (!defaultStrategy) return;
@@ -138,34 +138,37 @@ export function StrategySelector({
     handleStrategyChange(defaultStrategy);
   }, [selectedSentiment, asset]);
 
+  const isSocial = asset === "BTC";
+
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 ">
-      {currentStrategies?.map((strategy, i) => (
-        <div
-          className={`p-px rounded-lg ${
-            selectedStrategy?.toLowerCase() === strategy.name.toLowerCase()
-              ? " bg-linear-to-r from-[#37f741] to-[#FDEE61]"
-              : " bg-transparent"
-          }`}
-          key={i}
-        >
+    <div className={`grid gap-4 ${isSocial ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-2"}`}>
+      {currentStrategies?.map((strategy, i) => {
+        const isSelected = selectedStrategy?.toLowerCase() === strategy.name.toLowerCase();
+        return (
           <div
+            className={`rounded-lg p-px transition-colors ${isSelected
+                ? "bg-linear-to-r from-[#37f741] to-[#FDEE61]"
+                : isSocial
+                  ? "bg-white/10"
+                  : "bg-transparent"
+              }`}
             key={i}
-            className={`p-3 rounded-lg h-full cursor-pointer space-y-3 bg-linear-to-b from-[#1D2215] to-[#121412]`}
-            onClick={() => {
-              handleStrategyChange(strategy.name);
-            }}
           >
-            <p className="text-transparent bg-linear-to-r from-[#37f741] to-[#FDEE61] bg-clip-text">
-              {strategy.name}
-            </p>
-
-            <Icons.call />
-
-            <p className="text-sm text-[#ECECEC]">{strategy.description}</p>
+            <div
+              className={`rounded-lg h-full cursor-pointer p-4 space-y-2 min-h-[88px] flex flex-col justify-between bg-[#1D2215] border border-transparent ${isSocial && !isSelected ? "border-white/10" : ""
+                }`}
+              onClick={() => handleStrategyChange(strategy.name)}
+            >
+              <p className={`text-sm font-bold ${isSelected ? "text-transparent bg-linear-to-r from-[#37f741] to-[#FDEE61] bg-clip-text" : "text-[#ECECEC]"
+                }`}>
+                {strategy.name}
+              </p>
+              {!isSocial && <Icons.call className="shrink-0" />}
+              <p className="text-xs text-[#A0A0A0] leading-snug">{strategy.description}</p>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

@@ -21,7 +21,6 @@ export function PriceSelector() {
   const {
     premiumAndProfitZone,
     isFetchingPremiums,
-    asset,
     selectedProfitZone,
   } = state;
 
@@ -41,7 +40,7 @@ export function PriceSelector() {
                 min="0.01"
                 step="0.01"
               />
-              <p className="text-sm text-[#7A7A7A]">{asset}</p>
+              <p className="text-sm text-[#7A7A7A]">STX</p>
             </div>
           </div>
           <p className="text-xs text-[#666666]">
@@ -89,8 +88,8 @@ export function PriceSelector() {
                     premiumAndProfitZone.length > 0 &&
                     formatNumber(
                       (Number(selectedProfitZone) as unknown as number) ||
-                        premiumAndProfitZone[0]?.profitZone ||
-                        0
+                      premiumAndProfitZone[0]?.profitZone ||
+                      0
                     )
                   )}
                 </SelectValue>

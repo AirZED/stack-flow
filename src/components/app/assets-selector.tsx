@@ -17,11 +17,10 @@ export function AssetSelector({ selectedAsset }: AssetSelectorProps) {
       <div className="grid grid-cols-2 gap-2">
         <Button
           variant={selectedAsset === "STX" ? "gradient" : "default"}
-          className={`h-auto py-2 px-1.5 flex-col items-center justify-center text-center transition-all duration-300 ${
-            selectedAsset === "STX"
+          className={`h-auto py-2 px-1.5 flex-col items-center justify-center text-center transition-all duration-300 ${selectedAsset === "STX"
               ? "text-[#090909] scale-[1.01]"
               : "text-[#ECECEC] border-[#37f741]/20 hover:border-[#37f741]/40"
-          }`}
+            }`}
           onClick={() => handleAssetChange("STX")}
         >
           <Icons.trending className={`w-4 h-4 mb-1 ${selectedAsset === "STX" ? "text-black" : "text-[#37f741]"}`} />
@@ -29,11 +28,10 @@ export function AssetSelector({ selectedAsset }: AssetSelectorProps) {
         </Button>
         <Button
           variant={selectedAsset === "BTC" ? "gradient" : "default"}
-          className={`h-auto py-2 px-1.5 flex-col items-center justify-center text-center transition-all duration-300 ${
-            selectedAsset === "BTC"
+          className={`h-auto py-2 px-1.5 flex-col items-center justify-center text-center transition-all duration-300 ${selectedAsset === "BTC"
               ? "text-[#090909] scale-[1.01]"
               : "text-[#ECECEC] border-[#37f741]/20 hover:border-[#37f741]/40"
-          }`}
+            }`}
           onClick={() => handleAssetChange("BTC")}
         >
           <Icons.users className={`w-4 h-4 mb-1 ${selectedAsset === "BTC" ? "text-black" : "text-[#bbf838]"}`} />

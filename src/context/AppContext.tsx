@@ -118,11 +118,11 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
     [navigate]
   );
 
-  // fetch asset price
+  // fetch asset price (always STX - chart and trading UI show STX only)
   useEffect(() => {
     const fetchAssetPrice = async () => {
       setState((prev) => ({ ...prev, isFetching: true }));
-      getAssetPrice(state.asset)
+      getAssetPrice("STX")
         .then((data) => {
           setState((prev) => ({
             ...prev,
@@ -138,7 +138,7 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
     };
 
     fetchAssetPrice();
-  }, [state.asset]);
+  }, []);
 
   // calculate Strike (Cost) and premium using real Black-Scholes
   useEffect(() => {
@@ -175,7 +175,7 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
           period: Number(state.period),
           currentPrice: state.assetPrice,
           strategy: mappedStrategy,
-          asset: state.asset,
+          asset: "STX",
         });
 
         // Convert StrikeData to our format
@@ -205,7 +205,6 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
     state.amount,
     state.period,
     state.strategy,
-    state.asset,
     state.sentiment,
     state.assetPrice,
   ]);

@@ -21,7 +21,7 @@ export function TradeSummary() {
   const [explorerUrl, setExplorerUrl] = useState<string>("");
 
   const { state } = useAppContext();
-  const { asset, strategy, isFetching, selectedPremium, period, amount } =
+  const { strategy, isFetching, selectedPremium, period, amount } =
     state;
 
   const { address } = useWallet();
@@ -39,7 +39,7 @@ export function TradeSummary() {
         // Get primary trading balance (sBTC or STX)
         const primaryBalance = await tokenService.getPrimaryBalance();
         setUsdcBalance(primaryBalance);
-        
+
         console.log('Primary trading balance:', primaryBalance);
       } catch (error) {
         console.error('Error fetching token balance:', error);
@@ -62,12 +62,12 @@ export function TradeSummary() {
 
     try {
       setShowConfirmModal(true);
-      
+
       // Import transaction manager
       const { createOption, monitorTransaction, getExplorerUrl } = await import(
         "../../blockchain/stacks/transactionManager"
       );
-      
+
       // Map strategy name to type
       const strategyMap: Record<string, 'CALL' | 'STRAP' | 'BCSP' | 'BPSP' | 'PUT' | 'STRIP' | 'BEPS' | 'BECS'> = {
         'CALL': 'CALL',
@@ -83,9 +83,9 @@ export function TradeSummary() {
         'Bear Put Spread': 'BEPS',
         'Bear Call Spread': 'BECS',
       };
-      
+
       const mappedStrategy = strategyMap[strategy] || 'CALL';
-      
+
       // Debug logging
       console.log('Transaction parameters:', {
         strategy: mappedStrategy,
@@ -114,7 +114,7 @@ export function TradeSummary() {
       }
 
       // Create option on blockchain
-        await createOption({
+      await createOption({
         strategy: mappedStrategy,
         amount: parseFloat(amount),
         strikePrice: state.assetPrice,
@@ -128,13 +128,13 @@ export function TradeSummary() {
           setShowTransactionStatus(true);
           setTxStatus("pending");
           setExplorerUrl(getExplorerUrl(data.txId));
-          
+
           // Monitor transaction
           const confirmed = await monitorTransaction(
             data.txId,
             (status, details) => {
               console.log("Transaction status update:", status, details);
-              
+
               if (status === "confirmed") {
                 setTxStatus("success");
                 toast.success(`Transaction confirmed! Block: ${details?.blockHeight}`);
@@ -147,10 +147,10 @@ export function TradeSummary() {
               }
             }
           );
-          
+
           if (confirmed) {
             setTxStatus("success");
-            
+
             // TODO: Implement on-chain referral rewards via smart contract
             // For now, referrals are tracked on-chain via transaction events
             console.log('Trade successful! TX:', data.txId);
@@ -163,7 +163,7 @@ export function TradeSummary() {
           toast.info("Transaction cancelled");
         },
       });
-      
+
       // createOption returns void and uses callbacks
       // Success/failure is handled in onFinish/onCancel callbacks
     } catch (error) {
@@ -202,7 +202,7 @@ export function TradeSummary() {
             <div className="flex items-center justify-between *:text-xs *:capitalize">
               <p className="text-[#7A7A7A]">Strategy</p>
               <p className="text-[#D6D6D6] font-bold">
-                {asset} {strategy.replace("-", " ")}
+                STX {strategy.replace("-", " ")}
               </p>
             </div>
 
@@ -299,7 +299,7 @@ export function TradeSummary() {
         <div className="w-full">
           <CustomConnectButton
             onclick={callStrategy}
-            // onBalanceChange={handleBalanceChange}
+          // onBalanceChange={handleBalanceChange}
           />
         </div>
       </div>

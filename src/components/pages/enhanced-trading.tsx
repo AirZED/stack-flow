@@ -27,11 +27,10 @@ export default function EnhancedTradingPage() {
         <div className="flex space-x-1 bg-[#1D2215] p-1 rounded-lg max-w-md">
           <button
             onClick={() => setActiveView('trading')}
-            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-              activeView === 'trading'
-                ? 'bg-linear-to-r from-[#37f741] to-[#FDEE61] text-black'
-                : 'text-gray-400 hover:text-white'
-            }`}
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeView === 'trading'
+              ? 'bg-linear-to-r from-[#37f741] to-[#FDEE61] text-black'
+              : 'text-gray-400 hover:text-white'
+              }`}
           >
             <div className="flex items-center justify-center gap-2">
               <Icons.call className="w-4 h-4" />
@@ -40,11 +39,10 @@ export default function EnhancedTradingPage() {
           </button>
           <button
             onClick={() => setActiveView('social')}
-            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-              activeView === 'social'
-                ? 'bg-linear-to-r from-[#37f741] to-[#FDEE61] text-black'
-                : 'text-gray-400 hover:text-white'
-            }`}
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeView === 'social'
+              ? 'bg-linear-to-r from-[#37f741] to-[#FDEE61] text-black'
+              : 'text-gray-400 hover:text-white'
+              }`}
           >
             <div className="flex items-center justify-center gap-2">
               <Icons.users className="w-4 h-4" />
@@ -68,7 +66,7 @@ export default function EnhancedTradingPage() {
               />
             </div>
             <div className="w-full lg:max-w-[667px] bg-[#1D2215] p-7 rounded-lg">
-              <TradingChart asset={asset} />
+              <TradingChart asset="STX" />
             </div>
           </div>
 
@@ -103,7 +101,7 @@ export default function EnhancedTradingPage() {
                   </button>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <WhaleTracker maxWhales={3} />
                 <MemeSignals maxSignals={3} />
@@ -115,7 +113,7 @@ export default function EnhancedTradingPage() {
         <div className="space-y-6">
           {/* Full Social Sentiment Dashboard */}
           <SocialSentimentDashboard />
-          
+
           {/* Quick Trading Actions */}
           <div className="bg-[#1D2215] rounded-lg p-6">
             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
@@ -136,7 +134,7 @@ export default function EnhancedTradingPage() {
                 </div>
                 <p className="text-gray-400 text-sm">Copy successful bullish strategies from top whales</p>
               </button>
-              
+
               <button
                 onClick={() => {
                   setActiveView('trading');

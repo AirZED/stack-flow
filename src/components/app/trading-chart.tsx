@@ -68,7 +68,7 @@ export function TradingChart({ asset }: Props) {
     <div className="w-full h-full space-y-5">
       <div className="flex items-center justify-between">
         <div className="text-[#ECECEC] text-sm font-semibold flex items-center gap-2">
-          {asset === "ETH" ? <Icons.eth /> : asset === "BTC" ? <Icons.bitcoin /> : <Icons.bitcoin />}
+          {asset === "ETH" ? <Icons.eth /> : asset === "BTC" ? <Icons.bitcoin /> : <Icons.trending className="text-[#37f741]" />}
           {asset} / USD
         </div>
         <div className="space-y-2">
@@ -184,7 +184,7 @@ export const LightweightChart: React.FC<Props> = ({ asset, onPriceSelect }) => {
     const fetchHistoricalData = async () => {
       try {
         let data: CandlestickData[] = [];
-        
+
         if (asset === "STX") {
           // Use CoinGecko API for STX data with fallback
           console.log("Fetching STX data from CoinGecko");
@@ -199,7 +199,7 @@ export const LightweightChart: React.FC<Props> = ({ asset, onPriceSelect }) => {
 
             const coinGeckoData = await response.json();
             const prices = coinGeckoData.prices;
-            
+
             if (prices && prices.length > 0) {
               // Convert CoinGecko data to candlestick format
               data = prices.map((price: [number, number]) => {
@@ -246,7 +246,7 @@ export const LightweightChart: React.FC<Props> = ({ asset, onPriceSelect }) => {
           } else {
             symbol = `${asset.toUpperCase()}USDT`;
           }
-          
+
           console.log(`Fetching data for ${symbol} from Binance`);
           const response = await fetch(
             `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=1m&limit=1000`
@@ -257,7 +257,7 @@ export const LightweightChart: React.FC<Props> = ({ asset, onPriceSelect }) => {
           }
 
           const binanceData: Array<[number, string, string, string, string]> = await response.json();
-          
+
           // Convert Binance data to candlestick format
           data = binanceData.map((k) => ({
             time: (k[0] / 1000) as any, // Convert ms to seconds
@@ -311,7 +311,7 @@ export const LightweightChart: React.FC<Props> = ({ asset, onPriceSelect }) => {
         } else {
           symbol = `${asset.toLowerCase()}usdt`;
         }
-        
+
         ws = new WebSocket(
           `wss://stream.binance.com:9443/ws/${symbol}@kline_1m`
         );
