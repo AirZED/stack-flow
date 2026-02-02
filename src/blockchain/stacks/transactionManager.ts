@@ -4,14 +4,15 @@
 import { openContractCall, type FinishedTxData } from '@stacks/connect';
 import { uintCV, AnchorMode, PostConditionMode } from '@stacks/transactions';
 import { STACKS_TESTNET, STACKS_MAINNET } from '@stacks/network';
-import { 
-  OPTIONS_CONTRACT, 
+import {
+  OPTIONS_CONTRACT,
   NETWORK_INFO,
   getContractAddress,
-  getContractName 
+  getContractName
 } from '../../config/contracts.config';
+import { getStacksApiBase } from '../../utils/environment';
 
-const API_URL = '/api/stacks';
+const getApiUrl = () => getStacksApiBase();
 
 export const CONTRACT_ADDRESS = getContractAddress(OPTIONS_CONTRACT)!;
 export const CONTRACT_NAME = getContractName(OPTIONS_CONTRACT)!;
@@ -35,7 +36,7 @@ export interface CreateOptionParams {
 
 async function getCurrentBlockHeight(): Promise<number> {
   try {
-    const response = await fetch(`${API_URL}/v2/info`);
+    const response = await fetch(`${getApiUrl()}/v2/info`);
     const data = await response.json();
     return data.stacks_tip_height || 0;
   } catch (error) {
@@ -50,7 +51,7 @@ function toMicroUnits(value: number): number {
 
 export async function createOption(params: CreateOptionParams): Promise<void> {
   const { strategy, amount, strikePrice, premium, period, onFinish, onCancel } = params;
-  
+
   console.log('🚀 Creating option with params:', {
     strategy,
     amount,
@@ -75,20 +76,20 @@ export async function createOption(params: CreateOptionParams): Promise<void> {
     const blocksPerDay = 144; // Stacks blocks per day
     const BLOCK_BUFFER = 20; // Increased safety margin
     const expiryBlock = currentBlock + (Math.floor(period) * blocksPerDay) + BLOCK_BUFFER;
-    
+
     console.log(`📅 Block calculation: current=${currentBlock}, expiry=${expiryBlock}, period=${period} days`);
-    
+
     const amountMicro = toMicroUnits(amount);
     const strikeMicro = toMicroUnits(strikePrice);
     const premiumMicro = toMicroUnits(premium);
-    
+
     console.log('🔢 Micro unit conversion:', {
       amountMicro,
       strikeMicro,
       premiumMicro,
       expiryBlock
     });
-    
+
     let functionName = 'create-call-option';
     let functionArgs = [
       uintCV(amountMicro),
@@ -96,7 +97,7 @@ export async function createOption(params: CreateOptionParams): Promise<void> {
       uintCV(premiumMicro),
       uintCV(expiryBlock),
     ];
-    
+
     // Map strategy to contract function
     switch (strategy) {
       case 'STRAP':
@@ -133,10 +134,10 @@ export async function createOption(params: CreateOptionParams): Promise<void> {
         functionName = 'create-call-option';
         break;
     }
-    
+
     console.log(`📞 Calling contract function: ${functionName}`);
     console.log(`📋 Function args:`, functionArgs.map(arg => arg.value.toString()));
-    
+
     await openContractCall({
       network: getNetwork(),
       anchorMode: AnchorMode.Any,
@@ -155,7 +156,7 @@ export async function createOption(params: CreateOptionParams): Promise<void> {
         onCancel?.();
       },
     });
-    
+
   } catch (error) {
     console.error('💥 Error creating option:', error);
     throw error;
@@ -168,56 +169,56 @@ export async function monitorTransaction(
   maxAttempts = 60
 ): Promise<boolean> {
   console.log(`🔍 Starting transaction monitoring for ${txId}`);
-  
+
   for (let i = 0; i < maxAttempts; i++) {
     try {
-      const response = await fetch(`${API_URL}/extended/v1/tx/${txId}`);
-      
+      const response = await fetch(`${getApiUrl()}/extended/v1/tx/${txId}`);
+
       if (!response.ok) {
         console.warn(`API response not OK: ${response.status}`);
         onUpdate('pending');
         await new Promise(resolve => setTimeout(resolve, 3000));
         continue;
       }
-      
+
       const data = await response.json();
       console.log(`📊 Transaction ${txId} status: ${data.tx_status} (attempt ${i + 1}/${maxAttempts})`);
-      
+
       if (data.tx_status === 'success') {
         console.log(`✅ Transaction confirmed: ${txId}`);
-        onUpdate('confirmed', { 
+        onUpdate('confirmed', {
           blockHeight: data.block_height,
-          blockHash: data.block_hash 
+          blockHash: data.block_hash
         });
         return true;
       }
-      
+
       if (data.tx_status === 'abort_by_response' || data.tx_status === 'abort_by_post_condition') {
         console.error(`❌ Transaction failed: ${txId}`, data);
-        onUpdate('failed', { 
+        onUpdate('failed', {
           reason: data.tx_result?.repr || 'Unknown error',
-          errorCode: data.tx_status 
+          errorCode: data.tx_status
         });
         return false;
       }
-      
+
       // Still pending
-      onUpdate('pending', { 
+      onUpdate('pending', {
         attempts: i + 1,
         maxAttempts,
-        nonce: data.nonce 
+        nonce: data.nonce
       });
-      
+
     } catch (error) {
       console.error(`⚠️ Error checking transaction ${txId}:`, error);
       onUpdate('pending');
     }
-    
+
     // Progressive backoff: start with 2s, increase to 5s after 15 attempts
     const delay = i < 15 ? 2000 : 5000;
     await new Promise(resolve => setTimeout(resolve, delay));
   }
-  
+
   console.warn(`⏰ Transaction monitoring timeout for ${txId}`);
   onUpdate('failed', { reason: 'Monitoring timeout' });
   return false;

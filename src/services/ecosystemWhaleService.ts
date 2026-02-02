@@ -5,9 +5,10 @@
 
 import mongoClient from '../lib/mongoClient';
 import { priceService } from './priceService';
+import { getStacksApiBase } from '../utils/environment';
 
-// Stacks API configuration (routed through our dev proxy)
-const STACKS_API_URL = '/api/stacks';
+// Stacks API: dev = Vite proxy, production = VITE_STACKS_API_URL
+const getApiBase = () => getStacksApiBase();
 
 // Types
 export interface WhaleProfile {
@@ -17,14 +18,14 @@ export interface WhaleProfile {
   category: 'defi' | 'validator' | 'nft' | 'dao' | 'trader' | 'infrastructure';
   verified: boolean;
   source: 'curated' | 'ai_discovered' | 'alex_leaderboard' | 'manual';
-  
+
   portfolio: {
     stxBalance: number;
     stxLocked: number;
     totalValueUSD: number;
     tokens: Array<{ symbol: string; amount: number; value?: number }>;
   };
-  
+
   activity: {
     protocols: string[];
     txCount30d: number;
@@ -32,7 +33,7 @@ export interface WhaleProfile {
     lastActiveAt: string;
     activityLevel: 'high' | 'medium' | 'low';
   };
-  
+
   // New fields from whale-indexer
   scores?: {
     composite: number;
@@ -40,7 +41,7 @@ export interface WhaleProfile {
     activity: number;
     diversity: number;
   };
-  
+
   stats?: {
     txCount30d: number;
     txCount90d: number;
@@ -49,15 +50,15 @@ export interface WhaleProfile {
     lastActiveAt: string;
     activityLevel: 'high' | 'medium' | 'low';
   };
-  
+
   recentTransactions?: StacksTransaction[];
-  
+
   ai?: {
     confidence: number;
     reasoning: string;
     lastAnalyzed: string;
   };
-  
+
   createdAt?: string;
   updatedAt?: string;
 }
@@ -161,11 +162,11 @@ class EcosystemWhaleService {
   private async rateLimitedFetch(url: string): Promise<Response> {
     const now = Date.now();
     const timeSinceLastCall = now - this.lastApiCall;
-    
+
     if (timeSinceLastCall < this.MIN_API_INTERVAL) {
       await new Promise(r => setTimeout(r, this.MIN_API_INTERVAL - timeSinceLastCall));
     }
-    
+
     this.lastApiCall = Date.now();
     return fetch(url);
   }
@@ -180,14 +181,14 @@ class EcosystemWhaleService {
 
     try {
       const response = await this.rateLimitedFetch(
-        `${STACKS_API_URL}/extended/v1/address/${address}/balances`
+        `${getApiBase()}/extended/v1/address/${address}/balances`
       );
-      
+
       if (!response.ok) {
         console.error(`[WhaleService] Balance fetch failed for ${address}: ${response.status}`);
         return null;
       }
-      
+
       const data = await response.json();
       this.setCache(cacheKey, data);
       return data;
@@ -207,14 +208,14 @@ class EcosystemWhaleService {
 
     try {
       const response = await this.rateLimitedFetch(
-        `${STACKS_API_URL}/extended/v1/address/${address}/transactions?limit=${limit}`
+        `${getApiBase()}/extended/v1/address/${address}/transactions?limit=${limit}`
       );
-      
+
       if (!response.ok) {
         console.error(`[WhaleService] Transaction fetch failed for ${address}: ${response.status}`);
         return [];
       }
-      
+
       const data = await response.json();
       this.setCache(cacheKey, data.results || []);
       return data.results || [];
@@ -229,7 +230,7 @@ class EcosystemWhaleService {
    */
   identifyProtocols(transactions: StacksTransaction[]): string[] {
     const protocols = new Set<string>();
-    
+
     transactions.forEach(tx => {
       if (tx.tx_type === 'contract_call' && tx.contract_call?.contract_id) {
         const [contractAddress] = tx.contract_call.contract_id.split('.');
@@ -239,7 +240,7 @@ class EcosystemWhaleService {
         }
       }
     });
-    
+
     return Array.from(protocols);
   }
 
@@ -257,37 +258,37 @@ class EcosystemWhaleService {
    */
   async buildWhaleProfile(address: string, baseData?: Partial<WhaleProfile>): Promise<WhaleProfile | null> {
     console.log(`[WhaleService] Building profile for ${address}...`);
-    
+
     // Fetch balance, transactions, and STX price in parallel
     const [balance, transactions, stxPrice] = await Promise.all([
       this.fetchAddressBalance(address),
       this.fetchAddressTransactions(address, 50),
       priceService.getCurrentPrice('STX')
     ]);
-    
+
     if (!balance) {
       console.warn(`[WhaleService] Could not fetch balance for ${address}`);
       return null;
     }
-    
+
     // Parse balance
     const stxBalance = parseInt(balance.stx.balance) / 1_000_000;
     const stxLocked = parseInt(balance.stx.locked) / 1_000_000;
-    
+
     // Identify protocols
     const protocols = this.identifyProtocols(transactions);
-    
+
     // Calculate activity metrics
     const txCount = transactions.length;
     const volume30d = transactions.reduce((sum, tx) => {
       return sum + parseInt(tx.fee_rate) / 1_000_000;
     }, 0);
-    
+
     const lastTx = transactions[0];
-    const lastActiveAt = lastTx 
+    const lastActiveAt = lastTx
       ? new Date(lastTx.burn_block_time * 1000).toISOString()
       : new Date().toISOString();
-    
+
     // Parse token balances
     const tokens = await this.parseTokenBalances(balance.fungible_tokens);
 
@@ -295,7 +296,7 @@ class EcosystemWhaleService {
     const stxValueUSD = (stxBalance + stxLocked) * stxPrice;
     const tokensValueUSD = tokens.reduce((sum, t) => sum + (t.value || 0), 0);
     const totalValueUSD = stxValueUSD + tokensValueUSD;
-    
+
     // Build profile
     const profile: WhaleProfile = {
       address,
@@ -303,14 +304,14 @@ class EcosystemWhaleService {
       category: baseData?.category || this.inferCategory(protocols, stxBalance),
       verified: baseData?.verified || false,
       source: baseData?.source || 'ai_discovered',
-      
+
       portfolio: {
         stxBalance,
         stxLocked,
         totalValueUSD,
         tokens,
       },
-      
+
       activity: {
         protocols,
         txCount30d: txCount,
@@ -318,13 +319,13 @@ class EcosystemWhaleService {
         lastActiveAt,
         activityLevel: this.calculateActivityLevel(txCount),
       },
-      
+
       recentTransactions: transactions.slice(0, 5),
-      
+
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    
+
     return profile;
   }
 
@@ -335,14 +336,14 @@ class EcosystemWhaleService {
     const results = await Promise.all(Object.entries(tokenData).map(async ([tokenId, data]) => {
       // Extract symbol
       const symbol = tokenId.split('::')[1] || tokenId.split('.')[1] || 'Unknown';
-      
+
       // Get price and decimals if we track it
       const assetType = TOKEN_MAPPING[tokenId] as any;
       const decimals = assetType ? (TOKEN_DECIMALS[assetType] || 6) : 6;
-      
+
       // Calculate amount
       const amount = parseInt(data.balance) / Math.pow(10, decimals);
-      
+
       if (amount <= 0) return null;
 
       let value = 0;
@@ -389,7 +390,7 @@ class EcosystemWhaleService {
    */
   async getCuratedWhales(): Promise<WhaleProfile[]> {
     const profiles: WhaleProfile[] = [];
-    
+
     for (const whale of CURATED_WHALES) {
       if (whale.address) {
         const profile = await this.buildWhaleProfile(whale.address, whale);
@@ -398,7 +399,7 @@ class EcosystemWhaleService {
         }
       }
     }
-    
+
     return profiles.sort((a, b) => b.portfolio.stxBalance - a.portfolio.stxBalance);
   }
 
@@ -428,33 +429,33 @@ class EcosystemWhaleService {
       console.warn('[WhaleService] MongoDB not configured - returning curated whales');
       return this.getCuratedWhales();
     }
-    
+
     try {
       // Build filter query
       const query: Record<string, unknown> = {};
-      
+
       if (filters?.category) {
         query.category = filters.category;
       }
-      
+
       if (filters?.protocol) {
         query['stats.protocolsUsed'] = filters.protocol;
       }
-      
+
       if (filters?.minScore) {
         query['scores.composite'] = { $gte: filters.minScore };
       }
-      
+
       const whales = await mongoClient.find('whales', query, {
         sort: { 'scores.composite': -1 },
         limit,
       });
-      
+
       if (whales.length > 0) {
         console.log(`[WhaleService] ✓ Retrieved ${whales.length} indexed whales from MongoDB`);
         return whales as WhaleProfile[];
       }
-      
+
       // Fallback to curated if no indexed whales found
       console.warn('[WhaleService] No indexed whales found, using curated list');
       return this.getCuratedWhales();
@@ -471,16 +472,16 @@ class EcosystemWhaleService {
     const stxBalance = whale.portfolio?.stxBalance || 0;
     const txCount = whale.activity?.txCount30d || whale.stats?.txCount30d || 0;
     const protocols = whale.activity?.protocols || whale.stats?.protocolsUsed || [];
-    
+
     // Balance score (0-100 based on size)
     const balanceScore = Math.min(100, (stxBalance / 1000000) * 10);
-    
+
     // Activity score (0-100 based on transaction count)
     const activityScore = Math.min(100, txCount * 2);
-    
+
     // Diversity score (0-100 based on protocols used)
     const diversityScore = Math.min(100, protocols.length * 20);
-    
+
     // Weighted composite
     return Math.round(
       balanceScore * 0.50 +
@@ -499,18 +500,18 @@ class EcosystemWhaleService {
     if (!bitcoinBlockHeight) {
       return 'microblock';
     }
-    
+
     // Get current Bitcoin block (approximate)
     // In production, this should query a Bitcoin node
     const currentBtcBlock = 931428; // Approximate current block
     const confirmations = currentBtcBlock - bitcoinBlockHeight;
-    
+
     if (confirmations >= 6) {
       return 'bitcoin-final';
     } else if (confirmations >= 1) {
       return 'bitcoin-anchored';
     }
-    
+
     return 'microblock';
   }
 
@@ -522,7 +523,7 @@ class EcosystemWhaleService {
   async refreshWhaleData(): Promise<void> {
     console.log('[WhaleService] Whale data refresh is now handled by whale-indexer service');
     console.log('[WhaleService] To manually refresh, restart the whale-indexer service');
-    
+
     // The whale-indexer service handles automatic discovery and updates
     // This method is kept for backward compatibility but does nothing
   }

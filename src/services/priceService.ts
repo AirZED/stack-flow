@@ -59,10 +59,30 @@ class PriceService {
     };
   }
 
+  private static FALLBACK_PRICES: Record<AssetType, number> = {
+    STX: 2.10,
+    BTC: 96000,
+    ETH: 3300,
+    ALEX: 0.15,
+    WELSH: 0.002,
+    SBTC: 96000,
+  };
+
+  private static fallbackPriceData(asset: AssetType): PriceData {
+    return {
+      price: PriceService.FALLBACK_PRICES[asset],
+      timestamp: Date.now(),
+      source: 'Internal Fallback',
+    };
+  }
+
   /**
-   * Fetch price from external APIs with improved CORS and rate-limit handling
+   * Fetch price: in dev uses Vite proxy (/api/prices); in production uses fallback to avoid HTML response.
    */
   private async fetchPrice(asset: AssetType): Promise<PriceData> {
+    if (import.meta.env.PROD) {
+      return PriceService.fallbackPriceData(asset);
+    }
     try {
       const response = await fetch(`/api/prices?asset=${asset}`);
       if (response.ok) {
@@ -71,19 +91,7 @@ class PriceService {
       throw new Error(`Proxy returned ${response.status}`);
     } catch (e) {
       console.warn(`[PriceService] Proxy fetch failed for ${asset}, using static fallback.`, e);
-      const fallbacks: Record<AssetType, number> = { 
-        STX: 2.10, 
-        BTC: 96000, 
-        ETH: 3300,
-        ALEX: 0.15,
-        WELSH: 0.002,
-        SBTC: 96000
-      };
-      return {
-        price: fallbacks[asset],
-        timestamp: Date.now(),
-        source: 'Internal Fallback'
-      };
+      return PriceService.fallbackPriceData(asset);
     }
   }
 
