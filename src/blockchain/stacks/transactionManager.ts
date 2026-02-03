@@ -2,10 +2,11 @@
 // Post conditions will be added back after successful testnet verification
 
 import { openContractCall, type FinishedTxData } from '@stacks/connect';
-import { uintCV, AnchorMode, PostConditionMode } from '@stacks/transactions';
+import { uintCV, AnchorMode, PostConditionMode, contractPrincipalCV } from '@stacks/transactions';
 import { STACKS_TESTNET, STACKS_MAINNET } from '@stacks/network';
 import {
   OPTIONS_CONTRACT,
+  ORACLE_CONTRACT,
   NETWORK_INFO,
   getContractAddress,
   getContractName
@@ -90,53 +91,74 @@ export async function createOption(params: CreateOptionParams): Promise<void> {
       expiryBlock
     });
 
+    // Oracle Principal
+    if (!ORACLE_CONTRACT) {
+        throw new Error('Oracle contract not defined in configuration');
+    }
+    const oracleAddress = getContractAddress(ORACLE_CONTRACT)!;
+    const oracleName = getContractName(ORACLE_CONTRACT)!;
+    const oraclePrincipal = contractPrincipalCV(oracleAddress, oracleName);
+
     let functionName = 'create-call-option';
     let functionArgs = [
       uintCV(amountMicro),
       uintCV(strikeMicro),
       uintCV(premiumMicro),
       uintCV(expiryBlock),
+      oraclePrincipal
     ];
 
     // Map strategy to contract function
     switch (strategy) {
       case 'STRAP':
         functionName = 'create-strap-option';
+        // Arguments: amount, strike, premium, expiry, oracle
+        functionArgs = [uintCV(amountMicro), uintCV(strikeMicro), uintCV(premiumMicro), uintCV(expiryBlock), oraclePrincipal];
         break;
       case 'PUT':
         functionName = 'create-put-option';
+        // Arguments: amount, strike, premium, expiry, oracle
+        functionArgs = [uintCV(amountMicro), uintCV(strikeMicro), uintCV(premiumMicro), uintCV(expiryBlock), oraclePrincipal];
         break;
       case 'STRIP':
         functionName = 'create-strip-option';
+         // Arguments: amount, strike, premium, expiry, oracle
+         functionArgs = [uintCV(amountMicro), uintCV(strikeMicro), uintCV(premiumMicro), uintCV(expiryBlock), oraclePrincipal];
         break;
       case 'BCSP':
         functionName = 'create-bull-call-spread';
         const upperStrikeBCSP = strikeMicro + toMicroUnits(strikePrice * 0.1); // 10% spread
-        functionArgs = [uintCV(amountMicro), uintCV(strikeMicro), uintCV(upperStrikeBCSP), uintCV(premiumMicro), uintCV(expiryBlock)];
+         // Arguments: amount, lower-strike, upper-strike, net-premium, expiry, oracle
+        functionArgs = [uintCV(amountMicro), uintCV(strikeMicro), uintCV(upperStrikeBCSP), uintCV(premiumMicro), uintCV(expiryBlock), oraclePrincipal];
         break;
       case 'BPSP':
         functionName = 'create-bull-put-spread';
         const upperStrikeBPSP = strikeMicro + toMicroUnits(strikePrice * 0.1);
-        functionArgs = [uintCV(amountMicro), uintCV(strikeMicro), uintCV(upperStrikeBPSP), uintCV(premiumMicro), uintCV(expiryBlock)];
+        // Arguments: amount, lower-strike, upper-strike, collateral, expiry, oracle
+        functionArgs = [uintCV(amountMicro), uintCV(strikeMicro), uintCV(upperStrikeBPSP), uintCV(premiumMicro), uintCV(expiryBlock), oraclePrincipal];
         break;
       case 'BEPS':
         functionName = 'create-bear-put-spread';
         const upperStrikeBEPS = strikeMicro + toMicroUnits(strikePrice * 0.1);
-        functionArgs = [uintCV(amountMicro), uintCV(strikeMicro), uintCV(upperStrikeBEPS), uintCV(premiumMicro), uintCV(expiryBlock)];
+        // Arguments: amount, lower-strike, upper-strike, net-premium, expiry, oracle
+        functionArgs = [uintCV(amountMicro), uintCV(strikeMicro), uintCV(upperStrikeBEPS), uintCV(premiumMicro), uintCV(expiryBlock), oraclePrincipal];
         break;
       case 'BECS':
         functionName = 'create-bear-call-spread';
         const upperStrikeBECS = strikeMicro + toMicroUnits(strikePrice * 0.1);
-        functionArgs = [uintCV(amountMicro), uintCV(strikeMicro), uintCV(upperStrikeBECS), uintCV(premiumMicro), uintCV(expiryBlock)];
+         // Arguments: amount, lower-strike, upper-strike, collateral, expiry, oracle
+        functionArgs = [uintCV(amountMicro), uintCV(strikeMicro), uintCV(upperStrikeBECS), uintCV(premiumMicro), uintCV(expiryBlock), oraclePrincipal];
         break;
       case 'CALL':
       default:
         functionName = 'create-call-option';
+        // Arguments: amount, strike, premium, expiry, oracle
+        functionArgs = [uintCV(amountMicro), uintCV(strikeMicro), uintCV(premiumMicro), uintCV(expiryBlock), oraclePrincipal];
         break;
     }
 
     console.log(`📞 Calling contract function: ${functionName}`);
-    console.log(`📋 Function args:`, functionArgs.map(arg => arg.value.toString()));
+    console.log(`📋 Function args:`, functionArgs.map(arg => arg.value.toString())); // Note: Logging complex CVs might need adjustment
 
     await openContractCall({
       network: getNetwork(),
